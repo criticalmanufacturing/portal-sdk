@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Cmf.CustomerPortal.Sdk.Common</AssemblyName>
+    <RootNamespace>Cmf.CustomerPortal.Sdk.Common</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Cmf.LightBusinessObjects">
+      <HintPath>libs\Cmf.LightBusinessObjects.dll</HintPath>
+    </Reference>
+    <Reference Include="Cmf.LoadBalancing">
+      <HintPath>libs\Cmf.LoadBalancing.dll</HintPath>
+    </Reference>
+    <Reference Include="Cmf.MessageBus.Client">
+      <HintPath>libs\Cmf.MessageBus.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>libs\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.ClientEngine">
+      <HintPath>libs\SuperSocket.ClientEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration.ConfigurationManager">
+      <HintPath>libs\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting">
+      <HintPath>libs\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="WebSocket4Net">
+      <HintPath>libs\WebSocket4Net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

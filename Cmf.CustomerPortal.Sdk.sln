@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "src\Common\Common
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Console", "src\Console\Console.csproj", "{379918FF-E52F-4AA0-BF75-7BBDCC61683F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Powershell", "src\Powershell\Powershell.csproj", "{B73EFB4A-F9AF-46B5-93BA-224E9B7A5A3C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Powershell", "src\Powershell\Powershell.csproj", "{B73EFB4A-F9AF-46B5-93BA-224E9B7A5A3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

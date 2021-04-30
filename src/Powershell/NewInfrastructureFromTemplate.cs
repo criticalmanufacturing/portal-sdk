@@ -1,22 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Common.Handlers;
+using Cmf.CustomerPortal.Sdk.Powershell.Base;
 using System.Management.Automation;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
     [Cmdlet(VerbsCommon.New, "InfrastructureFromTemplate")]
-    public class NewInfrastructureFromTemplate : Cmdlet
+    public class NewInfrastructureFromTemplate : BaseCmdlet<NewInfrastructureFromTemplateHandler>
     {
         [Parameter(
-            HelpMessage = Common.Resources.INFRASTRUCTUREFROMTEMPLATE_HELP,
-            Mandatory = true
+            HelpMessage = Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP
         )]
-        public string InfrastructureName
-        {
-            get;
-            set;
-        }
+        public string Name { get; set; }
 
+        [Parameter(
+            HelpMessage = Resources.INFRASTRUCTUREFROMTEMPLATE_AGENTNAME_HELP
+        )]
+        public string AgentName { get; set; }
+
+        [Parameter(
+            HelpMessage = Resources.INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP
+        )]
+        public string TemplateName { get; set; }
+
+        protected async override Task ProcessRecordAsync()
+        {
+            NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
+            await newInfrastructureFromTemplateHandler.Run(Name, TemplateName, AgentName);
+        }
     }
 }

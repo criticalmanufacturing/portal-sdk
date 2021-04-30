@@ -1,55 +1,67 @@
-﻿using Cmf.CustomerPortal.Sdk.Common.Handlers;
+﻿using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Powershell.Base;
-using System;
+using Cmf.Foundation.Common.Licenses.Enums;
+using System.IO;
 using System.Management.Automation;
+using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
     [Cmdlet(VerbsCommon.New, "Environment")]
-    public class NewEnvironmentCmdlet : BaseCmdlet<NewEnvironment>
+    public class NewEnvironment : BaseCmdlet<NewEnvironmentHandler>
     {
         [Parameter(
-            HelpMessage = Common.Resources.DEPLOYMENT_PARAMETERSPATH_HELP,
+            HelpMessage = Resources.DEPLOYMENT_NAME_HELP
+        )]
+        public string Name { get; set; }
+
+        [Parameter(
+            HelpMessage = Resources.DEPLOYMENT_PARAMETERSPATH_HELP,
             Mandatory = true
         )]
-        public string ParametersPath
-        {
-            get; set;
-        }
+        public FileInfo ParametersPath { get; set; }
 
         [Parameter(
-            HelpMessage = Common.Resources.DEPLOYMENT_ENVIRONMENTTYPE_HELP,
+            HelpMessage = Resources.DEPLOYMENT_ENVIRONMENTTYPE_HELP,
             Mandatory = true
         )]
-        public Common.Enums.EnvironmentType EnvironmentType
-        {
-            get; set;
-        }
+        public EnvironmentType EnvironmentType { get; set; }
 
         [Parameter(
-            HelpMessage = Common.Resources.DEPLOYMENT_SITE_HELP
+            HelpMessage = Resources.DEPLOYMENT_SITE_HELP,
+            Mandatory = true
         )]
-        public string SiteName
-        {
-            get; set;
-        }
+        public string SiteName { get; set; }
 
         [Parameter(
-            HelpMessage = Common.Resources.DEPLOYMENT_LICENSE_HELP
+            HelpMessage = Resources.DEPLOYMENT_LICENSE_HELP,
+            Mandatory = true
         )]
-        public string LicenseName
-        {
-            get; set;
-        }
+        public string LicenseName { get; set; }
 
-        protected override void BeginProcessing()
-        {
-            base.BeginProcessing();
-        }
+        [Parameter(
+            HelpMessage = Resources.DEPLOYMENT_PACKAGE_HELP,
+            Mandatory = true
+        )]
+        public string DeploymentPackageName { get; set; }
 
-        protected override void ProcessRecord()
+        [Parameter(
+            HelpMessage = Resources.DEPLOYMENT_TARGET_HELP,
+            Mandatory = true
+        )]
+        public string DeploymentTargetName { get; set; }
+
+        [Parameter(
+            HelpMessage = Resources.DEPLOYMENT_OUTPUTDIR_HELP
+        )]
+        public DirectoryInfo OutputDir { get; set; }
+
+        protected async override Task ProcessRecordAsync()
         {
-            base.ProcessRecord();
+            // get new environment handler and run it
+            NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
+            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir);
         }
     }
 }

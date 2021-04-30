@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common
@@ -11,15 +9,12 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
         public AbstractHandler(ISession session)
         {
-            this.Session = session;
+            Session = session;
         }
 
-        public virtual async Task Run()
+        public virtual Task Run()
         {
-            if (Session == null)
-            {
-                throw new Exception("No session specified. Have you tried to create a session first?");
-            }
+            throw new NotImplementedException("Method not implemented");
         }
     }
 }

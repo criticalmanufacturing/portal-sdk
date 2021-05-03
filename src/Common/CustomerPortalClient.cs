@@ -5,8 +5,6 @@ using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Client;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,14 +12,14 @@ namespace Cmf.CustomerPortal.Sdk.Common
 {
     public class CustomerPortalClient : ICustomerPortalClient
     {
-        private static SemaphoreSlim transportLock = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim _transportLock = new SemaphoreSlim(1, 1);
 
-        private readonly ISession session;
-        private Transport transport;
+        private readonly ISession _session;
+        private Transport _transport;
 
         public CustomerPortalClient(ISession session)
         {
-            this.session = session;
+            _session = session;
         }
 
         /// <summary>
@@ -38,9 +36,18 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 Name = name,
                 Type = typeof(T).BaseType.Name == typeof(CoreBase).Name ? new T() : (object)new T().GetType().Name,
                 LevelsToLoad = levelsToLoad
-            }.GetObjectByNameAsync();
+            }.GetObjectByNameAsync(true);
 
             return output.Instance as T;
+        }
+
+        public async Task<T> LoadObjectRelations<T>(T obj, System.Collections.ObjectModel.Collection<string> relationsNames) where T : CoreBase, new()
+        {
+            return (await new LoadObjectRelationsInput
+            {
+                Object = obj,
+                RelationNames = relationsNames
+            }.LoadObjectRelationsAsync(true)).Object as T;
         }
 
         /// <summary>
@@ -49,56 +56,55 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <returns>An instance of Message Bus transport</returns>
         public async Task<Transport> GetMessageBusTransport()
         {
-            if (transport != null)
+            if (_transport != null)
             {
-                return transport;
+                return _transport;
             }
 
-            await transportLock.WaitAsync(30 * 1000);
+            await _transportLock.WaitAsync(30 * 1000);
 
             try
             {
-                if (transport != null)
+                if (_transport != null)
                 {
-                    return transport;
+                    return _transport;
                 }
 
-                session.LogDebug($"Configuring message bus...");
+                _session.LogDebug($"Configuring message bus...");
 
-                var transportConfigString = (await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync()).TransportConfig;
-                var transportConfig = JsonConvert.DeserializeObject<TransportConfig>(transportConfigString);
-
+                // create new transport using the config
+                string transportConfigString = (await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true)).TransportConfig;
+                TransportConfig transportConfig = JsonConvert.DeserializeObject<TransportConfig>(transportConfigString);
                 transportConfig.ApplicationName = "Customer Portal Client";
                 transportConfig.TenantName = ClientConfigurationProvider.ClientConfiguration.ClientTenantName;
-
-                var messageBus = new Transport(transportConfig);
+                Transport messageBus = new Transport(transportConfig);
 
                 // Register events
                 messageBus.Connected += () =>
                 {
-                    session.LogDebug("Message Bus Connect!");
+                    _session.LogDebug("Message Bus Connect!");
                 };
 
                 messageBus.Disconnected += () =>
                 {
-                    session.LogDebug("Message Bus Disconnected!");
+                    _session.LogDebug("Message Bus Disconnected!");
                 };
 
                 messageBus.InformationMessage += (string message) =>
                 {
-                    session.LogDebug(message);
+                    _session.LogDebug(message);
                 };
 
                 messageBus.Exception += (string message) =>
                 {
-                    session.LogError(new Exception(message));
+                    _session.LogError(new Exception(message));
                 };
 
+                // start the message bus and ensure that it is connected
                 messageBus.Start();
 
-                var timeout = 2000;
-                int totalWaitedTime = 0;
-                var failedConnection = false;
+                int timeout = 2000, totalWaitedTime = 0;
+                bool failedConnection = false;
 
                 while (!messageBus.IsConnected && totalWaitedTime < timeout)
                 {
@@ -111,26 +117,26 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     failedConnection = true;
                 }
 
-
+                // if we failed to setup the message bus, throw error
                 if (failedConnection)
                 {
-                    var error = new Exception("Timed out waiting for client to connect to MessageBus");
-                    session.LogError(error);
+                    Exception error = new Exception("Timed out waiting for client to connect to MessageBus");
+                    _session.LogError(error);
                     throw error;
                 }
 
-                session.LogInformation("Message Bus connected with sucess!");
+                _session.LogDebug("Message Bus connected with sucess!");
 
-                transport = messageBus;
+                _transport = messageBus;
 
             }
             finally
             {
-                transportLock.Release();
+                _transportLock.Release();
             }
 
 
-            return transport;
+            return _transport;
 
         }
     }

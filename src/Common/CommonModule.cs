@@ -1,7 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
@@ -12,7 +9,10 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddSingleton<ICustomerPortalClient, CustomerPortalClient>();
 
             // Add Handlers
-            serviceCollection.AddTransient<Handlers.NewEnvironment>();
+            serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();
+            serviceCollection.AddTransient<Handlers.LoginHandler>();
+            serviceCollection.AddTransient<Handlers.NewInfrastructureFromTemplateHandler>();
+            serviceCollection.AddTransient<Handlers.GetAgentConnectionHandler>();
         }
     }
 }

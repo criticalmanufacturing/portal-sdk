@@ -1,15 +1,16 @@
 param (
-    $BuildAndPublish = $false
+    [switch]$BuildAndPublish,
+	$Configuration = 'Release'
 )
 
 Push-Location $PSScriptRoot
 
 if ($BuildAndPublish -eq $true) {
     dotnet clean
-    dotnet build -c Debug 
-    dotnet publish -c Debug
+    dotnet build -c $Configuration 
+    dotnet publish -c $Configuration
 }
 
-Import-Module  C:\Product\portal-sdk\src\Powershell\bin\Debug\netstandard2.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll
+Import-Module  $PSScriptRoot\src\Powershell\bin\$Configuration\netstandard2.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll
 
 Pop-Location

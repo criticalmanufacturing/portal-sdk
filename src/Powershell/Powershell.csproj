@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="appsettings.Production.json">
+    <None Update="appsettings.QA.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">

@@ -7,4 +7,19 @@
     <RootNamespace>Cmf.CustomerPortal.Sdk.Console</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Cmf.LightBusinessObjects">
+      <HintPath>..\Common\libs\Cmf.LightBusinessObjects.dll</HintPath>
+    </Reference>
+    <Reference Include="Cmf.MessageBus.Client">
+      <HintPath>..\Common\libs\Cmf.MessageBus.Client.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

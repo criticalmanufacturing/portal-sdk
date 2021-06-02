@@ -39,9 +39,9 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
     class Publish : BaseHandler
     {
-        async public Task<int> PublishHandler(FileSystemInfo path, bool verbose, string destination, string token, string[] replaceTokens)
+        async public Task<int> PublishHandler(FileSystemInfo path, bool verbose, string token, string[] replaceTokens)
         {
-            Configure(destination, token, verbose, replaceTokens);
+            Configure(token, verbose, replaceTokens);
 
             List<string> manifestsToUpload = new List<string>();
 

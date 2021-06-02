@@ -81,10 +81,10 @@ namespace Cmf.CustomerPortal.Sdk.Console
         private bool deploymentFinished = false;
         private bool deploymentFailed = false;
 
-        async public Task<int> DeployHandler(bool verbose, string destination, string token, string name, FileInfo parameters, string type, string site, string license, string package,
+        async public Task<int> DeployHandler(bool verbose, string token, string name, FileInfo parameters, string type, string site, string license, string package,
             string target, DirectoryInfo output, string[] replaceTokens)
         {
-            Configure(destination, token, verbose, replaceTokens);
+            Configure(token, verbose, replaceTokens);
 
             string customerEnvironmentName = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
             string rawParameters = File.ReadAllText(parameters.FullName);

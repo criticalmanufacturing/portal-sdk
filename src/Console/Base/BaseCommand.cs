@@ -21,12 +21,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
     {
         public BaseCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new string[] { "--destination", "--dest" }, "Target Customer Portal environment")
-            {
-                Argument = new Argument<string>().FromAmong("qa", "dev", "local", "prod"),
-                AllowMultipleArgumentsPerToken = false
-            });
-
             Add(new Option<string>(new[] { "--token","--pat", "-t", }, "Use the provided personal access token to publish in customer portal"));
 
             var replaceTokensOption = new Option<string[]>(new[] { "--replace-tokens" }, "Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values.")
@@ -48,10 +42,10 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         protected bool verbose = false;
         protected Dictionary<string, string> Tokens = new Dictionary<string, string>();
 
-        protected void Configure(string destination, string token, bool verbose, string[] replaceTokens)
+        protected void Configure(string token, bool verbose, string[] replaceTokens)
         {
             this.verbose = verbose;
-            ConfigureLBOs(destination, token);
+            ConfigureLBOs(token);
             if (replaceTokens != null) {
                 ConfigureTokens(replaceTokens);
             }
@@ -71,42 +65,17 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
             }
         }
 
-        private void ConfigureLBOs(string destination, string token)
+        private void ConfigureLBOs(string token)
         {
-            if (!string.IsNullOrWhiteSpace(destination))
+            if (!string.IsNullOrWhiteSpace(token))
             {
-                switch (destination)
-                {
-                    case "prod":
-                        CreateConfiguration("production", "portal.criticalmanufacturing.com:443", "CustomerPortal", "https://security.criticalmanufacturing.com:443/", "Applications", token);
-                        break;
-                    case "dev":
-                        CreateConfiguration("development", "portaldev.criticalmanufacturing.dev:443", "CustomerPortalDEV", "https://securitydev.criticalmanufacturing.dev:443/", "MES", token);
-                        break;
-                    case "qa":
-                        CreateConfiguration("QA", "portalqa.criticalmanufacturing.dev:443", "CustomerPortalQA", "https://securityqa.criticalmanufacturing.dev:443/", "Applications", token);
-                        break;
-                    case "local":
-                        CreateConfiguration("local", "localhost:8073", "CustomerPortalDEV", "https://securitydev.criticalmanufacturing.dev:443/", "MES", token, false);
-                        break;
+                LogVerbose("Overriding default configuration with personal access token");
 
-                    default:
-                        throw new Exception($"Destination parameter '{destination}' not recognized");
-                }
+                CreateConfiguration("default", ConfigurationManager.AppSettings["HostAddress"], ConfigurationManager.AppSettings["ClientTenantName"], ConfigurationManager.AppSettings["SecurityPortalBaseAddress"], ConfigurationManager.AppSettings["ClientId"], token, bool.Parse(ConfigurationManager.AppSettings["UseSsl"]), bool.Parse(ConfigurationManager.AppSettings["IsUsingLoadBalancer"]));
             }
             else
             {
-                if (!string.IsNullOrWhiteSpace(token))
-                {
-                    LogVerbose("Overriding default configuration with personal access token");
-                   
-
-                    CreateConfiguration("default", ConfigurationManager.AppSettings["HostAddress"], ConfigurationManager.AppSettings["ClientTenantName"], ConfigurationManager.AppSettings["SecurityPortalBaseAddress"], ConfigurationManager.AppSettings["ClientId"], token, bool.Parse(ConfigurationManager.AppSettings["UseSsl"]), bool.Parse(ConfigurationManager.AppSettings["IsUsingLoadBalancer"]));
-                }
-                else
-                {
-                    Log("Using default configuration");
-                }
+                Log("Using default configuration");
             }
         }
 

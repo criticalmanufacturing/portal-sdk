@@ -15,7 +15,7 @@ using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.OutputObjects;
 using Cmf.LightBusinessObjects.Infrastructure;
 
-namespace Cmf.CustomerPortal.Sdk.Console
+namespace Cmf.CustomerPortal.Sdk.Console.Base
 {
     class BaseCommand : Command
     {

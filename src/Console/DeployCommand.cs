@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
+using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.ChangeSetManagement.InputObjects;

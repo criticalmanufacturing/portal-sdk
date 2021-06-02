@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
+using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessOrchestration.ChangeSetManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;

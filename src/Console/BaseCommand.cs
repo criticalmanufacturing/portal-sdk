@@ -178,7 +178,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         protected void Log(string message = "")
         {
-            Console.WriteLine(message);
+            System.Console.WriteLine(message);
         }
 
         protected void LogVerbose(string message = "")

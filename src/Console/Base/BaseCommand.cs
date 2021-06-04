@@ -21,8 +21,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
     {
         public BaseCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new[] { "--token","--pat", "-t", }, "Use the provided personal access token to publish in customer portal"));
-
             var replaceTokensOption = new Option<string[]>(new[] { "--replace-tokens" }, "Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values.")
             {
                 AllowMultipleArgumentsPerToken = true

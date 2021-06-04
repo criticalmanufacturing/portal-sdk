@@ -4,10 +4,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
     public class LoginHandler : AbstractHandler
     {
-        public LoginHandler(ISession session) : base(session) { }
+        public LoginHandler(ISession session) : base(session, false) { }
 
         public async Task Run(string pat)
         {
+            await LoginIfRequired();
+
             Session.LogDebug("Logging in");
 
             if (string.IsNullOrWhiteSpace(pat))

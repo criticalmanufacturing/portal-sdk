@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         private bool _hasDeploymentFailed = false;
 
 
-        public NewEnvironmentHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session)
+        public NewEnvironmentHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
         {
             _customerPortalClient = customerPortalClient;
         }
@@ -52,6 +52,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             DirectoryInfo outputDir = null
         )
         {
+            await LoginIfRequired();
+
             name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
             string rawParameters = File.ReadAllText(parameters.FullName);
 

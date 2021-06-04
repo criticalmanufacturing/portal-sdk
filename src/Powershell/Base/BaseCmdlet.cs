@@ -10,14 +10,9 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             get; private set;
         }
 
-        public BaseCmdlet(bool requiresLogin = true) {
+        public BaseCmdlet()
+        {
             ServiceLocator = new ServiceLocator(this);
-
-            if (requiresLogin)
-            {
-                // ensure we have a session
-                ServiceLocator.Get<ISession>().RestoreSession();
-            }
         }
     }
 }

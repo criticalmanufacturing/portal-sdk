@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {
-    public class Session : ISession
+    public class Session : CmfPortalSession
     {
         private const string _cmfPortalDirName = "cmfportal";
         private const string _loginTokenFileName = ".cmfportaltoken";
@@ -22,41 +22,6 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
         private readonly IConfiguration _configuration;
         private readonly string _mainThreadName;
         private readonly ConcurrentQueue<LogMessage> _logMessages;
-
-        public LogLevel LogLevel
-        {
-            get; private set;
-        }
-
-        private string AccessToken
-        {
-            get
-            {
-                // see if file exists
-                if (File.Exists(_loginCredentialsFilePath))
-                {
-                    // try to deserialize
-                    try
-                    {
-                        return File.ReadAllText(_loginCredentialsFilePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogError(ex);
-                    }
-                }
-
-                return null;
-            }
-
-            set
-            {
-                // write to file and set as hidden
-                Directory.CreateDirectory(_loginCredentialsDir);
-                File.WriteAllText(_loginCredentialsFilePath, value);
-                File.SetAttributes(_loginCredentialsFilePath, FileAttributes.Hidden);
-            }
-        }
 
         public Session(PSCmdlet powershellCmdlet, IConfiguration configuration)
         {
@@ -92,7 +57,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             }
         }
 
-        private void ConfigureLBOs(string accessToken = null)
+        protected override void ConfigureLBOs()
         {
             // Create the provider configuration function
             ClientConfigurationProvider.ConfigurationFactory = () =>
@@ -104,11 +69,11 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
                     IsUsingLoadBalancer = bool.Parse(_configuration["ClientConfiguration:IsUsingLoadBalancer"]),
                     ClientId = _configuration["ClientConfiguration:ClientId"],
                     UseSsl = bool.Parse(_configuration["ClientConfiguration:UseSsl"]),
-                    SecurityAccessToken = accessToken,
+                    SecurityAccessToken = AccessToken,
                     SecurityPortalBaseAddress = new Uri(_configuration["ClientConfiguration:SecurityPortalBaseAddress"])
                 };
 
-                if (accessToken == null)
+                if (AccessToken == null)
                 {
                     clientConfiguration.TokenProviderUpdated += (object sender, IAuthProvider authProvider) =>
                     {
@@ -121,34 +86,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             };
         }
 
-        public void ConfigureSession(string accessToken = null)
-        {
-            // make sure that empty/whitespace values are set as null
-            if (string.IsNullOrWhiteSpace(accessToken))
-            {
-                accessToken = null;
-            }
-            else
-            {
-                // if the user provided a token, cache it
-                AccessToken = accessToken;
-            }
-
-            ConfigureLBOs(accessToken);
-        }
-
-        public void RestoreSession()
-        {
-            string accessToken = AccessToken;
-            if (string.IsNullOrWhiteSpace(accessToken))
-            {
-                throw new Exception("Session not found. Have you tried to log in?");
-            }
-
-            ConfigureLBOs(accessToken);
-        }
-
-        public void LogDebug(string message)
+        public override void LogDebug(string message)
         {
             if (IsRunningOnMainThread())
             {
@@ -159,7 +97,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             }
         }
 
-        public void LogError(string message)
+        public override void LogError(string message)
         {
             if (IsRunningOnMainThread())
             {
@@ -171,7 +109,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             }
         }
 
-        public void LogError(Exception exception)
+        public override void LogError(Exception exception)
         {
             if (IsRunningOnMainThread())
             {
@@ -183,7 +121,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             }
         }
 
-        public void LogInformation(string message)
+        public override void LogInformation(string message)
         {
             if (IsRunningOnMainThread())
             {
@@ -195,7 +133,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             }
         }
 
-        public void LogPendingMessages()
+        public override void LogPendingMessages()
         {
             if (IsRunningOnMainThread())
             {

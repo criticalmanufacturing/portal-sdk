@@ -11,6 +11,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.AddCommand(new PublishCommand());
             rootCommand.AddCommand(new DeployCommand());
             rootCommand.AddCommand(new LoginCommand());
+            rootCommand.AddCommand(new CreateInfrastructureFromTemplateCommand());
 
             return await rootCommand.InvokeAsync(args);
         }

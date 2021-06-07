@@ -10,6 +10,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         private const string _loginTokenFileName = ".cmfportaltoken";
         private static readonly string _loginCredentialsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _cmfPortalDirName);
         private static readonly string _loginCredentialsFilePath = Path.Combine(_loginCredentialsDir, _loginTokenFileName);
+        private string accessToken = null;
 
         public LogLevel LogLevel { get; protected set; } = LogLevel.Information;
 
@@ -17,21 +18,24 @@ namespace Cmf.CustomerPortal.Sdk.Common
         {
             get
             {
-                // see if file exists
-                if (File.Exists(_loginCredentialsFilePath))
+                if (accessToken == null)
                 {
-                    // try to deserialize
-                    try
+                    // see if file exists
+                    if (File.Exists(_loginCredentialsFilePath))
                     {
-                        return File.ReadAllText(_loginCredentialsFilePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogError(ex);
+                        // try to deserialize
+                        try
+                        {
+                            accessToken = File.ReadAllText(_loginCredentialsFilePath);
+                            LogDebug("Login Access Token restored from file");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogError(ex);
+                        }
                     }
                 }
-
-                return null;
+                return accessToken;
             }
 
             set
@@ -40,6 +44,8 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 Directory.CreateDirectory(_loginCredentialsDir);
                 File.WriteAllText(_loginCredentialsFilePath, value);
                 File.SetAttributes(_loginCredentialsFilePath, FileAttributes.Hidden);
+                accessToken = value;
+                LogDebug("Login Access Token saved");
             }
         }
 

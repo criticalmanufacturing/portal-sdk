@@ -18,5 +18,7 @@
         public const string INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP = "The name of the Customer Infrastructure template that the new Customer Infrastructure will derive from";
 
         public const string GETAGENTCONNECTION_NAME_HELP = "The name of the Infrastructure Agent";
+
+        public const string PUBLISHMANIFESTS_PATH_HELP = "Path to Deployment Package Manifest file, or folder to a folder containing multiple manifest files";
     }
 }

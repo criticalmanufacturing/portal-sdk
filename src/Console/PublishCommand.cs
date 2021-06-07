@@ -23,6 +23,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
+            var replaceTokensOption = new Option<string[]>(new[] { "--replace-tokens" }, "Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values.")
+            {
+                AllowMultipleArgumentsPerToken = true
+            };
+            replaceTokensOption.AddSuggestions(new string[] { "MyToken=value MyToken2=value2" });
+            Add(replaceTokensOption);
+
             Handler = CommandHandler.Create(typeof(PublishCommand).GetMethod(nameof(PublishCommand.PublishHandler)), this);
         }
 

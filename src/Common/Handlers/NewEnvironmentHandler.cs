@@ -51,13 +51,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string licenseName,
             string deploymentPackageName,
             string target,
-            DirectoryInfo outputDir = null
+            DirectoryInfo outputDir,
+            string[] replaceTokens
         )
         {
             await LoginIfRequired();
 
             name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
             string rawParameters = File.ReadAllText(parameters.FullName);
+
+            rawParameters = await _customerPortalClient.ReplaceTokens(rawParameters, replaceTokens, true);
 
             Session.LogInformation($"Creating customer environment {name}...");
 

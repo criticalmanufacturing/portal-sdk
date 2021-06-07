@@ -57,11 +57,18 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public DirectoryInfo OutputDir { get; set; }
 
+        [Parameter(
+            HelpMessage = Resources.REPLACETOKENS_HELP,
+            Mandatory = false,
+            ValueFromRemainingArguments = true
+        )]
+        public string[] ReplaceTokens { get; set; }
+
         protected async override Task ProcessRecordAsync()
         {
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir);
+            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, ReplaceTokens);
         }
     }
 }

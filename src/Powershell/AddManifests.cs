@@ -16,10 +16,17 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public FileSystemInfo Path { get; set; }
 
+        [Parameter(
+            HelpMessage = Resources.REPLACETOKENS_HELP,
+            Mandatory = false,
+            ValueFromRemainingArguments = true
+        )]
+        public string[] ReplaceTokens { get; set; }
+
         protected async override Task ProcessRecordAsync()
         {
             AddManifestsHandler addManifestsHandler = ServiceLocator.Get<AddManifestsHandler>();
-            await addManifestsHandler.Run(Path, null);
+            await addManifestsHandler.Run(Path, ReplaceTokens);
         }
     }
 }

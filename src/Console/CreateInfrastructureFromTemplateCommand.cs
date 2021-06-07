@@ -28,7 +28,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             Handler = CommandHandler.Create(typeof(CreateInfrastructureFromTemplateCommand).GetMethod(nameof(CreateInfrastructureFromTemplateCommand.CreateInfrastructureFromTemplateHandler)), this);
         }
 
-        public async Task CreateInfrastructureFromTemplateHandler(bool verbose, string name, string agentName, string templateName, string[] replaceTokens)
+        public async Task CreateInfrastructureFromTemplateHandler(bool verbose, string name, string agentName, string templateName)
         {
             // get new environment handler and run it
             var session = new Session(verbose);

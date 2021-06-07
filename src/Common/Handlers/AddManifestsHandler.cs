@@ -61,11 +61,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 string content = File.ReadAllText(manifestfile);
 
-                //if (Tokens?.Count > 0)
-                //{
-                //    LogVerbose($"Replacing tokens in manifest");
-                //    content = ReplaceTokens(content);
-                //}
+                content = await _customerPortalClient.ReplaceTokens(content, replaceTokens);
 
                 CreateDeploymentPackageInput deploymentPackageInput = new CreateDeploymentPackageInput
                 {

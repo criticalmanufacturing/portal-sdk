@@ -1,4 +1,5 @@
-﻿using Cmf.CustomerPortal.Sdk.Common.Handlers;
+﻿using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Console.Base;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -14,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public LoginCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new[] { "--token", "--pat", "-t", }, "Use the provided personal access token to publish in customer portal"));
+            Add(new Option<string>(new[] { "--token", "--pat", "-t", }, Resources.LOGIN_PAT_HELP));
 
             Handler = CommandHandler.Create(typeof(LoginCommand).GetMethod(nameof(LoginCommand.LoginHandler)), this);
         }

@@ -3,6 +3,7 @@ using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Powershell.Base;
 using Cmf.Foundation.Common.Licenses.Enums;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Threading.Tasks;
 
@@ -58,17 +59,16 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         public DirectoryInfo OutputDir { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.REPLACETOKENS_HELP,
-            Mandatory = false,
-            ValueFromRemainingArguments = true
+            HelpMessage = Resources.REPLACETOKENS_HELP
         )]
-        public string[] ReplaceTokens { get; set; }
+        public string ReplaceTokens { get; set; }
 
         protected async override Task ProcessRecordAsync()
         {
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, ReplaceTokens);
+            string[] tokens = string.IsNullOrWhiteSpace(ReplaceTokens) ? null : ReplaceTokens.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
+            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, tokens);
         }
     }
 }

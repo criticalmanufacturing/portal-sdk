@@ -31,7 +31,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task CreateInfrastructureFromTemplateHandler(bool verbose, string name, string agentName, string templateName)
         {
             // get new environment handler and run it
-            var session = new Session(verbose);
+            var session = CreateSession(verbose);
             NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = new NewInfrastructureFromTemplateHandler(new CustomerPortalClient(session), session);
             await newInfrastructureFromTemplateHandler.Run(name, templateName, agentName);
         }

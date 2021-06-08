@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task CheckAgentConnectionHandler(bool verbose, string agentName)
         {
             // get GetAgentConnectionHandler and run it
-            var session = new Session(verbose);
+            var session = CreateSession(verbose);
             GetAgentConnectionHandler getAgentConnectionHandler = new GetAgentConnectionHandler(new CustomerPortalClient(session), session);
             bool result = await getAgentConnectionHandler.Run(agentName);
 

@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Cmf.LightBusinessObjects.Infrastructure;
+using Cmf.LightBusinessObjects.Infrastructure.Security.Providers;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 
@@ -49,6 +52,8 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }
         }
 
+        public IConfiguration Configuration { get; set; }
+
         public void ConfigureSession(string accessToken = null)
         {
             // make sure that empty/whitespace values are set as null
@@ -72,7 +77,34 @@ namespace Cmf.CustomerPortal.Sdk.Common
             ConfigureLBOs();
         }
 
-        protected abstract void ConfigureLBOs();
+        protected void ConfigureLBOs()
+        {
+            // Create the provider configuration function
+            ClientConfigurationProvider.ConfigurationFactory = () =>
+            {
+                ClientConfiguration clientConfiguration = new ClientConfiguration()
+                {
+                    HostAddress = Configuration["ClientConfiguration:HostAddress"],
+                    ClientTenantName = Configuration["ClientConfiguration:ClientTenantName"],
+                    IsUsingLoadBalancer = bool.Parse(Configuration["ClientConfiguration:IsUsingLoadBalancer"]),
+                    ClientId = Configuration["ClientConfiguration:ClientId"],
+                    UseSsl = bool.Parse(Configuration["ClientConfiguration:UseSsl"]),
+                    SecurityAccessToken = AccessToken,
+                    SecurityPortalBaseAddress = new Uri(Configuration["ClientConfiguration:SecurityPortalBaseAddress"])
+                };
+
+                if (AccessToken == null)
+                {
+                    clientConfiguration.TokenProviderUpdated += (object sender, IAuthProvider authProvider) =>
+                    {
+                        // save access token in the session
+                        AccessToken = authProvider.RefreshToken;
+                    };
+                }
+
+                return clientConfiguration;
+            };
+        }
 
         public abstract void LogDebug(string message);
         public abstract void LogError(string message);

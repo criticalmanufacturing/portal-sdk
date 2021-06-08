@@ -1,5 +1,5 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
-using System;
+using Microsoft.Extensions.Configuration;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {
@@ -12,7 +12,9 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 
         public BaseCmdlet()
         {
-            ServiceLocator = new ServiceLocator(this);
+            Session session = new Session(this);
+            ServiceLocator = new ServiceLocator(session);
+            session.Configuration = ServiceLocator.Get<IConfiguration>();
         }
     }
 }

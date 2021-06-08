@@ -1,11 +1,7 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
-using Cmf.LightBusinessObjects.Infrastructure;
-using Cmf.LightBusinessObjects.Infrastructure.Security.Providers;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Management.Automation;
 using System.Threading;
 
@@ -13,22 +9,15 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {
     public class Session : CmfPortalSession
     {
-        private const string _cmfPortalDirName = "cmfportal";
-        private const string _loginTokenFileName = ".cmfportaltoken";
-        private static readonly string _loginCredentialsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _cmfPortalDirName);
-        private static readonly string _loginCredentialsFilePath = Path.Combine(_loginCredentialsDir, _loginTokenFileName);
-
         private readonly PSCmdlet _psCmdlet;
-        private readonly IConfiguration _configuration;
         private readonly string _mainThreadName;
         private readonly ConcurrentQueue<LogMessage> _logMessages;
 
-        public Session(PSCmdlet powershellCmdlet, IConfiguration configuration)
+        public Session(PSCmdlet powershellCmdlet)
         {
             _psCmdlet = powershellCmdlet;
             _mainThreadName = Thread.CurrentThread.Name;
             _logMessages = new ConcurrentQueue<LogMessage>();
-            _configuration = configuration;
         }
 
         private bool IsRunningOnMainThread()
@@ -55,35 +44,6 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
                     LogInformation(message);
                     break;
             }
-        }
-
-        protected override void ConfigureLBOs()
-        {
-            // Create the provider configuration function
-            ClientConfigurationProvider.ConfigurationFactory = () =>
-            {
-                ClientConfiguration clientConfiguration = new ClientConfiguration()
-                {
-                    HostAddress = _configuration["ClientConfiguration:HostAddress"],
-                    ClientTenantName = _configuration["ClientConfiguration:ClientTenantName"],
-                    IsUsingLoadBalancer = bool.Parse(_configuration["ClientConfiguration:IsUsingLoadBalancer"]),
-                    ClientId = _configuration["ClientConfiguration:ClientId"],
-                    UseSsl = bool.Parse(_configuration["ClientConfiguration:UseSsl"]),
-                    SecurityAccessToken = AccessToken,
-                    SecurityPortalBaseAddress = new Uri(_configuration["ClientConfiguration:SecurityPortalBaseAddress"])
-                };
-
-                if (AccessToken == null)
-                {
-                    clientConfiguration.TokenProviderUpdated += (object sender, IAuthProvider authProvider) =>
-                    {
-                        // save access token in the session
-                        AccessToken = authProvider.RefreshToken;
-                    };
-                }
-
-                return clientConfiguration;
-            };
         }
 
         public override void LogDebug(string message)

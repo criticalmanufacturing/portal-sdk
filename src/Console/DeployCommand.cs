@@ -10,7 +10,7 @@ using Cmf.Foundation.Common.Licenses.Enums;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
-    class DeployCommand : BaseCommand
+    class DeployCommand : ReplaceTokensCommand
     {
         public DeployCommand() : this("deploy", "Creates and deploys a new Customer Environment")
         {
@@ -58,20 +58,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
-            var replaceTokensOption = new Option<string[]>(new[] { "--replace-tokens" }, "Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values.")
-            {
-                AllowMultipleArgumentsPerToken = true
-            };
-            replaceTokensOption.AddSuggestions(new string[] { "MyToken=value MyToken2=value2" });
-            Add(replaceTokensOption);
-
             Handler = CommandHandler.Create(typeof(DeployCommand).GetMethod(nameof(DeployCommand.DeployHandler)), this);
         }
 
-        public async Task DeployHandler(bool verbose, string name, FileInfo parameters, string type, string site, string license, string package, string target, DirectoryInfo output, string[] replaceTokens)
+        public async Task DeployHandler(bool verbose, string name, FileInfo parameters, string type, string site, string license, string package, string target, DirectoryInfo output, string[] replaceTokens, string destination)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose);
+            var session = CreateSession(verbose, destination);
             NewEnvironmentHandler newEnvironmentHandler = new NewEnvironmentHandler(new CustomerPortalClient(session), session);
             await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package, target, output, replaceTokens);
         }

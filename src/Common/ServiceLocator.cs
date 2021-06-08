@@ -10,19 +10,22 @@ namespace Cmf.CustomerPortal.Sdk.Common
     {
         protected IServiceProvider ServiceProvider { get; }
 
-        public ServiceLocator(ISession session)
+        public ServiceLocator(ISession session, string environment = null)
         {
             IServiceCollection builder = new ServiceCollection();
-            
+
             // register common services
             builder.RegisterCommon();
 
             // register app configuration
-            IConfiguration configuration = new ConfigurationBuilder()
+            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
                     .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                    .AddJsonFile("appsettings.{Environment}.json", optional: true, reloadOnChange: true)
-                    .Build();
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            if (!string.IsNullOrWhiteSpace(environment))
+            {
+                configurationBuilder.AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true);
+            }
+            IConfigurationRoot configuration = configurationBuilder.Build();
             builder.AddSingleton<IConfiguration>(configuration);
 
             // register session service

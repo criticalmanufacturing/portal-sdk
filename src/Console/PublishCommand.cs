@@ -8,7 +8,7 @@ using Cmf.CustomerPortal.Sdk.Console.Base;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
-    class PublishCommand : BaseCommand
+    class PublishCommand : ReplaceTokensCommand
     {
 
         public PublishCommand() : this("publish", "Publishes one or more Deployment Package(s) into Customer Portal")
@@ -23,20 +23,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
-            var replaceTokensOption = new Option<string[]>(new[] { "--replace-tokens" }, "Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values.")
-            {
-                AllowMultipleArgumentsPerToken = true
-            };
-            replaceTokensOption.AddSuggestions(new string[] { "MyToken=value MyToken2=value2" });
-            Add(replaceTokensOption);
-
             Handler = CommandHandler.Create(typeof(PublishCommand).GetMethod(nameof(PublishCommand.PublishHandler)), this);
         }
 
-        public async Task PublishHandler(bool verbose, FileSystemInfo path, string[] replaceTokens)
+        public async Task PublishHandler(bool verbose, FileSystemInfo path, string[] replaceTokens, string destination)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose);
+            var session = CreateSession(verbose, destination);
             AddManifestsHandler newEnvironmentHandler = new AddManifestsHandler(new CustomerPortalClient(session), session);
             await newEnvironmentHandler.Run(path, replaceTokens);
         }

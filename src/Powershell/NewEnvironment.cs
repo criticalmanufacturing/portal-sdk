@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
     [Cmdlet(VerbsCommon.New, "Environment")]
-    public class NewEnvironment : BaseCmdlet<NewEnvironmentHandler>
+    public class NewEnvironment : ReplaceTokensCmdlet<NewEnvironmentHandler>
     {
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_NAME_HELP
@@ -58,17 +58,11 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public DirectoryInfo OutputDir { get; set; }
 
-        [Parameter(
-            HelpMessage = Resources.REPLACETOKENS_HELP
-        )]
-        public string ReplaceTokens { get; set; }
-
         protected async override Task ProcessRecordAsync()
         {
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            string[] tokens = string.IsNullOrWhiteSpace(ReplaceTokens) ? null : ReplaceTokens.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
-            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, tokens);
+            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, GetTokens());
         }
     }
 }

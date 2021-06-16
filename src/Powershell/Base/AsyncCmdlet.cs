@@ -5,15 +5,15 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {
-	/// <summary>
-	///		Base class for Cmdlets that run asynchronously.
-	/// </summary>
-	/// <remarks>
-	///		Inherit from this class if your Cmdlet needs to use <c>async</c> / <c>await</c> functionality.
-	///		
-	///		Retrieved from <see cref="https://github.com/DimensionDataResearch/cloudcontrol-powershell-core"/>
-	/// </remarks>
-	public abstract class AsyncCmdlet
+    /// <summary>
+    ///		Base class for Cmdlets that run asynchronously.
+    /// </summary>
+    /// <remarks>
+    ///		Inherit from this class if your Cmdlet needs to use <c>async</c> / <c>await</c> functionality.
+    ///		
+    ///		Retrieved from <see cref="https://github.com/DimensionDataResearch/cloudcontrol-powershell-core"/>
+    /// </remarks>
+    public abstract class AsyncCmdlet
 		: PSCmdlet, IDisposable
 	{
 		/// <summary>

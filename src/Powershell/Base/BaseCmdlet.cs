@@ -6,7 +6,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
     {
         protected IServiceLocator ServiceLocator
         {
-            get; set;
+            get; private set;
         }
 
         public BaseCmdlet()

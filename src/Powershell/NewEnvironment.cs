@@ -3,7 +3,6 @@ using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Powershell.Base;
 using Cmf.Foundation.Common.Licenses.Enums;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
 using System.Threading.Tasks;
 

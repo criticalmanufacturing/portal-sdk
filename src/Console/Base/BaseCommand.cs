@@ -1,5 +1,4 @@
 using Cmf.CustomerPortal.Sdk.Common;
-using Microsoft.Extensions.Configuration;
 using System.CommandLine;
 
 namespace Cmf.CustomerPortal.Sdk.Console.Base

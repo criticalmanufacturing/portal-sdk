@@ -1,5 +1,4 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
-using Microsoft.Extensions.Configuration;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {

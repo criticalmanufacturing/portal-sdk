@@ -6,10 +6,10 @@ using Cmf.MessageBus.Client;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {

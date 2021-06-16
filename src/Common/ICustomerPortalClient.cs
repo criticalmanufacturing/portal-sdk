@@ -1,6 +1,5 @@
 ﻿using Cmf.Foundation.Common.Base;
 using Cmf.MessageBus.Client;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 

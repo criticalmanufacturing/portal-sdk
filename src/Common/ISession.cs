@@ -6,7 +6,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
 {
     public interface ISession
     {
-        IConfiguration Configuration { get; set; }
         LogLevel LogLevel { get; }
 
         void ConfigureSession(string accessToken = null);

@@ -22,7 +22,5 @@
         public const string PUBLISHMANIFESTS_PATH_HELP = "Path to Deployment Package Manifest file, or folder to a folder containing multiple manifest files";
 
         public const string REPLACETOKENS_HELP = "Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.";
-
-        public const string DESTINATIONENVIRONMENT_HELP = "Target Customer Portal environment. If provided, settings will be read from appsettings.<value>.json file.";
     }
 }

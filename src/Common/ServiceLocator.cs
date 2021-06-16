@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using Microsoft.Extensions.Configuration;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
@@ -10,7 +10,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
     {
         protected IServiceProvider ServiceProvider { get; }
 
-        public ServiceLocator(ISession session, string environment = null)
+        public ServiceLocator(ISession session)
         {
             IServiceCollection builder = new ServiceCollection();
 
@@ -18,14 +18,10 @@ namespace Cmf.CustomerPortal.Sdk.Common
             builder.RegisterCommon();
 
             // register app configuration
-            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
+            IConfiguration configuration = new ConfigurationBuilder()
                     .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            if (!string.IsNullOrWhiteSpace(environment))
-            {
-                configurationBuilder.AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true);
-            }
-            IConfigurationRoot configuration = configurationBuilder.Build();
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .Build();
             builder.AddSingleton<IConfiguration>(configuration);
 
             // register session service

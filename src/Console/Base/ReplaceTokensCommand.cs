@@ -3,7 +3,7 @@ using System.CommandLine;
 
 namespace Cmf.CustomerPortal.Sdk.Console.Base
 {
-    class ReplaceTokensCommand : EnvironmentCommand
+    class ReplaceTokensCommand : BaseCommand
     {
         public ReplaceTokensCommand(string name, string description) : base(name, description)
         {

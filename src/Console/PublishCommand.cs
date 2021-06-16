@@ -26,10 +26,10 @@ namespace Cmf.CustomerPortal.Sdk.Console
             Handler = CommandHandler.Create(typeof(PublishCommand).GetMethod(nameof(PublishCommand.PublishHandler)), this);
         }
 
-        public async Task PublishHandler(bool verbose, FileSystemInfo path, string[] replaceTokens, string destination)
+        public async Task PublishHandler(bool verbose, FileSystemInfo path, string[] replaceTokens)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose, destination);
+            var session = CreateSession(verbose);
             AddManifestsHandler newEnvironmentHandler = new AddManifestsHandler(new CustomerPortalClient(session), session);
             await newEnvironmentHandler.Run(path, replaceTokens);
         }

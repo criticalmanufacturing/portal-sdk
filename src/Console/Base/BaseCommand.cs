@@ -13,10 +13,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
 
         protected ISession CreateSession(bool verbose)
         {
-            Session session = new Session(verbose);
-            var serviceLocator = new ServiceLocator(session);
-            session.Configuration = serviceLocator.Get<IConfiguration>();
-            return session;
+            return new Session(verbose);
         }
     }
 }

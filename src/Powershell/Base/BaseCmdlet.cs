@@ -14,7 +14,6 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
         {
             Session session = new Session(this);
             ServiceLocator = new ServiceLocator(session);
-            session.Configuration = ServiceLocator.Get<IConfiguration>();
         }
     }
 }

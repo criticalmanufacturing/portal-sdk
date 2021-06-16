@@ -10,7 +10,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
     public abstract class CmfPortalSession : ISession
     {
         private const string _cmfPortalDirName = "cmfportal";
-        private const string _loginTokenFileName = ".cmfportaltoken";
+        private const string _loginTokenFileName = "cmfportaltoken";
         private static readonly string _loginCredentialsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _cmfPortalDirName);
         private static readonly string _loginCredentialsFilePath = Path.Combine(_loginCredentialsDir, _loginTokenFileName);
         private string accessToken = null;
@@ -46,7 +46,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 // write to file and set as hidden
                 Directory.CreateDirectory(_loginCredentialsDir);
                 File.WriteAllText(_loginCredentialsFilePath, value);
-                File.SetAttributes(_loginCredentialsFilePath, FileAttributes.Hidden);
                 accessToken = value;
                 LogDebug("Login Access Token saved");
             }

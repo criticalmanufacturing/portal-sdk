@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
     [Cmdlet(VerbsCommon.New, "Environment")]
-    public class NewEnvironment : ReplaceTokensCmdlet<NewEnvironmentHandler>
+    public class NewEnvironment : ReplaceTokensBaseCmdlet<NewEnvironmentHandler>
     {
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_NAME_HELP

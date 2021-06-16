@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
-    class DeployCommand : ReplaceTokensCommand
+    class DeployCommand : ReplaceTokensBaseCommand
     {
         public DeployCommand() : this("deploy", "Creates and deploys a new Customer Environment")
         {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
     [Cmdlet(VerbsCommon.Add, "Manifests")]
-    public class AddManifests : ReplaceTokensCmdlet<AddManifestsHandler>
+    public class AddManifests : ReplaceTokensBaseCmdlet<AddManifestsHandler>
     {
         [Parameter(
             HelpMessage = Resources.PUBLISHMANIFESTS_PATH_HELP,

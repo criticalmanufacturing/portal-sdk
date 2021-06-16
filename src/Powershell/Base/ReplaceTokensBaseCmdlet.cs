@@ -4,7 +4,7 @@ using System.Management.Automation;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {
-    public class ReplaceTokensCmdlet<T> : BaseCmdlet<T> where T : IHandler
+    public abstract class ReplaceTokensBaseCmdlet<T> : BaseCmdlet<T> where T : IHandler
     {
         [Parameter(
             HelpMessage = Resources.REPLACETOKENS_HELP

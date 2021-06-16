@@ -3,9 +3,9 @@ using System.CommandLine;
 
 namespace Cmf.CustomerPortal.Sdk.Console.Base
 {
-    class ReplaceTokensCommand : BaseCommand
+    abstract class ReplaceTokensBaseCommand : BaseCommand
     {
-        public ReplaceTokensCommand(string name, string description) : base(name, description)
+        public ReplaceTokensBaseCommand(string name, string description) : base(name, description)
         {
             var replaceTokensOption = new Option<string[]>(new[] { "--replace-tokens" }, Resources.REPLACETOKENS_HELP)
             {

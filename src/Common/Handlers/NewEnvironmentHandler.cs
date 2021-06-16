@@ -60,7 +60,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
             string rawParameters = File.ReadAllText(parameters.FullName);
 
-            rawParameters = await _customerPortalClient.ReplaceTokens(rawParameters, replaceTokens, true);
+            rawParameters = await Utils.ReplaceTokens(Session, rawParameters, replaceTokens, true);
 
             Session.LogInformation($"Creating customer environment {name}...");
 

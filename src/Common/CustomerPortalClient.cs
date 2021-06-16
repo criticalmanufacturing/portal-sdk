@@ -5,9 +5,6 @@ using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Client;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -145,85 +142,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }
 
             return _transport;
-        }
-
-        private async Task<Dictionary<string, string>> ConfigureTokens(string[] replaceTokens)
-        {
-            return await Task.Run(() =>
-            {
-                Dictionary<string, string> tokens = new Dictionary<string, string>();
-                foreach (string tokenToSet in replaceTokens)
-                {
-                    int splitCharIndex = tokenToSet.IndexOf('=');
-                    if (splitCharIndex > 0 && splitCharIndex < tokenToSet.Length - 1)
-                    {
-                        string[] tokenNameAndValue = tokenToSet.Split(new char[] { '=' }, 2);
-                        _session.LogDebug($"Registering token {tokenNameAndValue[0]} with value {tokenNameAndValue[1]}");
-                        tokens.Add(tokenNameAndValue[0], tokenNameAndValue[1]);
-                    }
-                }
-                return tokens;
-            });
-        }
-
-        private static readonly Regex REPLACE_TOKENS_REGEX = new Regex(@"\#{(.+?)}#", RegexOptions.Compiled);
-
-        public async Task<string> ReplaceTokens(string content, string[] replaceTokens, bool isJson = false)
-        {
-            return await Task.Run(async () =>
-            {
-                StringBuilder stringBuilder = new StringBuilder(content);
-
-                if (replaceTokens?.Length > 0)
-                {
-                    _session.LogDebug($"Replacing tokens");
-
-                    Dictionary<string, string> tokens = await ConfigureTokens(replaceTokens);
-
-                    MatchCollection m = REPLACE_TOKENS_REGEX.Matches(content);
-                    int indexChanges = 0;
-                    for (int i = 0; i < m.Count; i++)
-                    {
-                        // get env var name from match
-                        string matchedString = m[i].Groups[1].Value;
-                        if (!string.IsNullOrWhiteSpace(matchedString))
-                        {
-                            // get env var value
-                            tokens.TryGetValue(matchedString, out string envVar);
-                            string value = envVar ?? string.Empty;
-                            if (isJson)
-                            {
-                                // escape backslashes
-                                if (!string.IsNullOrWhiteSpace(value))
-                                {
-                                    value = value.ToString().Replace("\\", "\\\\");
-                                }
-                                // if not inside double quotes and value is null or whitespace, be sure to add double quotes as the value or else it will result in invalid json
-                                else if (!m[i].Groups[0].Value.StartsWith("\"") && !m[i].Groups[0].Value.EndsWith("\""))
-                                {
-                                    value = "\"\"";
-                                }
-                            }
-
-                            // replace env var with ${} for the env var value
-                            string envToSubstitute = m[i].Groups[0].Value;
-                            if (string.IsNullOrWhiteSpace(value))
-                            {
-                                _session.LogInformation($"Found no match for token '{envToSubstitute}'. Replacing with '{value}'");
-                            }
-                            else
-                            {
-                                _session.LogDebug($"Replacing '{envToSubstitute}' with '{value}'");
-                            }
-                            stringBuilder.Replace(envToSubstitute, value, m[i].Groups[0].Index - indexChanges, m[i].Groups[0].Length);
-
-                            indexChanges += envToSubstitute.Length - value.Length;
-                        }
-                    }
-                }
-
-                return stringBuilder.ToString();
-            });
         }
     }
 }

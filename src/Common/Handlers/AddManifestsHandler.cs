@@ -61,7 +61,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 string content = File.ReadAllText(manifestfile);
 
-                content = await _customerPortalClient.ReplaceTokens(content, replaceTokens);
+                content = await Utils.ReplaceTokens(Session, content, replaceTokens);
 
                 CreateDeploymentPackageInput deploymentPackageInput = new CreateDeploymentPackageInput
                 {

@@ -9,7 +9,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 {
     class CheckAgentConnectionCommand : BaseCommand
     {
-        public CheckAgentConnectionCommand() : this("checkagentconnection", "Check is an Infrastructure Agent is connected")
+        public CheckAgentConnectionCommand() : this("checkagentconnection", "Check if an Infrastructure Agent is connected")
         {
         }
 

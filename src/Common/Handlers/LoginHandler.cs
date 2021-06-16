@@ -8,7 +8,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
         public async Task Run(string pat)
         {
-            await LoginIfRequired();
+            await EnsureLogin();
 
             Session.LogDebug("Logging in");
 

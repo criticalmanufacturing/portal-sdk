@@ -19,7 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             throw new NotImplementedException("Method not implemented");
         }
 
-        protected async Task LoginIfRequired()
+        protected async Task EnsureLogin()
         {
             if (this.RequiresLogin)
             {

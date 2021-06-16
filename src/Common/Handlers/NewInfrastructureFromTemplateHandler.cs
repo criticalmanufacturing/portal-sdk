@@ -18,7 +18,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
         public async Task Run(string infrastructureName, string infrastructureTemplateName, string agentName)
         {
-            await LoginIfRequired();
+            await EnsureLogin();
 
             // use name or generate one
             string customerInfrastructureName = string.IsNullOrWhiteSpace(infrastructureName) ? $"CustomerInfrastructure-{Guid.NewGuid()}" : infrastructureName;

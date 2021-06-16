@@ -21,7 +21,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
         public async Task Run(FileSystemInfo path, string[] replaceTokens)
         {
-            await LoginIfRequired();
+            await EnsureLogin();
 
             List<string> manifestsToUpload = new List<string>();
 

@@ -55,7 +55,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string[] replaceTokens
         )
         {
-            await LoginIfRequired();
+            await EnsureLogin();
 
             name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
             string rawParameters = File.ReadAllText(parameters.FullName);

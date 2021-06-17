@@ -62,7 +62,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 AccessToken = accessToken;
             }
 
-            ConfigureLBOs();
+            ConfigureLBOs(accessToken);
         }
 
         public void RestoreSession()
@@ -73,10 +73,10 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 throw new Exception("Session not found. Have you tried to log in?");
             }
 
-            ConfigureLBOs();
+            ConfigureLBOs(accessToken);
         }
 
-        protected void ConfigureLBOs()
+        protected void ConfigureLBOs(string accessToken)
         {
             // Create the provider configuration function
             ClientConfigurationProvider.ConfigurationFactory = () =>
@@ -89,11 +89,11 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     IsUsingLoadBalancer = bool.Parse(configuration["ClientConfiguration:IsUsingLoadBalancer"]),
                     ClientId = configuration["ClientConfiguration:ClientId"],
                     UseSsl = bool.Parse(configuration["ClientConfiguration:UseSsl"]),
-                    SecurityAccessToken = AccessToken,
+                    SecurityAccessToken = accessToken,
                     SecurityPortalBaseAddress = new Uri(configuration["ClientConfiguration:SecurityPortalBaseAddress"])
                 };
 
-                if (AccessToken == null)
+                if (accessToken == null)
                 {
                     clientConfiguration.TokenProviderUpdated += (object sender, IAuthProvider authProvider) =>
                     {

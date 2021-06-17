@@ -17,8 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         public string Name { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.DEPLOYMENT_PARAMETERSPATH_HELP,
-            Mandatory = true
+            HelpMessage = Resources.DEPLOYMENT_PARAMETERSPATH_HELP
         )]
         public FileInfo ParametersPath { get; set; }
 
@@ -57,11 +56,14 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public DirectoryInfo OutputDir { get; set; }
 
+        [Parameter(Position = 1)]
+        public SwitchParameter Interactive;
+
         protected async override Task ProcessRecordAsync()
         {
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, GetTokens());
+            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, GetTokens(), Interactive.ToBool());
         }
     }
 }

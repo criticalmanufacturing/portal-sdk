@@ -22,8 +22,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<FileInfo>(new string[] { "--parameters", "-params" }, Resources.DEPLOYMENT_PARAMETERSPATH_HELP)
             {
-                Argument = new Argument<FileInfo>().ExistingOnly(),
-                IsRequired = true
+                Argument = new Argument<FileInfo>().ExistingOnly()
             });
 
             var typeargument = new Argument<string>().FromAmong(Enum.GetNames(typeof(EnvironmentType)));

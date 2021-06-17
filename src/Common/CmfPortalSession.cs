@@ -51,7 +51,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }
         }
 
-        private IConfiguration Configuration { get; set; }
+        public IConfiguration Configuration { get; set; }
 
         public void ConfigureSession(string accessToken = null)
         {

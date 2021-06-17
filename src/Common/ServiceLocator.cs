@@ -23,6 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
             builder.AddSingleton<IConfiguration>(configuration);
+            session.Configuration = configuration;
 
             // register session service
             builder.AddSingleton<ISession>(session);

@@ -5,6 +5,7 @@ using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.OutputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
+using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using Cmf.MessageBus.Messages;
 using Cmf.Services.GenericServiceManagement;
@@ -52,15 +53,19 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string deploymentPackageName,
             string target,
             DirectoryInfo outputDir,
-            string[] replaceTokens
+            string[] replaceTokens,
+            bool interactive
         )
         {
             await EnsureLogin();
 
             name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
-            string rawParameters = File.ReadAllText(parameters.FullName);
-
-            rawParameters = await Utils.ReplaceTokens(Session, rawParameters, replaceTokens, true);
+            string rawParameters = null;
+            
+            if (parameters != null) {
+                rawParameters = File.ReadAllText(parameters.FullName);
+                rawParameters = await Utils.ReplaceTokens(Session, rawParameters, replaceTokens, true);
+            }
 
             Session.LogInformation($"Creating customer environment {name}...");
 
@@ -96,20 +101,31 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
             environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
 
-            // start deployment
-            var startDeploymentInput = new StartDeploymentInput
-            {
-                CustomerEnvironment = environment
-            };
-
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CE_DEPLOYMENT_{environment.Id}";
 
             Session.LogDebug($"Subscribing messagebus subject {subject}");
             messageBus.Subscribe(subject, ProcessDeploymentMessage);
 
-            Session.LogInformation($"Starting deployment of environment {environment.Name}...");
-            var result = await startDeploymentInput.StartDeploymentAsync(true);
+            // start deployment
+            var startDeploymentInput = new StartDeploymentInput
+            {
+                CustomerEnvironment = environment
+            };
+
+            if (interactive)
+            {
+                string infrastructureUrl = $"{(ClientConfigurationProvider.ClientConfiguration.UseSsl ? "https" : "http")}://{ClientConfigurationProvider.ClientConfiguration.HostAddress}/Entity/CustomerEnvironment/{environment.Id}/View/Installation";
+
+                Session.LogInformation($"Environment {environment.Name} was created, please access the portal url to configure the environment and start the installation:");
+                Session.LogInformation(infrastructureUrl);
+                Session.LogInformation($"Waiting for user configuration...");
+            }
+            else
+            {
+                Session.LogInformation($"Starting deployment of environment {environment.Name}...");
+                var result = await startDeploymentInput.StartDeploymentAsync(true);
+            }
 
             // show progress from deployment
             TimeSpan timeout = TimeSpan.FromHours(1);

@@ -22,8 +22,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<FileInfo>(new string[] { "--parameters", "-params" }, Resources.DEPLOYMENT_PARAMETERSPATH_HELP)
             {
-                Argument = new Argument<FileInfo>().ExistingOnly(),
-                IsRequired = true
+                Argument = new Argument<FileInfo>().ExistingOnly()
             });
 
             var typeargument = new Argument<string>().FromAmong(Enum.GetNames(typeof(EnvironmentType)));
@@ -58,15 +57,17 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
+            Add(new Option(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
+
             Handler = CommandHandler.Create(typeof(DeployCommand).GetMethod(nameof(DeployCommand.DeployHandler)), this);
         }
 
-        public async Task DeployHandler(bool verbose, string name, FileInfo parameters, string type, string site, string license, string package, string target, DirectoryInfo output, string[] replaceTokens)
+        public async Task DeployHandler(bool verbose, string name, FileInfo parameters, string type, string site, string license, string package, string target, DirectoryInfo output, string[] replaceTokens, bool interactive)
         {
             // get new environment handler and run it
             var session = CreateSession(verbose);
             NewEnvironmentHandler newEnvironmentHandler = new NewEnvironmentHandler(new CustomerPortalClient(session), session);
-            await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package, target, output, replaceTokens);
+            await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package, target, output, replaceTokens, interactive);
         }
     }
 }

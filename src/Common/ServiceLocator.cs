@@ -10,7 +10,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
     {
         protected IServiceProvider ServiceProvider { get; }
 
-        public ServiceLocator(ISession session)
+        public ServiceLocator()
         {
             IServiceCollection builder = new ServiceCollection();
 
@@ -23,10 +23,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
             builder.AddSingleton<IConfiguration>(configuration);
-            session.Configuration = configuration;
-
-            // register session service
-            builder.AddSingleton<ISession>(session);
 
             // build service provider
             ServiceProvider = builder.BuildServiceProvider();

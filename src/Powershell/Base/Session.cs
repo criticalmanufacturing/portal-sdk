@@ -13,11 +13,12 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
         private readonly string _mainThreadName;
         private readonly ConcurrentQueue<LogMessage> _logMessages;
 
-        public Session(PSCmdlet powershellCmdlet)
+        public Session(PSCmdlet powershellCmdlet, IServiceLocator serviceLocator)
         {
             _psCmdlet = powershellCmdlet;
             _mainThreadName = Thread.CurrentThread.Name;
             _logMessages = new ConcurrentQueue<LogMessage>();
+            ServiceLocator = serviceLocator;
         }
 
         private bool IsRunningOnMainThread()

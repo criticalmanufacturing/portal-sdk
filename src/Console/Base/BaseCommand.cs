@@ -12,9 +12,8 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
 
         protected ISession CreateSession(bool verbose)
         {
-            Session session = new Session(verbose);
-            var serviceLocator = new ServiceLocator(session);
-            return session;
+            var serviceLocator = new ServiceLocator();
+            return new Session(verbose, serviceLocator);
         }
     }
 }

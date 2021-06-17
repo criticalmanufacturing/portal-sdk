@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
     public interface ISession
     {
-        IConfiguration Configuration { get; set; }
+        IServiceLocator ServiceLocator { get; }
         LogLevel LogLevel { get; }
 
         void ConfigureSession(string accessToken = null);

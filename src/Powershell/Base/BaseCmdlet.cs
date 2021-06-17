@@ -11,8 +11,8 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 
         public BaseCmdlet()
         {
-            Session session = new Session(this);
-            ServiceLocator = new ServiceLocator(session);
+            ServiceLocator = new ServiceLocator();
+            Session session = new Session(this, ServiceLocator);
         }
     }
 }

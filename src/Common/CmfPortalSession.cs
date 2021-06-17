@@ -17,6 +17,8 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
         public LogLevel LogLevel { get; protected set; } = LogLevel.Information;
 
+        public IServiceLocator ServiceLocator { get; protected set; }
+
         protected string AccessToken
         {
             get
@@ -51,8 +53,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }
         }
 
-        public IConfiguration Configuration { get; set; }
-
         public void ConfigureSession(string accessToken = null)
         {
             // make sure that empty/whitespace values are set as null
@@ -81,15 +81,16 @@ namespace Cmf.CustomerPortal.Sdk.Common
             // Create the provider configuration function
             ClientConfigurationProvider.ConfigurationFactory = () =>
             {
+                IConfiguration configuration = ServiceLocator.Get<IConfiguration>();
                 ClientConfiguration clientConfiguration = new ClientConfiguration()
                 {
-                    HostAddress = Configuration["ClientConfiguration:HostAddress"],
-                    ClientTenantName = Configuration["ClientConfiguration:ClientTenantName"],
-                    IsUsingLoadBalancer = bool.Parse(Configuration["ClientConfiguration:IsUsingLoadBalancer"]),
-                    ClientId = Configuration["ClientConfiguration:ClientId"],
-                    UseSsl = bool.Parse(Configuration["ClientConfiguration:UseSsl"]),
+                    HostAddress = configuration["ClientConfiguration:HostAddress"],
+                    ClientTenantName = configuration["ClientConfiguration:ClientTenantName"],
+                    IsUsingLoadBalancer = bool.Parse(configuration["ClientConfiguration:IsUsingLoadBalancer"]),
+                    ClientId = configuration["ClientConfiguration:ClientId"],
+                    UseSsl = bool.Parse(configuration["ClientConfiguration:UseSsl"]),
                     SecurityAccessToken = AccessToken,
-                    SecurityPortalBaseAddress = new Uri(Configuration["ClientConfiguration:SecurityPortalBaseAddress"])
+                    SecurityPortalBaseAddress = new Uri(configuration["ClientConfiguration:SecurityPortalBaseAddress"])
                 };
 
                 if (AccessToken == null)

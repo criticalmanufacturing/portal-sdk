@@ -5,8 +5,9 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
 {
     class Session : CmfPortalSession
     {
-        public Session(bool verbose)
+        public Session(bool verbose, IServiceLocator serviceLocator)
         {
+            ServiceLocator = serviceLocator;
             if (verbose)
             {
                 LogLevel = Microsoft.Extensions.Logging.LogLevel.Debug;

@@ -17,7 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
         public LogLevel LogLevel { get; protected set; } = LogLevel.Information;
 
-        public IServiceLocator ServiceLocator { get; protected set; }
+        public IConfiguration Configuration { get; set; }
 
         protected string AccessToken
         {
@@ -81,16 +81,15 @@ namespace Cmf.CustomerPortal.Sdk.Common
             // Create the provider configuration function
             ClientConfigurationProvider.ConfigurationFactory = () =>
             {
-                IConfiguration configuration = ServiceLocator.Get<IConfiguration>();
                 ClientConfiguration clientConfiguration = new ClientConfiguration()
                 {
-                    HostAddress = configuration["ClientConfiguration:HostAddress"],
-                    ClientTenantName = configuration["ClientConfiguration:ClientTenantName"],
-                    IsUsingLoadBalancer = bool.Parse(configuration["ClientConfiguration:IsUsingLoadBalancer"]),
-                    ClientId = configuration["ClientConfiguration:ClientId"],
-                    UseSsl = bool.Parse(configuration["ClientConfiguration:UseSsl"]),
+                    HostAddress = Configuration["ClientConfiguration:HostAddress"],
+                    ClientTenantName = Configuration["ClientConfiguration:ClientTenantName"],
+                    IsUsingLoadBalancer = bool.Parse(Configuration["ClientConfiguration:IsUsingLoadBalancer"]),
+                    ClientId = Configuration["ClientConfiguration:ClientId"],
+                    UseSsl = bool.Parse(Configuration["ClientConfiguration:UseSsl"]),
                     SecurityAccessToken = accessToken,
-                    SecurityPortalBaseAddress = new Uri(configuration["ClientConfiguration:SecurityPortalBaseAddress"])
+                    SecurityPortalBaseAddress = new Uri(Configuration["ClientConfiguration:SecurityPortalBaseAddress"])
                 };
 
                 if (accessToken == null)

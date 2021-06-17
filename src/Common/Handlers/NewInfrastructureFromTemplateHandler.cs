@@ -11,13 +11,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
     {
         private readonly ICustomerPortalClient _customerPortalClient;
         
-        public NewInfrastructureFromTemplateHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session)
+        public NewInfrastructureFromTemplateHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
         {
             this._customerPortalClient = customerPortalClient;
         }
 
         public async Task Run(string infrastructureName, string infrastructureTemplateName, string agentName)
         {
+            await EnsureLogin();
+
             // use name or generate one
             string customerInfrastructureName = string.IsNullOrWhiteSpace(infrastructureName) ? $"CustomerInfrastructure-{Guid.NewGuid()}" : infrastructureName;
 

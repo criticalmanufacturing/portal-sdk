@@ -5,6 +5,7 @@ using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.OutputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
+using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using Cmf.MessageBus.Messages;
 using Cmf.Services.GenericServiceManagement;
 using Newtonsoft.Json;
@@ -12,6 +13,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
@@ -23,7 +25,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         private bool _hasDeploymentFailed = false;
 
 
-        public NewEnvironmentHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session)
+        public NewEnvironmentHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
         {
             _customerPortalClient = customerPortalClient;
         }
@@ -49,11 +51,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string licenseName,
             string deploymentPackageName,
             string target,
-            DirectoryInfo outputDir = null
+            DirectoryInfo outputDir,
+            string[] replaceTokens
         )
         {
+            await EnsureLogin();
+
             name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
             string rawParameters = File.ReadAllText(parameters.FullName);
+
+            rawParameters = await Utils.ReplaceTokens(Session, rawParameters, replaceTokens, true);
 
             Session.LogInformation($"Creating customer environment {name}...");
 
@@ -63,7 +70,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
             }
-            catch (Exception) { }
+            catch (CmfFaultException) { }
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
             if (environment != null)
@@ -105,16 +112,22 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             var result = await startDeploymentInput.StartDeploymentAsync(true);
 
             // show progress from deployment
-            long elapsed = 0;
-            TimeSpan timeout = new TimeSpan(1, 0, 0);
-            while (!this._isDeploymentFinished && (elapsed < timeout.TotalMilliseconds))
+            TimeSpan timeout = TimeSpan.FromHours(1);
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
             {
-                Session.LogPendingMessages();
-
-                await Task.Delay(100);
-                elapsed += 100;
+                while (!this._isDeploymentFinished)
+                {
+                    Session.LogPendingMessages();
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSource.Token);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        break;
+                    }
+                }
             }
-
             if (_hasDeploymentFailed)
             {
                 throw new Exception("Deployment Failed! Check the logs for more information");
@@ -127,8 +140,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         {
             if (message != null && !string.IsNullOrWhiteSpace(message.Data))
             {
-
-                var messageContentFormat = new { Data = String.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = String.Empty };
+                var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = string.Empty };
                 var content = JsonConvert.DeserializeAnonymousType(message.Data, messageContentFormat);
 
                 Session.LogInformation(content.Data);
@@ -144,9 +156,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
             else
             {
-                Session.LogInformation("Unkown message received");
+                Session.LogInformation("Unknown message received");
             }
-
         }
 
         private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, string target, DirectoryInfo outputPath)
@@ -155,13 +166,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 case "dockerswarm":
 
-                    // get the attachments of the current customer enviroment
+                    // get the attachments of the current customer environment
                     GetAttachmentsForEntityInput input = new GetAttachmentsForEntityInput()
                     {
                         Entity = environment
                     };
 
-                    await Task.Delay(1000);
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                     GetAttachmentsForEntityOutput output = await input.GetAttachmentsForEntityAsync(true);
                     EntityDocumentation attachmentToDownload = null;
                     if (output?.Attachments.Count > 0)
@@ -183,7 +194,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         using (DownloadAttachmentStreamingOutput downloadAttachmentOutput = await new DownloadAttachmentStreamingInput() { attachmentId = attachmentToDownload.Id }.DownloadAttachmentAsync(true))
                         {
                             int bytesToRead = 10000;
-                            byte[] buffer = new Byte[bytesToRead];
+                            byte[] buffer = new byte[bytesToRead];
 
                             outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
                             Session.LogDebug($"Downloading to {outputFile}");
@@ -195,7 +206,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                                 {
                                     length = downloadAttachmentOutput.Stream.Read(buffer, 0, bytesToRead);
                                     streamWriter.Write(buffer, 0, length);
-                                    buffer = new Byte[bytesToRead];
+                                    buffer = new byte[bytesToRead];
 
                                 } while (length > 0);
                             }
@@ -227,14 +238,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         Session.LogDebug($"Moving environment contents from {extractionTarget} to {outputPathFullName}");
 
                         // create all of the directories
-                        foreach (string dirPath in Directory.GetDirectories(extractionTarget, "*",
-                            SearchOption.AllDirectories))
+                        foreach (string dirPath in Directory.GetDirectories(extractionTarget, "*", SearchOption.AllDirectories))
+                        {
                             Directory.CreateDirectory(dirPath.Replace(extractionTarget, outputPathFullName));
+                        }
 
                         // copy all the files & Replaces any files with the same name
-                        foreach (string newPath in Directory.GetFiles(extractionTarget, "*.*",
-                            SearchOption.AllDirectories))
+                        foreach (string newPath in Directory.GetFiles(extractionTarget, "*.*", SearchOption.AllDirectories))
+                        {
                             File.Copy(newPath, newPath.Replace(extractionTarget, outputPathFullName), true);
+                        }
 
                         Session.LogInformation($"Customer environment created at {outputPathFullName}");
                     }

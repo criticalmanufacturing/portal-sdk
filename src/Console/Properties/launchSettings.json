@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Publish Manifests": {
+      "commandName": "Project",
+      "commandLineArgs": "publish --path \"..\\..\\..\\..\\..\\Docker\\manifests\" --verbose --replace-tokens TargetVersion=8.1.0 ImageTag=development ImageRegistry=dev.criticalmanufacturing.io"
+    },
+    "Deploy runtime environment": {
+      "commandName": "Project",
+      "commandLineArgs": "deploy -params \"..\\..\\..\\..\\..\\Docker\\parameters\\runtime.json\" --verbose -lic \"CMF - PT_Development_v8.0.0_20210913\" --site \"CMF - PT\"  --target \"portainer\" --package=\"@criticalmanufacturing\\mes-runtime\"  --replace-tokens DockerSwarmServerPassword=MyPassword CloudflareAPIToken=myCloudflareToken"
+    },
+    "Deploy local environment": {
+      "commandName": "Project",
+      "commandLineArgs": "deploy -params \"..\\..\\..\\..\\..\\Docker\\parameters\\local.json\" --verbose -lic \"CMF - PT_Development_v8.0.0_20210913\" --site \"CMF - PT\" --package=\"@criticalmanufacturing\\mes\" --target \"dockerswarm\"  --output \"..\\..\\..\\..\\..\\Docker\""
+    }
+  }
+}

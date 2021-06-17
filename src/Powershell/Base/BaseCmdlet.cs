@@ -1,5 +1,4 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
-using System;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {
@@ -10,14 +9,10 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             get; private set;
         }
 
-        public BaseCmdlet(bool requiresLogin = true) {
-            ServiceLocator = new ServiceLocator(this);
-
-            if (requiresLogin)
-            {
-                // ensure we have a session
-                ServiceLocator.Get<ISession>().RestoreSession();
-            }
+        public BaseCmdlet()
+        {
+            ServiceLocator = new ServiceLocator();
+            Session session = new Session(this, ServiceLocator);
         }
     }
 }

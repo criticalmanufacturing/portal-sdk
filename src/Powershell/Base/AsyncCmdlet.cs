@@ -5,15 +5,15 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {
-	/// <summary>
-	///		Base class for Cmdlets that run asynchronously.
-	/// </summary>
-	/// <remarks>
-	///		Inherit from this class if your Cmdlet needs to use <c>async</c> / <c>await</c> functionality.
-	///		
-	///		Retrieved from <see cref="https://github.com/DimensionDataResearch/cloudcontrol-powershell-core"/>
-	/// </remarks>
-	public abstract class AsyncCmdlet
+    /// <summary>
+    ///		Base class for Cmdlets that run asynchronously.
+    /// </summary>
+    /// <remarks>
+    ///		Inherit from this class if your Cmdlet needs to use <c>async</c> / <c>await</c> functionality.
+    ///		
+    ///		Retrieved from <see cref="https://github.com/DimensionDataResearch/cloudcontrol-powershell-core"/>
+    /// </remarks>
+    public abstract class AsyncCmdlet
 		: PSCmdlet, IDisposable
 	{
 		/// <summary>
@@ -204,13 +204,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 			if (progressRecord == null)
 				throw new ArgumentNullException(nameof(progressRecord));
 
-			if (String.IsNullOrWhiteSpace(messageOrFormat))
+			if (string.IsNullOrWhiteSpace(messageOrFormat))
 				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'messageOrFormat'.", nameof(messageOrFormat));
 
 			if (formatArguments == null)
 				throw new ArgumentNullException(nameof(formatArguments));
 
-			progressRecord.StatusDescription = String.Format(messageOrFormat, formatArguments);
+			progressRecord.StatusDescription = string.Format(messageOrFormat, formatArguments);
 			WriteVerboseProgress(progressRecord);
 		}
 
@@ -231,13 +231,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 			if (progressRecord == null)
 				throw new ArgumentNullException(nameof(progressRecord));
 
-			if (String.IsNullOrWhiteSpace(completionMessageOrFormat))
+			if (string.IsNullOrWhiteSpace(completionMessageOrFormat))
 				throw new ArgumentException("Argument cannot be null, empty, or composed entirely of whitespace: 'completionMessageOrFormat'.", nameof(completionMessageOrFormat));
 
 			if (formatArguments == null)
 				throw new ArgumentNullException(nameof(formatArguments));
 
-			progressRecord.StatusDescription = String.Format(completionMessageOrFormat, formatArguments);
+			progressRecord.StatusDescription = string.Format(completionMessageOrFormat, formatArguments);
 			progressRecord.PercentComplete = 100;
 			progressRecord.RecordType = ProgressRecordType.Completed;
 			WriteProgress(progressRecord);

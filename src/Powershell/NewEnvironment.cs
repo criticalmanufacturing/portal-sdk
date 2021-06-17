@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
     [Cmdlet(VerbsCommon.New, "Environment")]
-    public class NewEnvironment : BaseCmdlet<NewEnvironmentHandler>
+    public class NewEnvironment : ReplaceTokensBaseCmdlet<NewEnvironmentHandler>
     {
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_NAME_HELP
@@ -61,7 +61,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         {
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir);
+            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, GetTokens());
         }
     }
 }

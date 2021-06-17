@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 {
-	/// <summary>
-	///		A synchronisation context that runs all calls scheduled on it (via <see cref="SynchronizationContext.Post"/>) on a single thread.
-	/// </summary>
-	/// <remarks>
-	///		With thanks to Stephen Toub.
-	///		
-	///		Retrieved from <see cref="https://github.com/DimensionDataResearch/cloudcontrol-powershell-core"/>
-	/// </remarks>
-	public sealed class ThreadAffinitiveSynchronizationContext
+    /// <summary>
+    ///		A synchronisation context that runs all calls scheduled on it (via <see cref="SynchronizationContext.Post"/>) on a single thread.
+    /// </summary>
+    /// <remarks>
+    ///		With thanks to Stephen Toub.
+    ///		
+    ///		Retrieved from <see cref="https://github.com/DimensionDataResearch/cloudcontrol-powershell-core"/>
+    /// </remarks>
+    public sealed class ThreadAffinitiveSynchronizationContext
 		: SynchronizationContext, IDisposable
 	{
 		/// <summary>

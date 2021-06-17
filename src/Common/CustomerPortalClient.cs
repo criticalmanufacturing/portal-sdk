@@ -29,7 +29,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="name">The object name</param>
         /// <param name="levelsToLoad">Levels to Load</param>
         /// <returns></returns>
-        public async Task<T> GetObjectByName<T>(String name, Int32 levelsToLoad = 0) where T : CoreBase, new()
+        public async Task<T> GetObjectByName<T>(string name, int levelsToLoad = 0) where T : CoreBase, new()
         {
             var output = await new GetObjectByNameInput
             {
@@ -61,7 +61,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 return _transport;
             }
 
-            await _transportLock.WaitAsync(30 * 1000);
+            await _transportLock.WaitAsync(TimeSpan.FromSeconds(30));
 
             try
             {
@@ -103,18 +103,25 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 // start the message bus and ensure that it is connected
                 messageBus.Start();
 
-                int timeout = 2000, totalWaitedTime = 0;
                 bool failedConnection = false;
-
-                while (!messageBus.IsConnected && totalWaitedTime < timeout)
+                TimeSpan timeout = TimeSpan.FromSeconds(2);
+                using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
                 {
-                    await Task.Delay(100);
-                    totalWaitedTime += 100;
-                }
-
-                if (totalWaitedTime > 0 && totalWaitedTime > timeout)
-                {
-                    failedConnection = true;
+                    failedConnection = await Task.Run(async () =>
+                    {
+                        while (!messageBus.IsConnected)
+                        {
+                            try
+                            {
+                                await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSource.Token);
+                            }
+                            catch (TaskCanceledException)
+                            {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
                 }
 
                 // if we failed to setup the message bus, throw error
@@ -125,19 +132,16 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     throw error;
                 }
 
-                _session.LogDebug("Message Bus connected with sucess!");
+                _session.LogDebug("Message Bus connected with success!");
 
                 _transport = messageBus;
-
             }
             finally
             {
                 _transportLock.Release();
             }
 
-
             return _transport;
-
         }
     }
 }

@@ -17,8 +17,6 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             get; set;
         }
 
-        public SetLogin() : base(false) { }
-
         protected override async Task ProcessRecordAsync()
         {
             // use login handler to save login information

@@ -5,6 +5,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
 {
     public interface ISession
     {
+        IServiceLocator ServiceLocator { get; }
         LogLevel LogLevel { get; }
 
         void ConfigureSession(string accessToken = null);

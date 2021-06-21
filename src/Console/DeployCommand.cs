@@ -57,7 +57,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
-            Add(new Option(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
+            Add(new Option<bool>(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
             Handler = CommandHandler.Create(typeof(DeployCommand).GetMethod(nameof(DeployCommand.DeployHandler)), this);
         }

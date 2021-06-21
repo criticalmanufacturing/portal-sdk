@@ -17,7 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public PublishCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option(new string[] { "--path", "-p" }, Resources.PUBLISHMANIFESTS_PATH_HELP)
+            Add(new Option<FileSystemInfo>(new string[] { "--path", "-p" }, Resources.PUBLISHMANIFESTS_PATH_HELP)
             {
                 Argument = new Argument<FileSystemInfo>().ExistingOnly(),
                 IsRequired = true

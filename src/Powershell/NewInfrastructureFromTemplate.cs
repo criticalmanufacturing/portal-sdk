@@ -20,7 +20,8 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         public string AgentName { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP
+            HelpMessage = Resources.INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP,
+            Mandatory = true
         )]
         public string TemplateName { get; set; }
 

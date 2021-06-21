@@ -15,7 +15,10 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public CheckAgentConnectionCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new[] { "--agent-name", "--name", "-n", }, Resources.GETAGENTCONNECTION_NAME_HELP));
+            Add(new Option<string>(new[] { "--agent-name", "--name", "-n", }, Resources.GETAGENTCONNECTION_NAME_HELP)
+            {
+                IsRequired = true
+            });
 
             Handler = CommandHandler.Create(typeof(CheckAgentConnectionCommand).GetMethod(nameof(CheckAgentConnectionCommand.CheckAgentConnectionHandler)), this);
         }

@@ -22,10 +22,9 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         public FileInfo ParametersPath { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.DEPLOYMENT_ENVIRONMENTTYPE_HELP,
-            Mandatory = true
+            HelpMessage = Resources.DEPLOYMENT_ENVIRONMENTTYPE_HELP
         )]
-        public EnvironmentType EnvironmentType { get; set; }
+        public EnvironmentType EnvironmentType { get; set; } = EnvironmentType.Development;
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_SITE_HELP,

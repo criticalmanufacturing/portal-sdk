@@ -5,11 +5,11 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>cmf-portal-sdk</AssemblyName>
     <RootNamespace>Cmf.CustomerPortal.Sdk.Console</RootNamespace>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <Import Project="..\Version.props" />
   <ItemGroup>
-    <Compile Include="..\Version.cs" Link="Version.cs" />
+    <None Include="..\Version.props" Link="Version.props" />
   </ItemGroup>
 
   <ItemGroup>

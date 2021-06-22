@@ -15,10 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public CreateInfrastructureFromTemplateCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new[] { "--name", "-n" }, Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP)
-            {
-                IsRequired = true
-            });
+            Add(new Option<string>(new[] { "--name", "-n" }, Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP));
             Add(new Option<string>(new[] { "--template-name", "-t" }, Resources.INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP)
             {
                 IsRequired = true

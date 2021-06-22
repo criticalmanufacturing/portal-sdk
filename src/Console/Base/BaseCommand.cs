@@ -7,7 +7,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
     {
         protected BaseCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option(new[] { "--verbose", "-v" }, Resources.VERBOSE_HELP));
+            Add(new Option<bool>(new[] { "--verbose", "-v" }, Resources.VERBOSE_HELP));
         }
 
         protected ISession CreateSession(bool verbose)

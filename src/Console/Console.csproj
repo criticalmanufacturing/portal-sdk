@@ -7,6 +7,11 @@
     <RootNamespace>Cmf.CustomerPortal.Sdk.Console</RootNamespace>
   </PropertyGroup>
 
+  <Import Project="..\Version.props" />
+  <ItemGroup>
+    <None Include="..\Version.props" Link="Version.props" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
   </ItemGroup>

@@ -6,6 +6,11 @@
     <RootNamespace>Cmf.CustomerPortal.Sdk.Powershell</RootNamespace>
   </PropertyGroup>
 
+  <Import Project="..\Version.props" />
+  <ItemGroup>
+    <None Include="..\Version.props" Link="Version.props" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.0" />
   </ItemGroup>

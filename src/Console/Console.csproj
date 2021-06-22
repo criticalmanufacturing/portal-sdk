@@ -5,7 +5,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>cmf-portal-sdk</AssemblyName>
     <RootNamespace>Cmf.CustomerPortal.Sdk.Console</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Version.cs" Link="Version.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />

@@ -15,6 +15,10 @@
     "login": {
       "commandName": "Project",
       "commandLineArgs": "login"
+    },
+    "publish package": {
+      "commandName": "Project",
+      "commandLineArgs": "publish-package --path \"C:\\CMF-MES\\Cmf.Something.1.2.3.zip\" --verbose"
     }
   }
 }

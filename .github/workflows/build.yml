@@ -1,0 +1,28 @@
+name: Build
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Workflow jobs
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      # Checkout
+      - uses: actions/checkout@v2
+      # Needs .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      # Run build
+      - name: Build
+        run: dotnet publish --configuration Release --self-contained --runtime windows-x64 Cmf.CustomerPortal.Sdk.sln

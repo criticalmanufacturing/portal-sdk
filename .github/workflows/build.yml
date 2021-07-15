@@ -14,7 +14,7 @@ on:
 # Workflow jobs
 jobs:
   Build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:

@@ -13,37 +13,7 @@ on:
 
 # Workflow jobs
 jobs:
-  Build_Windows:
-    runs-on: windows-latest
-    env:
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
-    steps:
-      # Checkout
-      - name: Git checkout
-        uses: actions/checkout@v2
-      # Needs .NET
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 5.0.x
-      # Run build
-      - name: Build
-        run: dotnet publish --configuration Release --self-contained --runtime win-x64 Cmf.CustomerPortal.Sdk.sln
-      # Read version
-      - name: Read tool version
-        uses: QwerMike/xpath-action@v1
-        id: getver
-        with:
-          filename: src/Version.props
-          expression: '/Project/PropertyGroup/Version/text()'
-      # Archive
-      - name: Archive Console Win64
-        uses: actions/upload-artifact@v2
-        with:
-          name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64
-          path: src/Console/bin/Release/netcoreapp3.1/win-x64/publish/
-
-  Build_Linux:
+  Build:
     runs-on: ubuntu-latest
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -57,7 +27,9 @@ jobs:
         with:
           dotnet-version: 5.0.x
       # Run build
-      - name: Build
+      - name: Build Windows
+        run: dotnet publish --configuration Release --self-contained --runtime windows-x64 Cmf.CustomerPortal.Sdk.sln
+      - name: Build Linux
         run: dotnet publish --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln
       # Read version
       - name: Read tool version
@@ -67,6 +39,11 @@ jobs:
           filename: src/Version.props
           expression: '/Project/PropertyGroup/Version/text()'
       # Archive
+      - name: Archive Console Win64
+        uses: actions/upload-artifact@v2
+        with:
+          name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64
+          path: src/Console/bin/Release/netcoreapp3.1/win-x64/publish/
       - name: Archive Console Linux64
         uses: actions/upload-artifact@v2
         with:

@@ -28,7 +28,7 @@ jobs:
           dotnet-version: 5.0.x
       # Run build
       - name: Build Windows
-        run: dotnet publish --configuration Release --self-contained --runtime windows-x64 Cmf.CustomerPortal.Sdk.sln
+        run: dotnet publish --configuration Release --self-contained --runtime win-x64 Cmf.CustomerPortal.Sdk.sln
       - name: Build Linux
         run: dotnet publish --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln
       # Read version

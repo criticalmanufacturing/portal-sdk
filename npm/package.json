@@ -16,7 +16,7 @@
         "url": "https://github.com/criticalmanufacturing/portal-sdk/issues"
     },
     "bin": {
-        "cmf-portal-sdk": "./bin/cmf-portal-sdk"
+        "cmf-sdk": "./bin/cmf-sdk"
     },
     "scripts": {
         "postinstall": "node install.js"
@@ -32,6 +32,7 @@
         "@criticalmanufacturing/cli": "*",
         "adm-zip": "^0.5.5",
         "axios": "^0.21.1",
-        "node_modules-path": "^2.0.5"
+        "node_modules-path": "^2.0.5",
+        "tmp": "^0.2.1"
     }
 }

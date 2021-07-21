@@ -1,0 +1,68 @@
+name: Publish NPM Package on Release
+
+on:
+  release:
+    types: [created]
+
+  workflow_dispatch:
+
+jobs:
+  BuildAndPublish:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout
+      - name: Git checkout
+        uses: actions/checkout@v2
+      # Needs .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+      # Run build
+      - name: Build Windows
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+        run: dotnet publish --configuration Release --self-contained --runtime win-x64 Cmf.CustomerPortal.Sdk.sln
+      - name: Build Linux
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+        run: dotnet publish --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln
+      # Read version
+      - name: Read tool version
+        uses: QwerMike/xpath-action@v1
+        id: getver
+        with:
+          filename: src/Version.props
+          expression: '/Project/PropertyGroup/Version/text()'
+      # Needs zip
+      - name: Install zip
+        uses: montudor/action-zip@v0.1.0
+      # Archive
+      - name: Archive Console Win64
+        run: zip -X -r ../../../../../../../Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64.zip .
+        working-directory: src/Console/bin/Release/netcoreapp3.1/win-x64/publish/
+      - name: Archive Console Linux64
+        run: zip -X -r ../../../../../../../Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip .
+        working-directory: src/Console/bin/Release/netcoreapp3.1/linux-x64/publish/
+      - name: Archive PowerShell
+        run: zip -X -r ../../../../../../../Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip .
+        working-directory: src/Powershell/bin/Release/netstandard2.0/linux-x64/publish/
+      - run: pwd && ls -la && echo ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish win-x64 to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish linux-x64 to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish PowerShell to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

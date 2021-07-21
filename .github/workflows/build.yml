@@ -15,8 +15,6 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-    env:
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
       # Checkout
       - name: Git checkout
@@ -28,8 +26,12 @@ jobs:
           dotnet-version: 5.0.x
       # Run build
       - name: Build Windows
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
         run: dotnet publish --configuration Release --self-contained --runtime win-x64 Cmf.CustomerPortal.Sdk.sln
       - name: Build Linux
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
         run: dotnet publish --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln
       # Read version
       - name: Read tool version

@@ -66,3 +66,13 @@ jobs:
           args: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Publish NPM package (if pre-release)
+      - run: cd npm && npm publish --tag next
+        if: "github.event.release.prerelease"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Publish NPM package (if regular release)
+      - run: cd npm && npm publish --tag latest
+        if: "!github.event.release.prerelease"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

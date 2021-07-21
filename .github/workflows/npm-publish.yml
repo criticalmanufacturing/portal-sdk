@@ -37,7 +37,7 @@ jobs:
       # Needs zip
       - name: Install zip
         uses: montudor/action-zip@v0.1.0
-      # Archive
+      # Generate packs
       - name: Archive Console Win64
         run: zip -X -r ../../../../../../../Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64.zip .
         working-directory: src/Console/bin/Release/netcoreapp3.1/win-x64/publish/
@@ -47,20 +47,20 @@ jobs:
       - name: Archive PowerShell
         run: zip -X -r ../../../../../../../Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip .
         working-directory: src/Powershell/bin/Release/netstandard2.0/linux-x64/publish/
-      - run: pwd && ls -la && echo ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish win-x64 to release
+      # Add to release assets
+      - name: Add Console Win64 to Release assets
         uses: JasonEtco/upload-to-release@master
         with:
           args: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish linux-x64 to release
+      - name: Add Console Linux64 to Release assets
         uses: JasonEtco/upload-to-release@master
         with:
           args: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish PowerShell to release
+      - name: Add PowerShell to Release assets
         uses: JasonEtco/upload-to-release@master
         with:
           args: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip

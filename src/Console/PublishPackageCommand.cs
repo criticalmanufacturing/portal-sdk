@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
-    class PublishPackageCommand : ReplaceTokensBaseCommand
+    class PublishPackageCommand : BaseCommand
     {
         public PublishPackageCommand() : this("publish-package", "Publishes a Deployment Package into Customer Portal")
         {

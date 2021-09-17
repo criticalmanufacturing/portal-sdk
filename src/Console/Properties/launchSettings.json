@@ -18,7 +18,7 @@
     },
     "publish package": {
       "commandName": "Project",
-      "commandLineArgs": "publish-package --path \"C:\\CMF-MES\\Cmf.Something.1.2.3.zip\" --verbose"
+      "commandLineArgs": "publish-package --path \"C:\\Packages\\8.2.2\" --verbose"
     }
   }
 }

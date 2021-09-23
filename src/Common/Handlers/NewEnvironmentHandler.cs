@@ -84,6 +84,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.CustomerLicense = await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName);
                 environment.DeploymentTarget = GetTargetValue(target);
                 environment.Parameters = rawParameters;
+                environment.ChangeSet = null;
             }
             // if not, just build a new complete object and create it
             else

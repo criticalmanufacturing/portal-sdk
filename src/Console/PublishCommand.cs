@@ -10,7 +10,6 @@ namespace Cmf.CustomerPortal.Sdk.Console
 {
     class PublishCommand : ReplaceTokensBaseCommand
     {
-
         public PublishCommand() : this("publish", "Publishes one or more Deployment Package(s) into Customer Portal")
         {
         }

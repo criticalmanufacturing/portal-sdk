@@ -15,6 +15,10 @@
     "login": {
       "commandName": "Project",
       "commandLineArgs": "login"
+    },
+    "publish package": {
+      "commandName": "Project",
+      "commandLineArgs": "publish-package --path \"C:\\Packages\\8.2.2\" --verbose"
     }
   }
 }

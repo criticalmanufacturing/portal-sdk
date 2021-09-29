@@ -64,6 +64,9 @@ jobs:
           args: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Replace Version token on NPM package.json
+      - name: Replace package.json Version token
+        run: cd npm && sed -i ''s/#{Version}#/${{ steps.getver.outputs.result }}/g'' package.json
       # Publish NPM package (if pre-release)
       - run: cd npm && npm publish --tag next
         if: "github.event.release.prerelease"

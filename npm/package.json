@@ -29,7 +29,6 @@
         "x64"
     ],
     "dependencies": {
-        "@criticalmanufacturing/cli": "*",
         "adm-zip": "^0.5.5",
         "axios": "^0.21.1",
         "node_modules-path": "^2.0.5",

@@ -27,7 +27,7 @@ const installScriptLocation = path.resolve(node_modules(process.env.npm_package_
 // delete empty cmf-sdk;
 // this file must exist during npm install so the bin link is created;
 // it will be replaced by the downloaded binary
-fs.rm(path.join(installScriptLocation, 'cmf-sdk'), { force: true, recursive: true }, (err) => {
+fs.unlink(path.join(installScriptLocation, 'cmf-sdk'), (err) => {
     if (err) {
         // File deletion failed
         console.error(err.message);

@@ -1,0 +1,37 @@
+{
+    "name": "@criticalmanufacturing/sdk",
+    "version": "#{Version}#",
+    "description": "Critical Manufacturing CLI SDK",
+    "author": "Critical Manufacturing, SA",
+    "keywords": [
+        "cmf"
+    ],
+    "license": "BSD-3-Clause",
+    "homepage": "https://github.com/criticalmanufacturing/portal-sdk#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/criticalmanufacturing/portal-sdk.git"
+    },
+    "bugs": {
+        "url": "https://github.com/criticalmanufacturing/portal-sdk/issues"
+    },
+    "bin": {
+        "cmf-sdk": "./bin/cmf-sdk"
+    },
+    "scripts": {
+        "postinstall": "node install.js"
+    },
+    "os": [
+        "win32",
+        "linux"
+    ],
+    "cpu": [
+        "x64"
+    ],
+    "dependencies": {
+        "adm-zip": "^0.5.5",
+        "axios": "^0.21.1",
+        "node_modules-path": "^2.0.5",
+        "tmp": "^0.2.1"
+    }
+}

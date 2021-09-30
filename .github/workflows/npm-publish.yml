@@ -49,19 +49,19 @@ jobs:
       - name: Add Console Win64 to Release assets
         uses: JasonEtco/upload-to-release@master
         with:
-          args: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64.zip
+          args: "Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64.zip application/zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add Console Linux64 to Release assets
         uses: JasonEtco/upload-to-release@master
         with:
-          args: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip
+          args: "Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip application/zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add PowerShell to Release assets
         uses: JasonEtco/upload-to-release@master
         with:
-          args: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip
+          args: "Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip application/zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Replace Version token on NPM package.json

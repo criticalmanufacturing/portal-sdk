@@ -1,7 +1,7 @@
 {
-    "name": "@criticalmanufacturing/sdk",
+    "name": "@criticalmanufacturing/portal",
     "version": "#{Version}#",
-    "description": "Critical Manufacturing CLI SDK",
+    "description": "Critical Manufacturing Portal CLI",
     "author": "Critical Manufacturing, SA",
     "keywords": [
         "cmf"
@@ -16,7 +16,7 @@
         "url": "https://github.com/criticalmanufacturing/portal-sdk/issues"
     },
     "bin": {
-        "cmf-sdk": "./bin/cmf-sdk"
+        "cmf-portal": "./bin/cmf-portal"
     },
     "scripts": {
         "postinstall": "node install.js"

@@ -24,10 +24,10 @@ const PLATFORM_MAPPING = {
 
 const installScriptLocation = path.resolve(node_modules(process.env.npm_package_name), process.env.npm_package_name, 'bin');
 
-// delete empty cmf-sdk;
+// delete empty cmf-portal;
 // this file must exist during npm install so the bin link is created;
 // it will be replaced by the downloaded binary
-fs.unlink(path.join(installScriptLocation, 'cmf-sdk'), (err) => {
+fs.unlink(path.join(installScriptLocation, 'cmf-portal'), (err) => {
     if (err) {
         // File deletion failed
         console.error(err.message);

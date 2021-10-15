@@ -65,8 +65,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task DeployHandler(bool verbose, string name, FileInfo parameters, string type, string site, string license, string package, string target, DirectoryInfo output, string[] replaceTokens, bool interactive)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose);
-            NewEnvironmentHandler newEnvironmentHandler = new NewEnvironmentHandler(new CustomerPortalClient(session), session);
+            _ = CreateSession(verbose);
+            NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package, target, output, replaceTokens, interactive);
         }
     }

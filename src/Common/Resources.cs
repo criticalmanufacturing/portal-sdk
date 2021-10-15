@@ -5,6 +5,7 @@
         public const string LOGIN_PAT_HELP = "Personal Access Token used to access the Customer Portal";
 
         public const string DEPLOYMENT_NAME_HELP = "Name of the new environment";
+        public const string DEPLOYMENT_DESCRIPTION_HELP = "Name of the new environment";
         public const string DEPLOYMENT_PARAMETERSPATH_HELP = "Path to parameters file that describes the environment";
         public const string DEPLOYMENT_ENVIRONMENTTYPE_HELP = "Type of the environment to deploy";
         public const string DEPLOYMENT_SITE_HELP = "Name of the Site associated with the environment";
@@ -19,6 +20,8 @@
         public const string INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP = "The name of the Customer Infrastructure template that the new Customer Infrastructure will derive from";
         public const string INFRASTRUCTURE_SITE_HELP = "Name of the Site associated with the Customer Infrastructure";
         public const string INFRASTRUCTURE_DOMAIN_HELP = "Base domain for the environments of the Customer Infrastructure";
+
+        public const string INFRASTRUCTURE_EXISTING_NAME_HELP = "Name of the existing Customer Infrastructure";
 
         public const string GETAGENTCONNECTION_NAME_HELP = "The name of the Infrastructure Agent";
 

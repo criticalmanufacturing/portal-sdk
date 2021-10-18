@@ -34,8 +34,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task CreateInfrastructureHandler(bool verbose, string name, string agentName, string site, string domain)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose);
-            NewInfrastructureHandler handler = new NewInfrastructureHandler(new CustomerPortalClient(session), session);
+            CreateSession(verbose);
+            NewInfrastructureHandler handler = ServiceLocator.Get<NewInfrastructureHandler>();
             await handler.Run(name, agentName, site, domain);
         }
     }

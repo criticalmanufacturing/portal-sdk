@@ -20,11 +20,10 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         /// </summary>
         /// <param name="verbose"></param>
         /// <returns></returns>
-        protected ISession CreateSession(bool verbose)
+        protected void CreateSession(bool verbose)
         {
             Session session = new Session(verbose);
             ServiceLocator = new ServiceLocator(session);
-            return session;
         }
     }
 }

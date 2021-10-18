@@ -28,8 +28,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task PublishHandler(bool verbose, FileSystemInfo path, string[] replaceTokens)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose);
-            AddManifestsHandler newEnvironmentHandler = new AddManifestsHandler(new CustomerPortalClient(session), session);
+            CreateSession(verbose);
+            AddManifestsHandler newEnvironmentHandler = ServiceLocator.Get<AddManifestsHandler>();
             await newEnvironmentHandler.Run(path, replaceTokens);
         }
     }

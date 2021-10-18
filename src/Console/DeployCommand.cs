@@ -70,7 +70,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             string package, string target, DirectoryInfo output, string[] replaceTokens, bool interactive)
         {
             // get new environment handler and run it
-            _ = CreateSession(verbose);
+            CreateSession(verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package, target, output,
                 replaceTokens, interactive, customerInfrastructureName, description);

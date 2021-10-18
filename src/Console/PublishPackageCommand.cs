@@ -28,8 +28,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task PublishPackageHandler(bool verbose, FileSystemInfo path)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose);
-            PublishPackageHandler newEnvironmentHandler = new PublishPackageHandler(new CustomerPortalClient(session), session);
+            CreateSession(verbose);
+            PublishPackageHandler newEnvironmentHandler = ServiceLocator.Get<PublishPackageHandler>();
             await newEnvironmentHandler.Run(path);
         }
     }

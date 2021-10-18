@@ -23,8 +23,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task LoginHandler(bool verbose, string token)
         {
             // use login handler to save login information
-            var session = CreateSession(verbose);
-            LoginHandler loginHandler = new LoginHandler(session);
+            CreateSession(verbose);
+            LoginHandler loginHandler = ServiceLocator.Get<LoginHandler>();
             await loginHandler.Run(token);
         }
     }

@@ -60,6 +60,11 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         public string DeploymentTargetName { get; set; }
 
         [Parameter(
+            HelpMessage = Resources.INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP
+        )]
+        public string TemplateName { get; set; }
+
+        [Parameter(
             HelpMessage = Resources.DEPLOYMENT_OUTPUTDIR_HELP
         )]
         public DirectoryInfo OutputDir { get; set; }
@@ -78,7 +83,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir,
-                ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description);
+                ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description, TemplateName);
         }
     }
 }

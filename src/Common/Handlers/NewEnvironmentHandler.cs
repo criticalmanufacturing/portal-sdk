@@ -36,29 +36,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string[] replaceTokens,
             bool interactive,
             string customerInfrastructureName,
-            string description
+            string description,
+            string templateName
         )
         {
+
+            // login
             await EnsureLogin();
 
-            #region Validations
-
-            // check if customer infrastructure exists
-            if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
-            {
-                try
-                {
-                    await _customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName);
-                }
-                catch (CmfFaultException)
-                {
-                    Session.LogInformation($"Could not find a CustomerInfrastructure with name: {customerInfrastructureName}...");
-                    throw;
-                }
-            }
-
-            #endregion
-
+            // build name and parameters if needed
             name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
             string rawParameters = null;
 
@@ -70,8 +56,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             Session.LogInformation($"Creating customer environment {name}...");
 
-
-            // let's see if it exists
+            // let's see if the environment already exists
             CustomerEnvironment environment = null;
             try
             {
@@ -106,7 +91,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
                 {
                     CustomerInfrastructureName = customerInfrastructureName,
-                    CustomerEnvironment = environment
+                    CustomerEnvironment = environment,
+                    TemplateName = templateName
                 }.CreateCustomerEnvironmentForCustomerInfrastructureAsync(true)).CustomerEnvironment;
             }
             // if not, just create a new environment
@@ -126,6 +112,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
             }
             
+            // handle installation
             await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir);
         }
     }

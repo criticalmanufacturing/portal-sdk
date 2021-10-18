@@ -20,8 +20,8 @@
         public const string INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP = "The name of the Customer Infrastructure template that the new Customer Infrastructure will derive from";
         public const string INFRASTRUCTURE_SITE_HELP = "Name of the Site associated with the Customer Infrastructure";
         public const string INFRASTRUCTURE_DOMAIN_HELP = "Base domain for the environments of the Customer Infrastructure";
-
         public const string INFRASTRUCTURE_EXISTING_NAME_HELP = "Name of the existing Customer Infrastructure";
+        public const string INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP = "Name of an existing CustomerEnvironment template that is linked to the CustomerInfrastructure";
 
         public const string GETAGENTCONNECTION_NAME_HELP = "The name of the Infrastructure Agent";
 

@@ -14,7 +14,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
             // Add Handlers
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();
-            serviceCollection.AddTransient<Handlers.NewEnvironmentForInfrastructureHandler>();
             serviceCollection.AddTransient<Handlers.LoginHandler>();
             serviceCollection.AddTransient<Handlers.NewInfrastructureHandler>();
             serviceCollection.AddTransient<Handlers.NewInfrastructureFromTemplateHandler>();

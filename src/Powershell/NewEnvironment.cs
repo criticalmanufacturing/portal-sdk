@@ -11,10 +11,16 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
     [Cmdlet(VerbsCommon.New, "Environment")]
     public class NewEnvironment : ReplaceTokensBaseCmdlet<NewEnvironmentHandler>
     {
+        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_EXISTING_NAME_HELP)]
+        public string CustomerInfrastructureName { get; set; }
+
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_NAME_HELP
         )]
         public string Name { get; set; }
+
+        [Parameter(HelpMessage = Resources.DEPLOYMENT_DESCRIPTION_HELP)]
+        public string Description { get; set; }
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_PARAMETERSPATH_HELP
@@ -28,7 +34,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_SITE_HELP,
-            Mandatory = true
+            Mandatory = false
         )]
         public string SiteName { get; set; }
 
@@ -62,7 +68,8 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         {
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir, GetTokens(), Interactive.ToBool());
+            await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir,
+                GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description);
         }
     }
 }

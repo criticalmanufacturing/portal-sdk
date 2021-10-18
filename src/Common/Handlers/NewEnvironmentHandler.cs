@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
@@ -33,10 +34,30 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string target,
             DirectoryInfo outputDir,
             string[] replaceTokens,
-            bool interactive
+            bool interactive,
+            string customerInfrastructureName,
+            string description
         )
         {
             await EnsureLogin();
+
+            #region Validations
+
+            // check if customer infrastructure exists
+            if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
+            {
+                try
+                {
+                    await _customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName);
+                }
+                catch (CmfFaultException)
+                {
+                    Session.LogInformation($"Could not find a CustomerInfrastructure with name: {customerInfrastructureName}...");
+                    throw;
+                }
+            }
+
+            #endregion
 
             name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
             string rawParameters = null;
@@ -48,6 +69,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
 
             Session.LogInformation($"Creating customer environment {name}...");
+
 
             // let's see if it exists
             CustomerEnvironment environment = null;
@@ -65,8 +87,29 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
                 environment.Parameters = rawParameters;
                 environment.ChangeSet = null;
+
+                environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
             }
-            // if not, just build a new complete object and create it
+            // if not, check if we are creating a new environment for an infrastructure
+            else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
+            {
+                environment = new CustomerEnvironment
+                {
+                    Name = name,
+                    Description = description,
+                    Parameters = rawParameters,
+                    EnvironmentType = environmentType.ToString(),
+                    DeploymentPackage = await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
+                    DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target)
+                };
+
+                environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
+                {
+                    CustomerInfrastructureName = customerInfrastructureName,
+                    CustomerEnvironment = environment
+                }.CreateCustomerEnvironmentForCustomerInfrastructureAsync(true)).CustomerEnvironment;
+            }
+            // if not, just create a new environment
             else
             {
                 environment = new CustomerEnvironment
@@ -79,9 +122,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
                     Parameters = rawParameters
                 };
-            }
-            environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
 
+                environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
+            }
+            
             await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir);
         }
     }

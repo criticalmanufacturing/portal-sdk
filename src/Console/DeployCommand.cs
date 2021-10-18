@@ -1,6 +1,7 @@
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Console.Base;
+using Cmf.CustomerPortal.Sdk.Console.Extensions;
 using Cmf.Foundation.Common.Licenses.Enums;
 using System;
 using System.CommandLine;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
-    class DeployCommand : ReplaceTokensBaseCommand
+    class DeployCommand : BaseCommand
     {
         public DeployCommand() : this("deploy", "Creates and deploys a new Customer Environment")
         {
@@ -64,6 +65,11 @@ namespace Cmf.CustomerPortal.Sdk.Console
             Add(new Option<bool>(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));
 
             Handler = CommandHandler.Create(typeof(DeployCommand).GetMethod(nameof(DeployCommand.DeployHandler)), this);
+        }
+
+        protected override IOptionExtension ExtendWith()
+        {
+            return new ReplaceTokensExtension();
         }
 
         public async Task DeployHandler(bool verbose, string customerInfrastructureName, string name, string description, FileInfo parameters, string type, string site, string license,

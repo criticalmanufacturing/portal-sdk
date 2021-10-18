@@ -1,18 +1,18 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
 using System.CommandLine;
 
-namespace Cmf.CustomerPortal.Sdk.Console.Base
+namespace Cmf.CustomerPortal.Sdk.Console.Extensions
 {
-    abstract class ReplaceTokensBaseCommand : BaseCommand
+    internal class ReplaceTokensExtension : IOptionExtension
     {
-        public ReplaceTokensBaseCommand(string name, string description) : base(name, description)
+        public void Use(Command command)
         {
             var replaceTokensOption = new Option<string[]>(new[] { "--replace-tokens" }, Resources.REPLACETOKENS_HELP)
             {
                 AllowMultipleArgumentsPerToken = true
             };
             replaceTokensOption.AddSuggestions(new string[] { "MyToken=value MyToken2=value2" });
-            Add(replaceTokensOption);
+            command.Add(replaceTokensOption);
         }
     }
 }

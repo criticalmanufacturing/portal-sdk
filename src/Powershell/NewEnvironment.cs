@@ -1,6 +1,7 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Powershell.Base;
+using Cmf.CustomerPortal.Sdk.Powershell.Extensions;
 using Cmf.Foundation.Common.Licenses.Enums;
 using System.IO;
 using System.Management.Automation;
@@ -9,8 +10,10 @@ using System.Threading.Tasks;
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
     [Cmdlet(VerbsCommon.New, "Environment")]
-    public class NewEnvironment : ReplaceTokensBaseCmdlet<NewEnvironmentHandler>
+    public class NewEnvironment : BaseCmdlet<NewEnvironmentHandler>
     {
+        private ReplaceTokensParameterExtension ReplaceTokensExtension;
+
         [Parameter(HelpMessage = Resources.INFRASTRUCTURE_EXISTING_NAME_HELP)]
         public string CustomerInfrastructureName { get; set; }
 
@@ -64,12 +67,18 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         [Parameter(Position = 1)]
         public SwitchParameter Interactive;
 
+        protected override IParameterExtension ExtendWith()
+        {
+            ReplaceTokensExtension = new ReplaceTokensParameterExtension();
+            return ReplaceTokensExtension;
+        }
+
         protected async override Task ProcessRecordAsync()
         {
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir,
-                GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description);
+                ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description);
         }
     }
 }

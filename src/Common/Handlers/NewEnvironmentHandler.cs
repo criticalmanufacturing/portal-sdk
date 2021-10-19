@@ -67,6 +67,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
             if (environment != null)
             {
+                if (description != null)
+                {
+                    environment.Description = description;
+                }
+                
                 environment.DeploymentPackage = await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
                 environment.CustomerLicense = await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName);
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
@@ -85,7 +90,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Parameters = rawParameters,
                     EnvironmentType = environmentType.ToString(),
                     DeploymentPackage = await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                    DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target)
+                    DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
+                    CustomerLicense = await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName)
                 };
 
                 environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput

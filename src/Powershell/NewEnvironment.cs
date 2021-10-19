@@ -37,7 +37,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_SITE_HELP,
-            Mandatory = false
+            Mandatory = true
         )]
         public string SiteName { get; set; }
 

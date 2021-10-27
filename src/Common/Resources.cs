@@ -5,7 +5,7 @@
         public const string LOGIN_PAT_HELP = "Personal Access Token used to access the Customer Portal";
 
         public const string DEPLOYMENT_NAME_HELP = "Name of the new environment";
-        public const string DEPLOYMENT_DESCRIPTION_HELP = "Name of the new environment";
+        public const string DEPLOYMENT_DESCRIPTION_HELP = "Description of the new environment";
         public const string DEPLOYMENT_PARAMETERSPATH_HELP = "Path to parameters file that describes the environment";
         public const string DEPLOYMENT_ENVIRONMENTTYPE_HELP = "Type of the environment to deploy";
         public const string DEPLOYMENT_SITE_HELP = "Name of the Site associated with the environment";

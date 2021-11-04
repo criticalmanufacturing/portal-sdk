@@ -50,7 +50,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // generate a short unique name based on 
                 var baselineTicks = new DateTime(2021, 1, 1).Ticks;
                 var diffTicks = DateTime.Now.Ticks - baselineTicks;
-                name = diffTicks.ToString("x") + new Random().Next(0, 100);
+                name = "env-" + diffTicks.ToString("x") + new Random().Next(0, 100);
             }
 
             string rawParameters = null;

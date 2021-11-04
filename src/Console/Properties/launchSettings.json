@@ -12,6 +12,10 @@
       "commandName": "Project",
       "commandLineArgs": "deploy -params \"..\\..\\..\\..\\..\\Docker\\parameters\\local.json\" --verbose -lic \"CMF - PT_Development_v8.0.0_20210913\" --site \"CMF - PT\" --package=\"@criticalmanufacturing\\mes\" --target \"dockerswarm\"  --output \"..\\..\\..\\..\\..\\Docker\""
     },
+    "Deploy local runtime environment in Infrastructure": {
+      "commandName": "Project",
+      "commandLineArgs": "deploy -ci \"VMInfrastructureFromPortalSDK\" -n \"TestEnvFromPortalSDK9\" -d \"lala from console\" -params \"..\\..\\..\\..\\..\\..\\Library\\Docker\\parameters\\local-runtime.json\" -type Development -lic \"CMF - PT_Development_v8.0.0_20220407\" --package=\"@criticalmanufacturing\\mes:8.2.3\" -trg \"dockerswarm\" -o \".\""
+    },
     "login": {
       "commandName": "Project",
       "commandLineArgs": "login"

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Cmf.CustomerPortal.Sdk.Common.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
@@ -6,7 +7,10 @@ namespace Cmf.CustomerPortal.Sdk.Common
     {
         public static void RegisterCommon(this IServiceCollection serviceCollection)
         {
+            // Add Services
             serviceCollection.AddSingleton<ICustomerPortalClient, CustomerPortalClient>();
+            serviceCollection.AddSingleton<INewEnvironmentUtilities, NewEnvironmentUtilities>();
+            serviceCollection.AddTransient<IEnvironmentDeploymentHandler, EnvironmentDeploymentHandler>();
 
             // Add Handlers
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();

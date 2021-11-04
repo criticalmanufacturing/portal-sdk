@@ -28,8 +28,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task CreateInfrastructureFromTemplateHandler(bool verbose, string name, string agentName, string templateName)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose);
-            NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = new NewInfrastructureFromTemplateHandler(new CustomerPortalClient(session), session);
+            CreateSession(verbose);
+            NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
             await newInfrastructureFromTemplateHandler.Run(name, templateName, agentName);
         }
     }

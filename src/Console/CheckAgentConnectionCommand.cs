@@ -26,8 +26,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public async Task CheckAgentConnectionHandler(bool verbose, string agentName)
         {
             // get GetAgentConnectionHandler and run it
-            var session = CreateSession(verbose);
-            GetAgentConnectionHandler getAgentConnectionHandler = new GetAgentConnectionHandler(new CustomerPortalClient(session), session);
+            CreateSession(verbose);
+            GetAgentConnectionHandler getAgentConnectionHandler = ServiceLocator.Get<GetAgentConnectionHandler>();
             bool result = await getAgentConnectionHandler.Run(agentName);
 
             System.Console.WriteLine(result);

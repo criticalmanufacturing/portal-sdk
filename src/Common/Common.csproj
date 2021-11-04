@@ -18,14 +18,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Cmf.LightBusinessObjects">
+      <HintPath>libs\Cmf.LightBusinessObjects.dll</HintPath>
+    </Reference>
     <Reference Include="Cmf.LoadBalancing">
       <HintPath>libs\Cmf.LoadBalancing.dll</HintPath>
     </Reference>
     <Reference Include="Cmf.MessageBus.Client">
       <HintPath>libs\Cmf.MessageBus.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Cmf.LightBusinessObjects">
-      <HintPath>libs\Cmf.LightBusinessObjects.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>libs\Newtonsoft.Json.dll</HintPath>

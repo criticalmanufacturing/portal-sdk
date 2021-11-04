@@ -1,6 +1,7 @@
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Console.Base;
+using Cmf.CustomerPortal.Sdk.Console.Extensions;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
-    class PublishCommand : ReplaceTokensBaseCommand
+    class PublishCommand : BaseCommand
     {
         public PublishCommand() : this("publish", "Publishes one or more Deployment Package(s) into Customer Portal")
         {
@@ -25,11 +26,16 @@ namespace Cmf.CustomerPortal.Sdk.Console
             Handler = CommandHandler.Create(typeof(PublishCommand).GetMethod(nameof(PublishCommand.PublishHandler)), this);
         }
 
+        protected override IOptionExtension ExtendWith()
+        {
+            return new ReplaceTokensExtension();
+        }
+
         public async Task PublishHandler(bool verbose, FileSystemInfo path, string[] replaceTokens)
         {
             // get new environment handler and run it
-            var session = CreateSession(verbose);
-            AddManifestsHandler newEnvironmentHandler = new AddManifestsHandler(new CustomerPortalClient(session), session);
+            CreateSession(verbose);
+            AddManifestsHandler newEnvironmentHandler = ServiceLocator.Get<AddManifestsHandler>();
             await newEnvironmentHandler.Run(path, replaceTokens);
         }
     }

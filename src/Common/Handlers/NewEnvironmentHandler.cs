@@ -45,7 +45,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             await EnsureLogin();
 
             // build name and parameters if needed
-            name = string.IsNullOrWhiteSpace(name) ? $"Deployment-{Guid.NewGuid()}" : name;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                // generate a short unique name based on 
+                var baselineTicks = new DateTime(2021, 1, 1).Ticks;
+                var diffTicks = DateTime.Now.Ticks - baselineTicks;
+                name = diffTicks.ToString("x") + new Random().Next(0, 100);
+            }
+
             string rawParameters = null;
 
             if (parameters != null)

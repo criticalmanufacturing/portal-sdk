@@ -7,5 +7,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     public interface IEnvironmentDeploymentHandler
     {
         Task Handle(bool interactive, CustomerEnvironment customerEnvironment, string deploymentTarget, DirectoryInfo outputDir);
+
+        Task<bool> WaitForEnvironmentsToBeTerminated(CustomerEnvironmentCollection customerEnvironments);
     }
 }

@@ -8,6 +8,7 @@ using Cmf.MessageBus.Messages;
 using Cmf.Services.GenericServiceManagement;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -206,6 +207,45 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
 
             await ProcessEnvironmentDeployment(customerEnvironment, deploymentTarget, outputDir);
+        }
+
+        public async Task<bool> WaitForEnvironmentsToBeTerminated(CustomerEnvironmentCollection customerEnvironments)
+        {
+            var result = false;
+            var timeout = new TimeSpan(0, 5, 0);
+            var waitPeriod = new TimeSpan(0, 0, 5);
+            var ids = new HashSet<long>();
+            customerEnvironments.ForEach(ce => ids.Add(ce.Id));
+            var task = Task.Run(async () =>
+            {
+                while(!result)
+                {
+                    var checkedCustomerEnvironments = await _customerPortalClient.GetCustomerEnvironmentsById(ids.ToArray());
+                    foreach (var ce in checkedCustomerEnvironments)
+                    {
+                        // keep track of which environments have already been terminated
+                        if ((ce.Status == DeploymentStatus.Terminated || ce.Status == DeploymentStatus.TerminationFailed) &&
+                        ce.UniversalState == Foundation.Common.Base.UniversalState.Terminated)
+                        {
+                            ids.Remove(ce.Id);
+                        }
+                    }
+
+                    if (ids.Count == 0)
+                    {
+                        result = true;
+                    }
+
+                    await Task.Delay(waitPeriod);
+                }
+            });
+
+            if (task != await Task.WhenAny(task, Task.Delay(timeout)))
+            {
+                throw new TimeoutException($"Timeout while waiting for Customer Environment {customerEnvironments.First().Name} versions to be terminated.");
+            }
+
+            return result;
         }
     }
 }

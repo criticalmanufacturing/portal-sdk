@@ -69,8 +69,11 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public DirectoryInfo OutputDir { get; set; }
 
-        [Parameter(Position = 1)]
+        [Parameter(Position = 1, HelpMessage = Resources.DEPLOYMENT_INTERACTIVE_HELP)]
         public SwitchParameter Interactive;
+
+        [Parameter(Position = 2, HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP)]
+        public SwitchParameter TerminateOtherVersions;
 
         protected override IParameterExtension ExtendWith()
         {
@@ -83,7 +86,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir,
-                ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description, TemplateName);
+                ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description, TemplateName, TerminateOtherVersions.ToBool());
         }
     }
 }

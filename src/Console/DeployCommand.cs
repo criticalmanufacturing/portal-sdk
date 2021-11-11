@@ -66,6 +66,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<bool>(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));
 
+            Add(new Option<bool>(new[] { "--terminateOtherVersions", "-tov" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));
+
             Handler = CommandHandler.Create(typeof(DeployCommand).GetMethod(nameof(DeployCommand.DeployHandler)), this);
         }
 
@@ -75,13 +77,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
         }
 
         public async Task DeployHandler(bool verbose, string customerInfrastructureName, string name, string description, FileInfo parameters, string type, string site, string license,
-            string package, string target, string templateName, DirectoryInfo output, string[] replaceTokens, bool interactive)
+            string package, string target, string templateName, DirectoryInfo output, string[] replaceTokens, bool interactive, bool terminateOtherVersions)
         {
             // get new environment handler and run it
             CreateSession(verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package, target, output,
-                replaceTokens, interactive, customerInfrastructureName, description, templateName);
+                replaceTokens, interactive, customerInfrastructureName, description, templateName, terminateOtherVersions);
         }
     }
 }

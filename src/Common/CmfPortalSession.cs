@@ -19,7 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
         public IConfiguration Configuration { get; set; }
 
-        protected string AccessToken
+        public string AccessToken
         {
             get
             {
@@ -43,7 +43,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 return accessToken;
             }
 
-            set
+            private set
             {
                 // write to file and set as hidden
                 Directory.CreateDirectory(_loginCredentialsDir);

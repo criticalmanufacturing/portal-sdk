@@ -1,6 +1,6 @@
 {
     "name": "@criticalmanufacturing/portal",
-    "version": "1.1.7",
+    "version": "#{Version}#",
     "description": "Critical Manufacturing Portal CLI",
     "author": "Critical Manufacturing, SA",
     "keywords": [

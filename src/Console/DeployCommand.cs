@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<string>(new[] { "--name", "-n", }, Resources.DEPLOYMENT_NAME_HELP));
 
-            Add(new Option<string>(new[] { "--description", "-d", }, Resources.DEPLOYMENT_NAME_HELP));
+            Add(new Option<string>(new[] { "--description", "-d", }, Resources.DEPLOYMENT_DESCRIPTION_HELP));
 
             Add(new Option<FileInfo>(new string[] { "--parameters", "-params" }, Resources.DEPLOYMENT_PARAMETERSPATH_HELP)
             {
@@ -66,7 +66,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<bool>(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));
 
-            Add(new Option<bool>(new[] { "--terminateOtherVersions", "-tov" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));
+            Add(new Option<bool>(new[] { "--terminateOtherVersions", "-tov" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP));
 
             Handler = CommandHandler.Create(typeof(DeployCommand).GetMethod(nameof(DeployCommand.DeployHandler)), this);
         }

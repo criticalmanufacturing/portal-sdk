@@ -15,6 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.AddCommand(new CreateInfrastructureCommand());
             rootCommand.AddCommand(new CheckAgentConnectionCommand());
             rootCommand.AddCommand(new PublishPackageCommand());
+            rootCommand.AddCommand(new DeployAgentCommand());
 
             return await rootCommand.InvokeAsync(args);
         }

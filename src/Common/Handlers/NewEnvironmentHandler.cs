@@ -126,6 +126,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
             }
+
             
             // handle installation
             await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir);

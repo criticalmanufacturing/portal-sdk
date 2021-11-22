@@ -83,7 +83,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(Name, ParametersPath, EnvironmentType, SiteName, LicenseName, DeploymentPackageName, DeploymentTargetName, OutputDir,
-                ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description, TemplateName);
+                ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), CustomerInfrastructureName, Description, TemplateName, false);
         }
     }
 }

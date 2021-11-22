@@ -81,7 +81,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             CreateSession(verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package, target, output,
-                replaceTokens, interactive, customerInfrastructureName, description, templateName);
+                replaceTokens, interactive, customerInfrastructureName, description, templateName, false);
         }
     }
 }

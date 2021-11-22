@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
-    class DeployAgent : BaseCommand
+    class DeployAgentCommand : BaseCommand
     {
-        public DeployAgent() : this("deployagent", "Creates and deploys a new Infrastructure Agent")
+        public DeployAgentCommand() : this("deployagent", "Creates and deploys a new Infrastructure Agent")
         {
         }
 
-        public DeployAgent(string name, string description = null) : base(name, description)
+        public DeployAgentCommand(string name, string description = null) : base(name, description)
         {
             Add(new Option<string>(new[] { "--customer-infrastructure-name", "-ci", }, Resources.INFRASTRUCTURE_EXISTING_NAME_HELP));
 
@@ -61,7 +61,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<bool>(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));
 
-            Handler = CommandHandler.Create(typeof(DeployAgent).GetMethod(nameof(DeployAgent.DeployHandler)), this);
+            Handler = CommandHandler.Create(typeof(DeployAgentCommand).GetMethod(nameof(DeployAgentCommand.DeployHandler)), this);
         }
 
         protected override IOptionExtension ExtendWith()

@@ -97,7 +97,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Description = description,
                     Parameters = rawParameters,
                     EnvironmentType = environmentType.ToString(),
-                    DeploymentPackage = isInfrastructureAgent? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
+                    DeploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
                     DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
                     CustomerLicense = await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName)
                 };
@@ -116,7 +116,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment = new CustomerEnvironment
                 {
                     EnvironmentType = environmentType.ToString(),
-                    Site = await _customerPortalClient.GetObjectByName<ProductSite>(siteName),
+                    Site = isInfrastructureAgent ? null:  await _customerPortalClient.GetObjectByName<ProductSite>(siteName),
                     Name = name,
                     DeploymentPackage = isInfrastructureAgent ? null :  await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
                     CustomerLicense = await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName),

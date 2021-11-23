@@ -19,8 +19,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         {
             Add(new Option<bool>(new[] { "--verbose", "-v" }, Resources.VERBOSE_HELP));
 
-
-
             UseExtension(ExtendWith());
             UseExtensions(ExtendWithRange());
         }

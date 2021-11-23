@@ -1,11 +1,12 @@
-﻿using System.Management.Automation;
+﻿using System.Collections.Generic;
+using System.Management.Automation;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
 {
     public interface IParameterExtension
     {
-        RuntimeDefinedParameter GetParameter();
+        IEnumerable<RuntimeDefinedParameter> GetParameters();
 
-        void ReadFromPipeline(object value);
+        void ReadFromPipeline(RuntimeDefinedParameter value);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
+using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
 
@@ -18,8 +19,9 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
             };
         }
 
-        public RuntimeDefinedParameter GetParameter()
+        public IEnumerable<RuntimeDefinedParameter> GetParameters()
         {
+            List<RuntimeDefinedParameter> parameters = new List<RuntimeDefinedParameter>();
             var param = new RuntimeDefinedParameter
             {
                 IsSet = false,
@@ -27,13 +29,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
                 ParameterType = typeof(string)
             };
             param.Attributes.Add(ReplaceTokensParamAttr);
-
-            return param;
+            parameters.Add(param);
+            return parameters;
         }
 
-        public void ReadFromPipeline(object value)
+        public void ReadFromPipeline(RuntimeDefinedParameter parameter)
         {
-            ReplaceTokens = value as string;
+            ReplaceTokens = parameter.Value as string;
         }
 
         public string[] GetTokens()

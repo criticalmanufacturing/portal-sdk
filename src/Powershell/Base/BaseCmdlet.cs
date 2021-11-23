@@ -44,11 +44,16 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             if (optionExtension != null)
             {
                 // get and save dynamic parameter
-                RuntimeDefinedParameter param = optionExtension.GetParameter();
-                _runtimeDefinedParameterDictionary.Add(param.Name, param);
+                IEnumerable<RuntimeDefinedParameter> parameters = optionExtension.GetParameters();
+                foreach(RuntimeDefinedParameter param in parameters)
+                {
+                    _runtimeDefinedParameterDictionary.Add(param.Name, param);
 
-                // save extensions instance
-                _parameterExtensions.Add(new ParameterExtensionData { ParameterExtension = optionExtension, RuntimeDefinedParameter = param });
+                    // save extensions instance
+                    _parameterExtensions.Add(new ParameterExtensionData { ParameterExtension = optionExtension, RuntimeDefinedParameter = param });
+
+                }
+               
             }
         }
 
@@ -75,7 +80,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
             // for all extensions, set their value from pipeline
             foreach (ParameterExtensionData parameterExtensionData in _parameterExtensions)
             {
-                parameterExtensionData.ParameterExtension.ReadFromPipeline(parameterExtensionData.RuntimeDefinedParameter.Value);
+                parameterExtensionData.ParameterExtension.ReadFromPipeline(parameterExtensionData.RuntimeDefinedParameter);
             }
 
             return Task.CompletedTask;

@@ -4,6 +4,7 @@ using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.CustomerPortal.Sdk.Console.Extensions;
 using Cmf.Foundation.Common.Licenses.Enums;
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -19,13 +20,15 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public DeployAgentCommand(string name, string description = null) : base(name, description)
         {
-            AddParameters();
             Handler = CommandHandler.Create(typeof(DeployAgentCommand).GetMethod(nameof(DeployAgentCommand.DeployHandler)), this);
         }
 
-        protected override IOptionExtension ExtendWith()
+        protected override IEnumerable<IOptionExtension> ExtendWithRange()
         {
-            return new ReplaceTokensExtension();
+            List<IOptionExtension> extensions = new List<IOptionExtension>();
+            extensions.Add(new ReplaceTokensExtension());
+            extensions.Add(new CommonParametersExtension());
+            return extensions;
         }
 
         public async Task DeployHandler(bool verbose, string customerInfrastructureName, string name, string description, FileInfo parameters, string type, string site, string license,

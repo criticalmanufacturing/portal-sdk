@@ -15,6 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
         public CommonParametersExtension()
         {
             parameters = new List<RuntimeDefinedParameter>();
+            parametersValue = new Dictionary<string, object>();
             CreateRuntimeParameter("CustomerInfrastructureAgent", Resources.INFRASTRUCTURE_EXISTING_NAME_HELP, typeof(string));
             CreateRuntimeParameter("Name", Resources.DEPLOYMENT_NAME_HELP, typeof(string));
             CreateRuntimeParameter("Description", Resources.DEPLOYMENT_DESCRIPTION_HELP, typeof(string));
@@ -23,7 +24,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
             CreateRuntimeParameter("LicenseName", Resources.DEPLOYMENT_LICENSE_HELP, typeof(string));
             CreateRuntimeParameter("DeploymentTargetName", Resources.DEPLOYMENT_PACKAGE_HELP, typeof(string), true);
             CreateRuntimeParameter("TemplateName", Resources.INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP, typeof(string));
-            CreateRuntimeParameter("OutputDir", Resources.DEPLOYMENT_OUTPUTDIR_HELP, typeof(DirectoryInfo))~;
+            CreateRuntimeParameter("OutputDir", Resources.DEPLOYMENT_OUTPUTDIR_HELP, typeof(DirectoryInfo));
         }
 
         public IEnumerable<RuntimeDefinedParameter> GetParameters()
@@ -33,7 +34,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
 
         public void ReadFromPipeline(RuntimeDefinedParameter parameter)
         {
-            parametersValue.Add(parameter.Name, parameter.Value as string);
+            parametersValue.Add(parameter.Name, parameter.Value);
         }
 
         public void CreateRuntimeParameter(string name, string helpMessage, Type type, bool mandatory = false)

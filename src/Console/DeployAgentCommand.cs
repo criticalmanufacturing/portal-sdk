@@ -1,11 +1,9 @@
-﻿using Cmf.CustomerPortal.Sdk.Common;
-using Cmf.CustomerPortal.Sdk.Common.Handlers;
+﻿using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.CustomerPortal.Sdk.Console.Extensions;
 using Cmf.Foundation.Common.Licenses.Enums;
 using System;
 using System.Collections.Generic;
-using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Threading.Tasks;

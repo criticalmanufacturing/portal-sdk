@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
-using System.Text;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
 {

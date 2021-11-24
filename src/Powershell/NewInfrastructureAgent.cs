@@ -1,13 +1,10 @@
-﻿using Cmf.CustomerPortal.Sdk.Common;
-using Cmf.CustomerPortal.Sdk.Common.Handlers;
+﻿using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Powershell.Base;
 using Cmf.CustomerPortal.Sdk.Powershell.Extensions;
 using Cmf.Foundation.Common.Licenses.Enums;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell

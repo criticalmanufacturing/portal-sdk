@@ -1,10 +1,7 @@
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console.Extensions;
-using Cmf.Foundation.Common.Licenses.Enums;
-using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.IO;
 
 namespace Cmf.CustomerPortal.Sdk.Console.Base
 {

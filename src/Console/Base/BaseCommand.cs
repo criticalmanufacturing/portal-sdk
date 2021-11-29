@@ -20,6 +20,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
             UseExtensions(ExtendWithRange());
         }
 
+      
         private void UseExtensions(IEnumerable<IOptionExtension> extensions)
         {
             if (extensions != null)
@@ -40,7 +41,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         }
 
         /// <summary>
-        /// TODO: Rename this and make it void
         /// </summary>
         /// <param name="verbose"></param>
         /// <returns></returns>
@@ -59,5 +59,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         {
             return null;
         }
+
     }
 }

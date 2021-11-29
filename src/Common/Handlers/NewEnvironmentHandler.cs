@@ -80,7 +80,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     environment.Description = description;
                 }
                 
-                environment.DeploymentPackage = isInfrastructureAgent  || deploymentPackageName == null ? environment.DeploymentPackage : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
+                environment.DeploymentPackage = isInfrastructureAgent  || String.IsNullOrWhiteSpace(deploymentPackageName) ? environment.DeploymentPackage : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
                 environment.CustomerLicense = await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName);
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
                 environment.Parameters = rawParameters;

@@ -40,7 +40,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         }
 
         /// <summary>
-        /// TODO: Rename this and make it void
         /// </summary>
         /// <param name="verbose"></param>
         /// <returns></returns>

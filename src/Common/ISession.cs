@@ -19,6 +19,9 @@ namespace Cmf.CustomerPortal.Sdk.Common
         void LogDebug(string message);
         void LogPendingMessages();
 
+        /// <summary>
+        /// Depending on the login strategy, this token can be the PAT or the Refresh Token
+        /// </summary>
         string AccessToken { get; set; }
     }
 }

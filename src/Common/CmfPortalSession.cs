@@ -20,7 +20,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
         public IConfiguration Configuration { get; set; }
        public string AccessToken { get; set; }
 
-        //depending on the login strategy, this token can be the PAT or the Refresh Token
         private string Token
         {
             get

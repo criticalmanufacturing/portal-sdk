@@ -1,88 +1,13 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
-using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
 using System;
 using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
     public class NewEnvironmentUtilities : INewEnvironmentUtilities
     {
-		private DataSet NgpDataSetToDataSet(NgpDataSet ngpDataSet)
-        {
-			DataSet ds = new DataSet();
-
-			if (ngpDataSet == null || (string.IsNullOrWhiteSpace(ngpDataSet.XMLSchema) && string.IsNullOrWhiteSpace(ngpDataSet.DataXML)))
-			{
-				return ds;
-			}
-
-			//Insert schema
-			TextReader a = new StringReader(ngpDataSet.XMLSchema);
-			XmlReader readerS = new XmlTextReader(a);
-			ds.ReadXmlSchema(readerS);
-			XDocument xdS = XDocument.Parse(ngpDataSet.XMLSchema);
-
-			//Insert data
-			UTF8Encoding encoding = new UTF8Encoding();
-			Byte[] byteArray = encoding.GetBytes(ngpDataSet.DataXML);
-			MemoryStream stream = new MemoryStream(byteArray);
-
-			XmlReader reader = new XmlTextReader(stream);
-			try
-			{
-				ds.ReadXml(reader);
-			}
-			catch (ConstraintException ex)
-			{
-				throw new Exception("Error while parsing results from getting other Customer Environments to terminate", ex);
-			}
-			XDocument xd = XDocument.Parse(ngpDataSet.DataXML);
-
-			foreach (DataTable dt in ds.Tables)
-			{
-				var rs = from row in xd.Descendants(dt.TableName)
-						 select row;
-
-				int i = 0;
-				foreach (var r in rs)
-				{
-					DataRowState state = DataRowState.Added;
-					if (r.Attribute("RowState") != null)
-					{
-						state = (DataRowState)Enum.Parse(typeof(DataRowState), r.Attribute("RowState").Value);
-					}
-
-					DataRow dr = dt.Rows[i];
-					dr.AcceptChanges();
-
-					if (state == DataRowState.Deleted)
-					{
-						dr.Delete();
-					}
-					else if (state == DataRowState.Added)
-					{
-						dr.SetAdded();
-					}
-					else if (state == DataRowState.Modified)
-					{
-						dr.SetModified();
-					}
-
-					i++;
-				}
-			}
-
-			return ds;
-		}
-
 		private readonly ISession _session;
 		private readonly ICustomerPortalClient _customerPortalClient;
 
@@ -209,7 +134,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 			DataSet dataSet = await _customerPortalClient.ExecuteQuery(query);
 
 			var result = new CustomerEnvironmentCollection();
-			if (dataSet != null && dataSet.Tables.Count == 1 && dataSet.Tables[0].Rows.Count > 0)
+			if (dataSet?.Tables?.Count == 1 && dataSet.Tables[0].Rows.Count > 0)
             {
                 foreach (DataRow row in dataSet.Tables[0].Rows)
                 {

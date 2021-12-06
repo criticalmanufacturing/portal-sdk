@@ -84,17 +84,21 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     DataRow dr = dt.Rows[i];
                     dr.AcceptChanges();
 
-                    if (state == DataRowState.Deleted)
+                    switch (state)
                     {
-                        dr.Delete();
-                    }
-                    else if (state == DataRowState.Added)
-                    {
-                        dr.SetAdded();
-                    }
-                    else if (state == DataRowState.Modified)
-                    {
-                        dr.SetModified();
+                        case DataRowState.Added:
+                            dr.SetAdded();
+                            break;
+                        case DataRowState.Deleted:
+                            dr.Delete();
+                            break;
+                        case DataRowState.Modified:
+                            dr.SetModified();
+                            break;
+                        case DataRowState.Detached:
+                        case DataRowState.Unchanged:
+                        default:
+                            break;
                     }
 
                     i++;

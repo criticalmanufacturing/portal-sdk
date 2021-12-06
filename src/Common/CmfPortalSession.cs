@@ -45,7 +45,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 return token;
             }
 
-            private set
+            set
             {
                 // write to file and set as hidden
                 Directory.CreateDirectory(_loginCredentialsDir);

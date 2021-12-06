@@ -9,8 +9,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         IConfiguration Configuration { get; set; }
         LogLevel LogLevel { get; }
         string AccessToken { get; }
-
-        void ConfigureSession(string accessToken = null);
+        void ConfigureSession(string token = null);
         void RestoreSession();
 
         void LogInformation(string message);

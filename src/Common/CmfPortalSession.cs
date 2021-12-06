@@ -13,17 +13,19 @@ namespace Cmf.CustomerPortal.Sdk.Common
         private const string _loginTokenFileName = "cmfportaltoken";
         private static readonly string _loginCredentialsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _cmfPortalDirName);
         private static readonly string _loginCredentialsFilePath = Path.Combine(_loginCredentialsDir, _loginTokenFileName);
-        private string accessToken = null;
+        private string token = null;
 
         public LogLevel LogLevel { get; protected set; } = LogLevel.Information;
 
         public IConfiguration Configuration { get; set; }
+        
+        public string AccessToken { get; private set; }
 
-        public string AccessToken
+        private string Token
         {
             get
             {
-                if (accessToken == null)
+                if (token == null)
                 {
                     // see if file exists
                     if (File.Exists(_loginCredentialsFilePath))
@@ -31,7 +33,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                         // try to deserialize
                         try
                         {
-                            accessToken = File.ReadAllText(_loginCredentialsFilePath);
+                            token = File.ReadAllText(_loginCredentialsFilePath);
                             LogDebug("Login Access Token restored from file");
                         }
                         catch (Exception ex)
@@ -40,7 +42,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                         }
                     }
                 }
-                return accessToken;
+                return token;
             }
 
             private set
@@ -48,35 +50,35 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 // write to file and set as hidden
                 Directory.CreateDirectory(_loginCredentialsDir);
                 File.WriteAllText(_loginCredentialsFilePath, value);
-                accessToken = value;
+                token = value;
                 LogDebug("Login Access Token saved");
             }
         }
 
-        public void ConfigureSession(string accessToken = null)
+        public void ConfigureSession(string token = null)
         {
             // make sure that empty/whitespace values are set as null
-            if (!string.IsNullOrWhiteSpace(accessToken))
+            if (!string.IsNullOrWhiteSpace(token))
             {
                 // if the user provided a token, cache it
-                AccessToken = accessToken;
+                Token = token;
             }
 
-            ConfigureLBOs(accessToken);
+            ConfigureLBOs(token);
         }
 
         public void RestoreSession()
         {
-            string accessToken = AccessToken;
-            if (string.IsNullOrWhiteSpace(accessToken))
+            string token = Token;
+            if (string.IsNullOrWhiteSpace(token))
             {
                 throw new Exception("Session not found. Have you tried to log in?");
             }
 
-            ConfigureLBOs(accessToken);
+            ConfigureLBOs(token);
         }
 
-        protected void ConfigureLBOs(string accessToken)
+        protected void ConfigureLBOs(string token)
         {
             // Create the provider configuration function
             ClientConfigurationProvider.ConfigurationFactory = () =>
@@ -88,19 +90,21 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     IsUsingLoadBalancer = bool.Parse(Configuration["ClientConfiguration:IsUsingLoadBalancer"]),
                     ClientId = Configuration["ClientConfiguration:ClientId"],
                     UseSsl = bool.Parse(Configuration["ClientConfiguration:UseSsl"]),
-                    SecurityAccessToken = accessToken,
+                    SecurityAccessToken = token,
                     SecurityPortalBaseAddress = new Uri(Configuration["ClientConfiguration:SecurityPortalBaseAddress"])
                 };
-
-                if (accessToken == null)
-                {
-                    clientConfiguration.TokenProviderUpdated += (object sender, IAuthProvider authProvider) =>
+                  clientConfiguration.TokenProviderUpdated += (object sender, IAuthProvider authProvider) =>
                     {
                         // save access token in the session
-                        AccessToken = authProvider.RefreshToken;
-                    };
-                }
+                        if (token == null)
+                        {
+                            Token = authProvider.RefreshToken;
+                        }
 
+                        AccessToken = authProvider.AccessToken;
+                    };
+                
+ 
                 return clientConfiguration;
             };
         }

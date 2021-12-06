@@ -73,16 +73,16 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 _session.LogDebug($"Configuring message bus...");
 
                 // create new transport using the config
-                string transportConfigString = (await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true)).TransportConfig;
-                TransportConfig transportConfig = JsonConvert.DeserializeObject<TransportConfig>(transportConfigString);
+                TransportConfig transportConfig = JsonConvert.DeserializeObject<TransportConfig>((await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true)).TransportConfig);
                 transportConfig.ApplicationName = "Customer Portal Client";
                 transportConfig.TenantName = ClientConfigurationProvider.ClientConfiguration.ClientTenantName;
+                transportConfig.SecurityToken = transportConfig.SecurityToken == null ? _session.AccessToken : transportConfig.SecurityToken;
                 Transport messageBus = new Transport(transportConfig);
 
                 // Register events
                 messageBus.Connected += () =>
                 {
-                    _session.LogDebug("Message Bus Connect!");
+                    _session.LogDebug("Message Bus Connect!");  
                 };
 
                 messageBus.Disconnected += () =>

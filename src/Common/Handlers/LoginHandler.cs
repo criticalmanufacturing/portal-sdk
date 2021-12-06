@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             else
             {
                 // Configure session with the pat
-                Session.ConfigureSession(accessToken: pat);
+                Session.ConfigureSession(token: pat);
             }
 
             Session.LogInformation("User successfully logged in");

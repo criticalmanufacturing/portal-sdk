@@ -209,17 +209,23 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             await ProcessEnvironmentDeployment(customerEnvironment, deploymentTarget, outputDir);
         }
 
-        public async Task<bool> WaitForEnvironmentsToBeTerminated(CustomerEnvironmentCollection customerEnvironments)
+        public async Task WaitForEnvironmentsToBeTerminated(CustomerEnvironmentCollection customerEnvironments)
         {
-            var result = false;
-            var timeout = new TimeSpan(0, 5, 0);
+            var timeout = new TimeSpan(0, 30, 0);
             var waitPeriod = new TimeSpan(0, 0, 5);
-            var ids = new HashSet<long>();
-            customerEnvironments.ForEach(ce => ids.Add(ce.Id));
+            var ids = new HashSet<long>(customerEnvironments.Select(ce => ce.Id));
+            var ctSource = new CancellationTokenSource();
+            CancellationToken ct = ctSource.Token;
             var task = Task.Run(async () =>
             {
-                while(!result)
+                var result = false;
+                while (!result)
                 {
+                    if (ct.IsCancellationRequested)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                    }
+
                     var checkedCustomerEnvironments = await _customerPortalClient.GetCustomerEnvironmentsById(ids.ToArray());
                     foreach (var ce in checkedCustomerEnvironments)
                     {
@@ -240,12 +246,22 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 }
             });
 
-            if (task != await Task.WhenAny(task, Task.Delay(timeout)))
+            try
             {
-                throw new TimeoutException($"Timeout while waiting for Customer Environment {customerEnvironments.First().Name} versions to be terminated.");
+                if (task != await Task.WhenAny(task, Task.Delay(timeout)))
+                {
+                    throw new TimeoutException($"Timeout while waiting for Customer Environment {customerEnvironments.First().Name} versions to be terminated.");
+                }
             }
-
-            return result;
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                ctSource.Cancel();
+                ctSource.Dispose();
+            }
         }
     }
 }

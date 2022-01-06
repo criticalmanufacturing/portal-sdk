@@ -8,6 +8,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         Task Handle(bool interactive, CustomerEnvironment customerEnvironment, string deploymentTarget, DirectoryInfo outputDir);
 
-        Task<bool> WaitForEnvironmentsToBeTerminated(CustomerEnvironmentCollection customerEnvironments);
+        Task WaitForEnvironmentsToBeTerminated(CustomerEnvironmentCollection customerEnvironments);
     }
 }

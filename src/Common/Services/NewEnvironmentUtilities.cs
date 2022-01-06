@@ -134,17 +134,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 			DataSet dataSet = await _customerPortalClient.ExecuteQuery(query);
 
 			var result = new CustomerEnvironmentCollection();
-			if (dataSet?.Tables?.Count == 1 && dataSet.Tables[0].Rows.Count > 0)
+            foreach (DataRow row in dataSet?.Tables?[0]?.Rows)
             {
-                foreach (DataRow row in dataSet.Tables[0].Rows)
-                {
-					result.Add(new CustomerEnvironment
-					{
-						Id = (long)row["Id"],
-						Name = (string)row["Name"],
-						DefinitionId = (long)row["DefinitionId"]
-					});
-                }
+				result.Add(new CustomerEnvironment
+				{
+					Id = (long)row["Id"],
+					Name = (string)row["Name"],
+					DefinitionId = (long)row["DefinitionId"]
+				});
             }
 
 			return result;

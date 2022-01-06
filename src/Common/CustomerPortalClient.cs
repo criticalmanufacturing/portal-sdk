@@ -46,35 +46,35 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }
 
             //Insert schema
-            TextReader a = new StringReader(ngpDataSet.XMLSchema);
-            XmlReader readerS = new XmlTextReader(a);
-            ds.ReadXmlSchema(readerS);
-            XDocument xdS = XDocument.Parse(ngpDataSet.XMLSchema);
+            using (TextReader a = new StringReader(ngpDataSet.XMLSchema))
+            using (XmlReader readerS = new XmlTextReader(a))
+            {
+                ds.ReadXmlSchema(readerS);
+            }
 
             //Insert data
-            UTF8Encoding encoding = new UTF8Encoding();
-            Byte[] byteArray = encoding.GetBytes(ngpDataSet.DataXML);
-            MemoryStream stream = new MemoryStream(byteArray);
-
-            XmlReader reader = new XmlTextReader(stream);
-            try
+            byte[] byteArray = Encoding.UTF8.GetBytes(ngpDataSet.DataXML);
+            using (MemoryStream stream = new MemoryStream(byteArray))
+            using (XmlReader reader = new XmlTextReader(stream))
             {
-                ds.ReadXml(reader);
-            }
-            catch (ConstraintException ex)
-            {
-                throw new Exception("Error while parsing results from getting other Customer Environments to terminate", ex);
+                try
+                {
+                    ds.ReadXml(reader);
+                }
+                catch (ConstraintException ex)
+                {
+                    throw new Exception("Error while parsing results from getting other Customer Environments to terminate", ex);
+                }
             }
             XDocument xd = XDocument.Parse(ngpDataSet.DataXML);
 
             foreach (DataTable dt in ds.Tables)
             {
-                var rs = from row in xd.Descendants(dt.TableName)
-                         select row;
+                var rs = xd.Descendants(dt.TableName).ToArray();
 
-                int i = 0;
-                foreach (var r in rs)
+                for (int i = 0; i < rs.Length; i++)
                 {
+                    var r = rs[i];
                     DataRowState state = DataRowState.Added;
                     if (r.Attribute("RowState") != null)
                     {
@@ -100,8 +100,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
                         default:
                             break;
                     }
-
-                    i++;
                 }
             }
 
@@ -236,19 +234,16 @@ namespace Cmf.CustomerPortal.Sdk.Common
             var result = await ExecuteQuery(query);
 
             var customerEnvironments = new CustomerEnvironmentCollection();
-            if (result?.Tables?.Count > 0)
+            foreach (DataRow row in result?.Tables?[0]?.Rows)
             {
-                foreach (DataRow row in result.Tables[0].Rows)
+                customerEnvironments.Add(new CustomerEnvironment
                 {
-                    customerEnvironments.Add(new CustomerEnvironment
-                    {
-                        Id = (long)row["Id"],
-                        DefinitionId = (long)row["DefinitionId"],
-                        Name = (string)row["Name"],
-                        Status = (DeploymentStatus)row["Status"],
-                        UniversalState = (UniversalState)row["UniversalState"]
-                    });
-                }
+                    Id = (long)row["Id"],
+                    DefinitionId = (long)row["DefinitionId"],
+                    Name = (string)row["Name"],
+                    Status = (DeploymentStatus)row["Status"],
+                    UniversalState = (UniversalState)row["UniversalState"]
+                });
             }
 
             return customerEnvironments;

@@ -1,12 +1,24 @@
-﻿using Cmf.Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects;
+﻿using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.Foundation.BusinessObjects;
+using Cmf.Foundation.BusinessObjects.QueryObject;
+using Cmf.Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
+using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
 using Cmf.Foundation.Common.Base;
 using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Client;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
@@ -21,6 +33,80 @@ namespace Cmf.CustomerPortal.Sdk.Common
         {
             _session = session;
         }
+
+        #region Private Methods
+
+        private static DataSet NgpDataSetToDataSet(NgpDataSet ngpDataSet)
+        {
+            DataSet ds = new DataSet();
+
+            if (ngpDataSet == null || (string.IsNullOrWhiteSpace(ngpDataSet.XMLSchema) && string.IsNullOrWhiteSpace(ngpDataSet.DataXML)))
+            {
+                return ds;
+            }
+
+            //Insert schema
+            using (TextReader a = new StringReader(ngpDataSet.XMLSchema))
+            using (XmlReader readerS = new XmlTextReader(a))
+            {
+                ds.ReadXmlSchema(readerS);
+            }
+
+            //Insert data
+            byte[] byteArray = Encoding.UTF8.GetBytes(ngpDataSet.DataXML);
+            using (MemoryStream stream = new MemoryStream(byteArray))
+            using (XmlReader reader = new XmlTextReader(stream))
+            {
+                try
+                {
+                    ds.ReadXml(reader);
+                }
+                catch (ConstraintException ex)
+                {
+                    throw new Exception("Error while parsing results from getting other Customer Environments to terminate", ex);
+                }
+            }
+            XDocument xd = XDocument.Parse(ngpDataSet.DataXML);
+
+            foreach (DataTable dt in ds.Tables)
+            {
+                var rs = xd.Descendants(dt.TableName).ToArray();
+
+                for (int i = 0; i < rs.Length; i++)
+                {
+                    var r = rs[i];
+                    DataRowState state = DataRowState.Added;
+                    if (r.Attribute("RowState") != null)
+                    {
+                        state = (DataRowState)Enum.Parse(typeof(DataRowState), r.Attribute("RowState").Value);
+                    }
+
+                    DataRow dr = dt.Rows[i];
+                    dr.AcceptChanges();
+
+                    switch (state)
+                    {
+                        case DataRowState.Added:
+                            dr.SetAdded();
+                            break;
+                        case DataRowState.Deleted:
+                            dr.Delete();
+                            break;
+                        case DataRowState.Modified:
+                            dr.SetModified();
+                            break;
+                        case DataRowState.Detached:
+                        case DataRowState.Unchanged:
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            return ds;
+        }
+
+        #endregion
 
         /// <summary>
         /// Gets object by Id
@@ -41,13 +127,126 @@ namespace Cmf.CustomerPortal.Sdk.Common
             return output.Instance as T;
         }
 
-        public async Task<T> LoadObjectRelations<T>(T obj, System.Collections.ObjectModel.Collection<string> relationsNames) where T : CoreBase, new()
+        public async Task<T> LoadObjectRelations<T>(T obj, Collection<string> relationsNames) where T : CoreBase, new()
         {
             return (await new LoadObjectRelationsInput
             {
                 Object = obj,
                 RelationNames = relationsNames
             }.LoadObjectRelationsAsync(true)).Object as T;
+        }
+
+        public async Task<DataSet> ExecuteQuery(QueryObject queryObject)
+        {
+            return NgpDataSetToDataSet((await new ExecuteQueryInput
+            {
+                QueryObject = queryObject
+            }.ExecuteQueryAsync(true)).NgpDataSet);
+        }
+
+        public async Task<T> TerminateObjects<T, U>(T obj, OperationAttributeCollection operationAttributes = null) where T : List<U>, new() where U : new()
+        {
+            return (await new TerminateObjectsInput
+            {
+                Objects = new Collection<object>(obj.ConvertAll(x => x as object)),
+                OperationAttributes = operationAttributes,
+                IgnoreLastServiceId = true
+            }.TerminateObjectsAsync(true)).Objects as T;
+        }
+
+        public async Task<CustomerEnvironmentCollection> GetCustomerEnvironmentsById(long[] ids)
+        {
+            QueryObject query = new QueryObject
+            {
+                EntityTypeName = "CustomerEnvironment",
+                Name = "GetEnvironmentsById",
+                Query = new Query()
+            };
+            query.Query.Distinct = false;
+            query.Query.HasParameters = true;
+            query.Query.Filters = new FilterCollection() {
+                new Filter()
+                {
+                    Name = "Id",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    Operator = Cmf.Foundation.Common.FieldOperator.In,
+                    Value = ids,
+                    LogicalOperator = Cmf.Foundation.Common.LogicalOperator.Nothing,
+                    FilterType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,
+                }
+            };
+            query.Query.Fields = new FieldCollection() {
+                new Field()
+                {
+                    Alias = "Id",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "Id",
+                    Position = 0,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "DefinitionId",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "DefinitionId",
+                    Position = 1,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "Name",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "Name",
+                    Position = 2,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "Status",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "Status",
+                    Position = 3,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "UniversalState",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "UniversalState",
+                    Position = 4,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                }
+            };
+            query.Query.Relations = new RelationCollection();
+
+            // execute query
+            var result = await ExecuteQuery(query);
+
+            var customerEnvironments = new CustomerEnvironmentCollection();
+            foreach (DataRow row in result?.Tables?[0]?.Rows)
+            {
+                customerEnvironments.Add(new CustomerEnvironment
+                {
+                    Id = (long)row["Id"],
+                    DefinitionId = (long)row["DefinitionId"],
+                    Name = (string)row["Name"],
+                    Status = (DeploymentStatus)row["Status"],
+                    UniversalState = (UniversalState)row["UniversalState"]
+                });
+            }
+
+            return customerEnvironments;
         }
 
         /// <summary>

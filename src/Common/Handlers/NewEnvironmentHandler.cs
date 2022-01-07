@@ -5,6 +5,7 @@ using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -38,6 +39,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string customerInfrastructureName,
             string description,
             string templateName,
+            bool terminateOtherVersions,
             bool isInfrastructureAgent
         )
         {
@@ -85,9 +87,30 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
                 environment.Parameters = rawParameters;
                 environment.ChangeSet = null;
-                
 
                 environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
+
+                // terminate other versions
+                if (terminateOtherVersions)
+                {
+                    Session.LogInformation("Terminating other versions...");
+
+                    var customerEnvironmentsToTerminate = await _newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
+                    await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate,
+                        new Foundation.BusinessObjects.OperationAttributeCollection
+                        {
+                            new Foundation.BusinessObjects.OperationAttribute
+                            {
+                                Name = "AuthBearer",
+                                Value = $"Bearer {Session.AccessToken}"
+                            }
+                        });
+
+                    // wait until they're terminated
+                    await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
+
+                    Session.LogInformation("Other versions terminated!");
+                }
             }
             // if not, check if we are creating a new environment for an infrastructure
             else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
@@ -127,7 +150,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
             }
-
             
             // handle installation
             await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir);

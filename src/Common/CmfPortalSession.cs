@@ -18,7 +18,8 @@ namespace Cmf.CustomerPortal.Sdk.Common
         public LogLevel LogLevel { get; protected set; } = LogLevel.Information;
 
         public IConfiguration Configuration { get; set; }
-       public string AccessToken { get; set; }
+        
+        public string AccessToken { get; private set; }
 
         private string Token
         {

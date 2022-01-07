@@ -51,9 +51,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Base
 
                     // save extensions instance
                     _parameterExtensions.Add(new ParameterExtensionData { ParameterExtension = optionExtension, RuntimeDefinedParameter = param });
-
                 }
-               
             }
         }
 

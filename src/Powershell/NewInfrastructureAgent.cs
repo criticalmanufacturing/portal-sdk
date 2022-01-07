@@ -33,7 +33,8 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"),(FileInfo)CommonParametersExtension.GetValue("ParametersPath"), 
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), null, (string)CommonParametersExtension.GetValue("LicenseName"), null,
                 (string)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), 
-                (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"), true);
+                (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"),
+                false, true);
         }
     }
 }

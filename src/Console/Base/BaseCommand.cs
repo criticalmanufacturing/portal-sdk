@@ -20,7 +20,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
             UseExtensions(ExtendWithRange());
         }
 
-      
         private void UseExtensions(IEnumerable<IOptionExtension> extensions)
         {
             if (extensions != null)
@@ -59,6 +58,5 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         {
             return null;
         }
-
     }
 }

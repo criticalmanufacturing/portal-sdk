@@ -1,4 +1,5 @@
-﻿using Cmf.CustomerPortal.Sdk.Common.Handlers;
+﻿using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.CustomerPortal.Sdk.Console.Extensions;
 using Cmf.Foundation.Common.Licenses.Enums;
@@ -35,7 +36,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, null, target, output,
+            await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, null,
+                (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), target), output,
                 replaceTokens, interactive, customerInfrastructureName, description, templateName, false, true);
         }
     }

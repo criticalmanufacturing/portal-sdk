@@ -56,11 +56,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, string target, DirectoryInfo outputPath)
+        private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputPath)
         {
             switch (target)
             {
-                case "dockerswarm":
+                case DeploymentTarget.dockerswarm:
+                case DeploymentTarget.KubernetesOnPremisesTarget:
+                case DeploymentTarget.OpenShiftOnPremisesTarget:
 
                     // get the attachments of the current customer environment
                     GetAttachmentsForEntityInput input = new GetAttachmentsForEntityInput()
@@ -156,7 +158,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
-        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, string deploymentTarget, DirectoryInfo outputDir)
+        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir)
         {
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CE_DEPLOYMENT_{customerEnvironment.Id}";

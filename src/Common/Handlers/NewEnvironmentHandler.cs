@@ -32,7 +32,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string siteName,
             string licenseName,
             string deploymentPackageName,
-            string target,
+            DeploymentTarget target,
             DirectoryInfo outputDir,
             string[] replaceTokens,
             bool interactive,

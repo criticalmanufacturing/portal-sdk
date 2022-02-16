@@ -13,7 +13,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// </summary>
         /// <param name="abbreviatedDeploymentTarget"></param>
         /// <returns></returns>
-        string GetDeploymentTargetValue(string abbreviatedDeploymentTarget);
+        string GetDeploymentTargetValue(DeploymentTarget abbreviatedDeploymentTarget);
 
         /// <summary>
         /// Gets all the other versions of the <paramref name="customerEnvironment"/> that are eligible to be terminated.

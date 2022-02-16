@@ -1,10 +1,8 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.Foundation.Common.Licenses.Enums;
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
-using System.Text;
 
 namespace Cmf.CustomerPortal.Sdk.Console.Extensions
 {
@@ -34,8 +32,9 @@ namespace Cmf.CustomerPortal.Sdk.Console.Extensions
             {
                 IsRequired = true
             });
-            var targetArgument = new Argument<string>().FromAmong("portainer", "dockerswarm");
-            targetArgument.SetDefaultValue("dockerswarm");
+
+            var targetArgument = new Argument<string>().FromAmong(Enum.GetNames(typeof(DeploymentTarget)));
+            targetArgument.SetDefaultValue(DeploymentTarget.dockerswarm.ToString());
             command.Add(new Option<string>(new[] { "--target", "-trg", }, Resources.DEPLOYMENT_TARGET_HELP)
             {
                 Argument = targetArgument,

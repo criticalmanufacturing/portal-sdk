@@ -1,4 +1,5 @@
-﻿using Cmf.CustomerPortal.Sdk.Common.Handlers;
+﻿using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Powershell.Base;
 using Cmf.CustomerPortal.Sdk.Powershell.Extensions;
 using Cmf.Foundation.Common.Licenses.Enums;
@@ -32,7 +33,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"),(FileInfo)CommonParametersExtension.GetValue("ParametersPath"), 
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), null, (string)CommonParametersExtension.GetValue("LicenseName"), null,
-                (string)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), 
+                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), 
                 (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"),
                 false, true);
         }

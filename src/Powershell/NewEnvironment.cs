@@ -52,7 +52,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"), (FileInfo)CommonParametersExtension.GetValue("ParametersPath"),
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, (string)CommonParametersExtension.GetValue("LicenseName"), DeploymentPackageName,
-               (string)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"),
+               (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"),
                 ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), (string)CommonParametersExtension.GetValue("CustomerInfrastructureName"),
                 (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"), TerminateOtherVersions.ToBool(), false);
         }

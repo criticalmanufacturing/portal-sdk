@@ -17,16 +17,20 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 			_customerPortalClient = customerPortalClient;
 		}
 
-		public string GetDeploymentTargetValue(string abbreviatedDeploymentTarget)
+		public string GetDeploymentTargetValue(DeploymentTarget abbreviatedDeploymentTarget)
         {
             switch (abbreviatedDeploymentTarget)
             {
-                case "portainer":
-                    return "PortainerV2Target";
-                case "dockerswarm":
-                    return "DockerSwarmOnPremisesTarget";
+				case DeploymentTarget.dockerswarm:
+					return "DockerSwarmOnPremisesTarget";
+				case DeploymentTarget.portainer:
+					return "PortainerV2Target";
+				case DeploymentTarget.KubernetesOnPremisesTarget:
+				case DeploymentTarget.OpenShiftOnPremisesTarget:
+				case DeploymentTarget.AzureKubernetesServiceTarget:
+					return abbreviatedDeploymentTarget.ToString();
                 default:
-                    throw new Exception($"Target parameter '{abbreviatedDeploymentTarget}' not recognized");
+                    throw new Exception($"Target parameter '{abbreviatedDeploymentTarget}' not supported");
             }
         }
 

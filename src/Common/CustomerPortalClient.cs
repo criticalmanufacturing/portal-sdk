@@ -275,7 +275,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 TransportConfig transportConfig = JsonConvert.DeserializeObject<TransportConfig>((await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true)).TransportConfig);
                 transportConfig.ApplicationName = "Customer Portal Client";
                 transportConfig.TenantName = ClientConfigurationProvider.ClientConfiguration.ClientTenantName;
-                transportConfig.SecurityToken = transportConfig.SecurityToken == null ? _session.AccessToken : transportConfig.SecurityToken;
+                transportConfig.SecurityToken = ClientConfigurationProvider.DiscoverAuthProvider().AccessToken;
                 Transport messageBus = new Transport(transportConfig);
 
                 // Register events

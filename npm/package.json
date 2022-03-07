@@ -4,7 +4,8 @@
     "description": "Critical Manufacturing Portal CLI",
     "author": "Critical Manufacturing, SA",
     "keywords": [
-        "cmf"
+        "cmf",
+        "cmf-cli-plugin"
     ],
     "license": "BSD-3-Clause",
     "homepage": "https://github.com/criticalmanufacturing/portal-sdk#readme",

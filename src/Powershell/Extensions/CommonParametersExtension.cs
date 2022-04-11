@@ -16,7 +16,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
             parameters = new List<RuntimeDefinedParameter>();
             parametersValue = new Dictionary<string, object>();
             CreateRuntimeParameter("CustomerInfrastructureName", Resources.INFRASTRUCTURE_EXISTING_NAME_HELP, typeof(string), true);
-            CreateRuntimeParameter("Name", Resources.DEPLOYMENT_NAME_HELP, typeof(string));
+            CreateRuntimeParameter("Name", Resources.DEPLOYMENT_NAME_HELP, typeof(string), true);
             CreateRuntimeParameter("Description", Resources.DEPLOYMENT_DESCRIPTION_HELP, typeof(string));
             CreateRuntimeParameter("ParametersPath", Resources.DEPLOYMENT_PARAMETERSPATH_HELP, typeof(FileInfo));
             CreateRuntimeParameter("EnvironmentType", Resources.DEPLOYMENT_ENVIRONMENTTYPE_HELP, typeof(EnvironmentType), defaultValue: EnvironmentType.Development);

@@ -15,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public CreateInfrastructureFromTemplateCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new[] { "--name", "-n" }, Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP));
+            Add(new Option<string>(new[] { "--id", "-n" }, Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP));
             Add(new Option<string>(new[] { "--template-name", "-t" }, Resources.INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP)
             {
                 IsRequired = true
@@ -25,12 +25,12 @@ namespace Cmf.CustomerPortal.Sdk.Console
             Handler = CommandHandler.Create(typeof(CreateInfrastructureFromTemplateCommand).GetMethod(nameof(CreateInfrastructureFromTemplateCommand.CreateInfrastructureFromTemplateHandler)), this);
         }
 
-        public async Task CreateInfrastructureFromTemplateHandler(bool verbose, string name, string agentName, string templateName)
+        public async Task CreateInfrastructureFromTemplateHandler(bool verbose, string id, string agentName, string templateName)
         {
             // get new environment handler and run it
             CreateSession(verbose);
             NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
-            await newInfrastructureFromTemplateHandler.Run(name, templateName, agentName);
+            await newInfrastructureFromTemplateHandler.Run(id, templateName, agentName);
         }
     }
 }

@@ -45,13 +45,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
             return extensions;
         }
 
-        public async Task DeployHandler(bool verbose, string customerInfrastructureName, string name, string description, FileInfo parameters, string type, string site, string license,
+        public async Task DeployHandler(bool verbose, string customerInfrastructureName, string id, string description, FileInfo parameters, string type, string site, string license,
             string package, string target, string templateName, DirectoryInfo output, string[] replaceTokens, bool interactive, bool terminateOtherVersions)
         {
             // get new environment handler and run it
             CreateSession(verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(name, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package,
+            await newEnvironmentHandler.Run(id, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package,
                 (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), target), output,
                 replaceTokens, interactive, customerInfrastructureName, description, templateName, terminateOtherVersions, false);
         }

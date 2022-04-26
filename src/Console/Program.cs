@@ -19,16 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.AddCommand(new PublishCommand());
             rootCommand.AddCommand(new PublishPackageCommand());
 
-            // cannot have an argument associated with --name with spaces. This condition is required to continue allowing users to have --name as a parameter
-            if (Array.IndexOf(args, "--name") > -1)
-            {
-                args[Array.IndexOf(args, "--name")] = "--id";
-            }
-           
-            
             return await rootCommand.InvokeAsync(args);
-
-           
         }
     }
 }

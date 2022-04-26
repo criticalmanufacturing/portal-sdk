@@ -15,22 +15,22 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public CreateInfrastructureFromTemplateCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new[] { "--id", "-n" }, Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP));
+            Add(new Option<string>(new[] { "--name", "-n" }, Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP));
             Add(new Option<string>(new[] { "--template-name", "-t" }, Resources.INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP)
             {
                 IsRequired = true
             });
             Add(new Option<string>(new[] { "--agent-name", "-a" }, Resources.INFRASTRUCTUREFROMTEMPLATE_AGENTNAME_HELP));
 
-            Handler = CommandHandler.Create(typeof(CreateInfrastructureFromTemplateCommand).GetMethod(nameof(CreateInfrastructureFromTemplateCommand.CreateInfrastructureFromTemplateHandler)), this);
+            Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureFromTemplateHandler(x));
         }
 
-        public async Task CreateInfrastructureFromTemplateHandler(bool verbose, string id, string agentName, string templateName)
+        public async Task CreateInfrastructureFromTemplateHandler(DeployParameters parameters)
         {
             // get new environment handler and run it
-            CreateSession(verbose);
+            CreateSession(parameters.Verbose);
             NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
-            await newInfrastructureFromTemplateHandler.Run(id, templateName, agentName);
+            await newInfrastructureFromTemplateHandler.Run(parameters.Name, parameters.TemplateName, parameters.AgentName);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<bool>(new[] { "--terminateOtherVersions", "-tov" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP));
 
-            Handler = CommandHandler.Create(typeof(DeployCommand).GetMethod(nameof(DeployCommand.DeployHandler)), this);
+            Handler = CommandHandler.Create((DeployParameters x) => DeployHandler(x));
         }
 
         protected override IEnumerable<IOptionExtension> ExtendWithRange()
@@ -45,15 +45,15 @@ namespace Cmf.CustomerPortal.Sdk.Console
             return extensions;
         }
 
-        public async Task DeployHandler(bool verbose, string customerInfrastructureName, string id, string description, FileInfo parameters, string type, string site, string license,
-            string package, string target, string templateName, DirectoryInfo output, string[] replaceTokens, bool interactive, bool terminateOtherVersions)
+        public async Task DeployHandler(DeployParameters parameters)
         {
             // get new environment handler and run it
-            CreateSession(verbose);
+            CreateSession(parameters.Verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(id, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, package,
-                (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), target), output,
-                replaceTokens, interactive, customerInfrastructureName, description, templateName, terminateOtherVersions, false);
+            await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, parameters.License, 
+                parameters.Package,
+                (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
+                parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TemplateName, parameters.TerminateOtherVersions, false);
         }
     }
 }

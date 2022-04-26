@@ -19,7 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public DeployAgentCommand(string name, string description = null) : base(name, description)
         {
-            Handler = CommandHandler.Create(typeof(DeployAgentCommand).GetMethod(nameof(DeployAgentCommand.DeployHandler)), this);
+            Handler = CommandHandler.Create((DeployParameters x) => DeployHandler(x));
         }
 
         protected override IEnumerable<IOptionExtension> ExtendWithRange()
@@ -30,15 +30,14 @@ namespace Cmf.CustomerPortal.Sdk.Console
             return extensions;
         }
 
-        public async Task DeployHandler(bool verbose, string customerInfrastructureName, string id, string description, FileInfo parameters, string type, string site, string license,
-            string package, string target, string templateName, DirectoryInfo output, string[] replaceTokens, bool interactive)
+        public async Task DeployHandler(DeployParameters parameters)
         {
             // get new environment handler and run it
-            CreateSession(verbose);
+            CreateSession(parameters.Verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(id, parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), type), site, license, null,
-                (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), target), output,
-                replaceTokens, interactive, customerInfrastructureName, description, templateName, false, true);
+            await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, parameters.License, null,
+                (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
+                parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TemplateName, false, true);
         }
     }
 }

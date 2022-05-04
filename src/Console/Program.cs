@@ -1,3 +1,4 @@
+using System;
 using System.CommandLine;
 using System.Threading.Tasks;
 
@@ -17,7 +18,6 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.AddCommand(new LoginCommand());
             rootCommand.AddCommand(new PublishCommand());
             rootCommand.AddCommand(new PublishPackageCommand());
-           
 
             return await rootCommand.InvokeAsync(args);
         }

@@ -28,15 +28,15 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
-            Handler = CommandHandler.Create(typeof(CreateInfrastructureCommand).GetMethod(nameof(CreateInfrastructureCommand.CreateInfrastructureHandler)), this);
+            Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureHandler(x));
         }
 
-        public async Task CreateInfrastructureHandler(bool verbose, string name, string agentName, string site, string domain)
+        public async Task CreateInfrastructureHandler(DeployParameters parameters)
         {
             // get new environment handler and run it
-            CreateSession(verbose);
+            CreateSession(parameters.Verbose);
             NewInfrastructureHandler handler = ServiceLocator.Get<NewInfrastructureHandler>();
-            await handler.Run(name, agentName, site, domain);
+            await handler.Run(parameters.Name, parameters.AgentName, parameters.Site, parameters.Domain);
         }
     }
 }

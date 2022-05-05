@@ -161,7 +161,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir)
         {
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
-            var subject = $"CE_DEPLOYMENT_{customerEnvironment.Id}";
+            var subject = $"CUSTOMERPORTAL.DEPLOYMENT.{customerEnvironment.Id}";
 
             _session.LogDebug($"Subscribing messagebus subject {subject}");
             messageBus.Subscribe(subject, ProcessDeploymentMessage);

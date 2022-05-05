@@ -96,15 +96,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Session.LogInformation("Terminating other versions...");
 
                     var customerEnvironmentsToTerminate = await _newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
-                    await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate,
-                        new Foundation.BusinessObjects.OperationAttributeCollection
-                        {
-                            new Foundation.BusinessObjects.OperationAttribute
-                            {
-                                Name = "AuthBearer",
-                                Value = $"Bearer {Session.AccessToken}"
-                            }
-                        });
+                    await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate);
 
                     // wait until they're terminated
                     await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);

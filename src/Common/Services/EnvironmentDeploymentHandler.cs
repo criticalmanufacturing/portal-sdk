@@ -95,6 +95,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             byte[] buffer = new byte[bytesToRead];
 
                             outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
+                            outputFile = outputFile.Replace(" ", "").Replace("\"","");
                             _session.LogDebug($"Downloading to {outputFile}");
 
                             using (BinaryWriter streamWriter = new BinaryWriter(File.Open(outputFile, FileMode.Create, FileAccess.Write)))

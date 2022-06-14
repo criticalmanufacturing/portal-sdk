@@ -114,10 +114,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     // If the user defined a site, load it, otherwise the template site will be used
                     if (!string.IsNullOrEmpty(siteName))
                     {
-                        // it is possible that the user cannot load the site due to the site data group, fetch it from the list of available sites instead
-
-                        //  TODO call getAvailableSites
-
+                        environmentSite = await _customerPortalClient.GetObjectByName<ProductSite>(siteName)
                     }
                 }
 

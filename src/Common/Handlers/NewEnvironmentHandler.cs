@@ -114,7 +114,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     // If the user defined a site, load it, otherwise the template site will be used
                     if (!string.IsNullOrEmpty(siteName))
                     {
-                        environmentSite = await _customerPortalClient.GetObjectByName<ProductSite>(siteName)
+                        environmentSite = await _customerPortalClient.GetObjectByName<ProductSite>(siteName);
                     }
                 }
 

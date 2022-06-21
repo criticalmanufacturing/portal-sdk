@@ -55,7 +55,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             CustomerInfrastructure customerInfrastructure = new CustomerInfrastructure
             {
                 Name = customerInfrastructureName,
-                Site = customerInfrastructureTemplate.Site,
+                Customer = customerInfrastructureTemplate.Customer,
                 Domain = customerInfrastructureTemplate.Domain,
                 InfrastructureAgent = string.IsNullOrWhiteSpace(agentName) ? null : await _customerPortalClient.GetObjectByName<CustomerEnvironment>(agentName),
                 Parameters = customerInfrastructureTemplate.Parameters

@@ -20,7 +20,8 @@
         public const string INFRASTRUCTUREFROMTEMPLATE_NAME_HELP = "The name of the Customer Infrastructure to be created";
         public const string INFRASTRUCTUREFROMTEMPLATE_AGENTNAME_HELP = "The name of the Infrastructure Agent to be linked with the new Customer Infrastructure";
         public const string INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP = "The name of the Customer Infrastructure template that the new Customer Infrastructure will derive from";
-        public const string INFRASTRUCTURE_SITE_HELP = "Name of the Site associated with the Customer Infrastructure";
+        public const string INFRASTRUCTURE_SITE_HELP = "(deprecated) Name of a Site used to match a Customer with the Customer Infrastructure";
+        public const string INFRASTRUCTURE_CUSTOMER_HELP = "Name of the Customer associated with the Customer Infrastructure";
         public const string INFRASTRUCTURE_DOMAIN_HELP = "Base domain for the Customer Environments of the Customer Infrastructure";
         public const string INFRASTRUCTURE_EXISTING_NAME_HELP = "Name of the existing Customer Infrastructure";
         public const string INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP = "Name of an existing Customer Environment template that is linked to the Customer Infrastructure";

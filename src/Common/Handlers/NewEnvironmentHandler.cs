@@ -107,6 +107,17 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, check if we are creating a new environment for an infrastructure
             else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
             {
+                ProductSite environmentSite = null;
+                // If we are creating in an infrastructure, and we are not creating the agent, the user can define the site for the environment
+                if (!isInfrastructureAgent)
+                {
+                    // If the user defined a site, load it, otherwise the template site will be used
+                    if (!string.IsNullOrEmpty(siteName))
+                    {
+                        environmentSite = await _customerPortalClient.GetObjectByName<ProductSite>(siteName);
+                    }
+                }
+
                 environment = new CustomerEnvironment
                 {
                     Name = name,
@@ -115,6 +126,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     EnvironmentType = environmentType.ToString(),
                     DeploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
                     DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
+                    Site = environmentSite,
                     CustomerLicense = await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName)
                 };
 

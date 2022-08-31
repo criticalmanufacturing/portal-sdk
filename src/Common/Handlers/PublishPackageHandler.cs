@@ -104,7 +104,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             bool packageExists = false;
 
-            string pattern = @"^(.+)\.(\d)\.(\d)\.(\d)\.zip$";
+            string pattern = @"^(.+)\.(\d+)\.(\d+)\.(\d+)\.zip$";
             RegexOptions options = RegexOptions.IgnoreCase;
             MatchCollection matches = Regex.Matches(fileName, pattern, options);
 
@@ -122,6 +122,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     Session.LogDebug("Package does not exist");
                 }
+            } else
+            {
+                Session.LogDebug($"Could not get data from file name ({fileName}) to validate if package exists.");
             }
 
             return packageExists;

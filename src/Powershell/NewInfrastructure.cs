@@ -12,9 +12,6 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         [Parameter(HelpMessage = Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP)]
         public string Name { get; set; }
 
-        [Parameter(HelpMessage = Resources.INFRASTRUCTUREFROMTEMPLATE_AGENTNAME_HELP)]
-        public string AgentName { get; set; }
-
         [Parameter(HelpMessage = Resources.INFRASTRUCTURE_SITE_HELP)]
         public string SiteName { get; set; }
 
@@ -28,7 +25,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         protected async override Task ProcessRecordAsync()
         {
             NewInfrastructureHandler handler = ServiceLocator.Get<NewInfrastructureHandler>();
-            await handler.Run(Name, AgentName, SiteName, CustomerName, Domain);
+            await handler.Run(Name, SiteName, CustomerName, Domain);
         }
     }
 }

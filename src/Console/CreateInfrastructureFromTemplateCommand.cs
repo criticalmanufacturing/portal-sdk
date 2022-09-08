@@ -20,7 +20,6 @@ namespace Cmf.CustomerPortal.Sdk.Console
             {
                 IsRequired = true
             });
-            Add(new Option<string>(new[] { "--agent-name", "-a" }, Resources.INFRASTRUCTUREFROMTEMPLATE_AGENTNAME_HELP));
 
             Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureFromTemplateHandler(x));
         }
@@ -30,7 +29,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
-            await newInfrastructureFromTemplateHandler.Run(parameters.Name, parameters.TemplateName, parameters.AgentName);
+            await newInfrastructureFromTemplateHandler.Run(parameters.Name, parameters.TemplateName);
         }
     }
 }

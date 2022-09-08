@@ -10,13 +10,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
     public class NewInfrastructureHandler : AbstractHandler
     {
         private readonly ICustomerPortalClient _customerPortalClient;
-        
+
         public NewInfrastructureHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
         {
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string agentName, string siteName, string customerName, string domain)
+        public async Task Run(string infrastructureName, string siteName, string customerName, string domain)
         {
             await EnsureLogin();
 
@@ -61,7 +61,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 Customer = customer,
                 Domain = domain,
                 //Parameters = @"{""SYSTEM_NAME"" : { ""Value"": ""xpto"" }}",
-                InfrastructureAgent = string.IsNullOrWhiteSpace(agentName) ? null : await _customerPortalClient.GetObjectByName<CustomerEnvironment>(agentName)
             };
 
             customerInfrastructure = (await new CreateCustomerInfrastructureInput

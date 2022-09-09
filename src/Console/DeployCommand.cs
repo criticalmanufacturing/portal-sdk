@@ -30,6 +30,11 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
+            Add(new Option<string>(new[] { "--license", "-lic", }, Resources.DEPLOYMENT_LICENSE_HELP)
+            {
+                IsRequired = true
+            });
+
             Add(new Option<bool>(new[] { "--terminateOtherVersions", "-tov" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP));
 
             Handler = CommandHandler.Create((DeployParameters x) => DeployHandler(x));
@@ -37,12 +42,11 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         protected override IEnumerable<IOptionExtension> ExtendWithRange()
         {
-            List<IOptionExtension> extensions = new List<IOptionExtension>
+            return new List<IOptionExtension>
             {
                 new ReplaceTokensExtension(),
                 new CommonParametersExtension()
             };
-            return extensions;
         }
 
         public async Task DeployHandler(DeployParameters parameters)
@@ -50,7 +54,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, parameters.License, 
+            await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, parameters.License,
                 parameters.Package,
                 (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TemplateName, parameters.TerminateOtherVersions, false);

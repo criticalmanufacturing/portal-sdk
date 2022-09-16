@@ -24,10 +24,11 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         protected override IEnumerable<IOptionExtension> ExtendWithRange()
         {
-            List<IOptionExtension> extensions = new List<IOptionExtension>();
-            extensions.Add(new ReplaceTokensExtension());
-            extensions.Add(new CommonParametersExtension());
-            return extensions;
+            return new List<IOptionExtension>
+            {
+                new ReplaceTokensExtension(),
+                new CommonParametersExtension()
+            };
         }
 
         public async Task DeployHandler(DeployParameters parameters)
@@ -35,7 +36,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, parameters.License, null,
+            await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, null, null,
                 (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TemplateName, false, true);
         }

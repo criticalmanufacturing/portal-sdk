@@ -24,6 +24,12 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         public string SiteName { get; set; }
 
         [Parameter(
+            HelpMessage = Resources.DEPLOYMENT_LICENSE_HELP,
+            Mandatory = true
+        )]
+        public string LicenseName { get; set; }
+
+        [Parameter(
             HelpMessage = Resources.DEPLOYMENT_PACKAGE_HELP,
             Mandatory = true
         )]
@@ -42,6 +48,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             CommonParametersExtension = new CommonParametersExtension();
             parameterExtensions.Add(ReplaceTokensExtension);
             parameterExtensions.Add(CommonParametersExtension);
+
             return parameterExtensions;
 
         }
@@ -51,7 +58,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"), (FileInfo)CommonParametersExtension.GetValue("ParametersPath"),
-                (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, (string)CommonParametersExtension.GetValue("LicenseName"), DeploymentPackageName,
+                (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicenseName, DeploymentPackageName,
                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"),
                 ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), (string)CommonParametersExtension.GetValue("CustomerInfrastructureName"),
                 (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"), TerminateOtherVersions.ToBool(), false);

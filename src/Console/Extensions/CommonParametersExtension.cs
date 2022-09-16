@@ -13,7 +13,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Extensions
             command.Add(new Option<string>(new[] { "--customer-infrastructure-name", "-ci", }, Resources.INFRASTRUCTURE_EXISTING_NAME_HELP));
 
             command.Add(new Option<string>(new[] {"--name", "-n", }, Resources.DEPLOYMENT_NAME_HELP));
-            
+
             command.Add(new Option<string>(new[] { "--alias", "-a", }, Resources.DEPLOYMENT_ALIAS_HELP));
 
             command.Add(new Option<string>(new[] { "--description", "-d", }, Resources.DEPLOYMENT_DESCRIPTION_HELP));
@@ -28,11 +28,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Extensions
             command.Add(new Option<string>(new[] { "--type", "-type", }, Resources.DEPLOYMENT_ENVIRONMENTTYPE_HELP)
             {
                 Argument = typeargument
-            });
-
-            command.Add(new Option<string>(new[] { "--license", "-lic", }, Resources.DEPLOYMENT_LICENSE_HELP)
-            {
-                IsRequired = true
             });
 
             var targetArgument = new Argument<string>().FromAmong(Enum.GetNames(typeof(DeploymentTarget)));

@@ -16,7 +16,6 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public CreateInfrastructureCommand(string name, string description = null) : base(name, description)
         {
             Add(new Option<string>(new[] { "--name", "-n" }, Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP));
-            Add(new Option<string>(new[] { "--agent-name", "-a" }, Resources.INFRASTRUCTUREFROMTEMPLATE_AGENTNAME_HELP));
 
             Add(new Option<string>(new[] { "--site", "-s", }, Resources.INFRASTRUCTURE_SITE_HELP));
             Add(new Option<string>(new[] { "--customer", "-c", }, Resources.INFRASTRUCTURE_CUSTOMER_HELP));
@@ -34,7 +33,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewInfrastructureHandler handler = ServiceLocator.Get<NewInfrastructureHandler>();
-            await handler.Run(parameters.Name, parameters.AgentName, parameters.Site, parameters.Customer, parameters.Domain);
+            await handler.Run(parameters.Name, parameters.Site, parameters.Customer, parameters.Domain);
         }
     }
 }

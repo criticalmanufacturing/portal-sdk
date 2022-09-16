@@ -18,7 +18,6 @@
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP = "Flag that controls if all the other versions of the Customer Environment should be terminated";
 
         public const string INFRASTRUCTUREFROMTEMPLATE_NAME_HELP = "The name of the Customer Infrastructure to be created";
-        public const string INFRASTRUCTUREFROMTEMPLATE_AGENTNAME_HELP = "The name of the Infrastructure Agent to be linked with the new Customer Infrastructure";
         public const string INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP = "The name of the Customer Infrastructure template that the new Customer Infrastructure will derive from";
         public const string INFRASTRUCTURE_SITE_HELP = "(deprecated) Name of a Site used to match a Customer with the Customer Infrastructure";
         public const string INFRASTRUCTURE_CUSTOMER_HELP = "Name of the Customer associated with the Customer Infrastructure";

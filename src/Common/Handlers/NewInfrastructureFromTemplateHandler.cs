@@ -10,13 +10,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
     public class NewInfrastructureFromTemplateHandler : AbstractHandler
     {
         private readonly ICustomerPortalClient _customerPortalClient;
-        
+
         public NewInfrastructureFromTemplateHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
         {
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string infrastructureTemplateName, string agentName)
+        public async Task Run(string infrastructureName, string infrastructureTemplateName)
         {
             await EnsureLogin();
 
@@ -41,7 +41,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             if (customerInfrastructureTemplate.RelationCollection != null && customerInfrastructureTemplate.RelationCollection.Count > 0)
             {
                 customerInfrastructureTemplate.RelationCollection.TryGetValue(relationName, out EntityRelationCollection templatesRelations);
-                
+
                 if (templatesRelations?.Count > 0)
                 {
                     foreach (EntityRelation relation in templatesRelations)
@@ -57,7 +57,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 Name = customerInfrastructureName,
                 Customer = customerInfrastructureTemplate.Customer,
                 Domain = customerInfrastructureTemplate.Domain,
-                InfrastructureAgent = string.IsNullOrWhiteSpace(agentName) ? null : await _customerPortalClient.GetObjectByName<CustomerEnvironment>(agentName),
                 Parameters = customerInfrastructureTemplate.Parameters
             };
 

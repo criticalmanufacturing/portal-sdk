@@ -56,7 +56,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 Name = customerInfrastructureName,
                 Customer = customerInfrastructureTemplate.Customer,
-                Domain = customerInfrastructureTemplate.Domain,
                 Parameters = customerInfrastructureTemplate.Parameters
             };
 

@@ -22,7 +22,7 @@
     },
     "Deploy Agent": {
       "commandName": "Project",
-      "commandLineArgs": "deployagent -params \"..\\..\\..\\..\\..\\Docker\\parameters\\runtime.json\" --verbose -lic \"CMF - PT_Development_v8.0.0_20211122\"  --target \"portainer\" --replace-tokens DockerSwarmServerPassword=MyPassword CloudflareAPIToken=myCloudflareToken"
+      "commandLineArgs": "deployagent -params \"..\\..\\..\\..\\..\\Docker\\parameters\\runtime.json\" --verbose --target \"portainer\" --replace-tokens DockerSwarmServerPassword=MyPassword CloudflareAPIToken=myCloudflareToken"
     },
     "Publish Manifests": {
       "commandName": "Project",

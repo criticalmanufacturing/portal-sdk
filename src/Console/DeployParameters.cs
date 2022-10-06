@@ -25,7 +25,6 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public string[] ReplaceTokens { get; set; }
         public bool Interactive { get; set; }
         public bool TerminateOtherVersions { get; set; }
-        public string Domain { get; set; }
 
 
     }

@@ -16,7 +16,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string siteName, string customerName, string domain)
+        public async Task Run(string infrastructureName, string siteName, string customerName)
         {
             await EnsureLogin();
 
@@ -59,7 +59,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 Name = customerInfrastructureName,
                 Customer = customer,
-                Domain = domain,
                 //Parameters = @"{""SYSTEM_NAME"" : { ""Value"": ""xpto"" }}",
             };
 

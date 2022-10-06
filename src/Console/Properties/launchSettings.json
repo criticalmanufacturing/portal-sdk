@@ -10,7 +10,7 @@
     },
     "Deploy local environment": {
       "commandName": "Project",
-      "commandLineArgs": "deploy -params \"..\\..\\..\\..\\..\\Docker\\parameters\\local.json\" --verbose -lic \"CMF - PT_Development_v8.0.0_20210913\" --site \"CMF - PT\" --package=\"@criticalmanufacturing\\mes\" --target \"dockerswarm\"  --output \"..\\..\\..\\..\\..\\Docker\""
+      "commandLineArgs": "deploy -params \"..\\..\\..\\..\\..\\Docker\\parameters\\local.json\" --verbose -lic \"CMF - PT_Development_v8.0.0_20210913\" --site \"CMF - PT\" --package=\"@criticalmanufacturing\\mes\" --target \"dockerswarm\" --output \"..\\..\\..\\..\\..\\Docker\""
     },
     "Deploy local runtime environment in Infrastructure": {
       "commandName": "Project",

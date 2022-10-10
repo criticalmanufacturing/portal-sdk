@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.IO;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
@@ -25,7 +22,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public string[] ReplaceTokens { get; set; }
         public bool Interactive { get; set; }
         public bool TerminateOtherVersions { get; set; }
-
+        public bool Force { get; set; }
+        public int Timeout { get; set; }
 
     }
 }

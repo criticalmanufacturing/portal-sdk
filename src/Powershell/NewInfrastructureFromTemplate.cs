@@ -20,10 +20,16 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public string TemplateName { get; set; }
 
+        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_FORCE_HELP)]
+        public SwitchParameter Force;
+
+        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_CREATION_SECONDS_TIMEOUT_HELP)]
+        public int? SecondsTimeout { get; set; }
+
         protected async override Task ProcessRecordAsync()
         {
             NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
-            await newInfrastructureFromTemplateHandler.Run(Name, TemplateName);
+            await newInfrastructureFromTemplateHandler.Run(Name, TemplateName, Force.ToBool(), SecondsTimeout);
         }
     }
 }

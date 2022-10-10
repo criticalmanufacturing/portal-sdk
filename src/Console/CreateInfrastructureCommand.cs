@@ -19,7 +19,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<string>(new[] { "--site", "-s", }, Resources.INFRASTRUCTURE_SITE_HELP));
             Add(new Option<string>(new[] { "--customer", "-c", }, Resources.INFRASTRUCTURE_CUSTOMER_HELP));
-
+            Add(new Option<string>(new[] { "--force", "-f", }, Resources.INFRASTRUCTURE_FORCE_HELP));
+            Add(new Option<string>(new[] { "--timeout", "-to", }, Resources.INFRASTRUCTURE_CREATION_SECONDS_TIMEOUT_HELP));
             Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureHandler(x));
         }
 
@@ -28,8 +29,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewInfrastructureHandler handler = ServiceLocator.Get<NewInfrastructureHandler>();
-            await handler.Run(parameters.Name, parameters.Site, parameters.Customer);
-
+            await handler.Run(parameters.Name, parameters.Site, parameters.Customer, parameters.Force, parameters.Timeout);
         }
     }
 }

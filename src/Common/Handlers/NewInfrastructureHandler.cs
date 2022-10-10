@@ -1,7 +1,4 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
-using Cmf.Foundation.BusinessObjects;
-using Cmf.LightBusinessObjects.Infrastructure;
 using System;
 using System.Threading.Tasks;
 
@@ -16,7 +13,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string siteName, string customerName)
+        public async Task Run(string infrastructureName, string siteName, string customerName, bool force, int? secondsTimeout)
         {
             await EnsureLogin();
 
@@ -37,38 +34,36 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 if (site != null && site.Customer != null)
                 {
                     customer = site.Customer;
-                } else
+                }
+                else
                 {
                     Exception error = new Exception("Unable to load customer from supplied site");
                     Session.LogError(error);
                     throw error;
                 }
-
-            } else
+            }
+            else
             {
+                //todo retornar frieldy exception quando nao existe :)
                 customer = await _customerPortalClient.GetObjectByName<ProductCustomer>(customerName);
             }
 
             // use name or generate one
             string customerInfrastructureName = string.IsNullOrWhiteSpace(infrastructureName) ? $"CustomerInfrastructure-{Guid.NewGuid()}" : infrastructureName;
 
-            Session.LogInformation($"Creating Customer Infrastructure {customerInfrastructureName}...");
+            // check if the current customerInfrastructureName already exists and continue deppending on the value of Force variable
+            CustomerInfrastructure customerInfrastructure = await InfrastructureUtilities.CheckCustomerInfrastructureAlreadyExists(Session, _customerPortalClient, force, customerInfrastructureName);
 
-            // create infrastructure
-            CustomerInfrastructure customerInfrastructure = new CustomerInfrastructure
+            if (customerInfrastructure == null)
             {
-                Name = customerInfrastructureName,
-                Customer = customer,
-                //Parameters = @"{""SYSTEM_NAME"" : { ""Value"": ""xpto"" }}",
-            };
+                // create customer infrastructure if doesn't exists.
+                customerInfrastructure = await InfrastructureUtilities.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName);
+            }
 
-            customerInfrastructure = (await new CreateCustomerInfrastructureInput
-            {
-                CustomerInfrastructure = customerInfrastructure,
-            }.CreateCustomerInfrastructureAsync(true)).CustomerInfrastructure;
+            // wait if necessary to Unlock Customer Infrastructure
+            await InfrastructureUtilities.WaitForCustomerInfrastructureUnlockAsync(Session, _customerPortalClient, customerInfrastructure, secondsTimeout);
 
-            string infrastructureUrl = $"{(ClientConfigurationProvider.ClientConfiguration.UseSsl ? "https" : "http")}://{ClientConfigurationProvider.ClientConfiguration.HostAddress}/Entity/CustomerInfrastructure/{customerInfrastructure.Id}";
-            Session.LogInformation($"CustomerInfrastructure {customerInfrastructureName} accessible at {infrastructureUrl}");
+            InfrastructureUtilities.GetInfrastructureUrl(Session, customerInfrastructure);
         }
     }
 }

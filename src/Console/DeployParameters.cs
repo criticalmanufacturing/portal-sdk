@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public bool Interactive { get; set; }
         public bool TerminateOtherVersions { get; set; }
         public bool Force { get; set; }
-        public int Timeout { get; set; }
+        public int? Timeout { get; set; }
 
     }
 }

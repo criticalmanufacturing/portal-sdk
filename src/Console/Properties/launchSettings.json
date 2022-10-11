@@ -18,7 +18,7 @@
     },
     "Create Infrastructure": {
       "commandName": "Project",
-      "commandLineArgs": "createinfrastructure --name \"SDK test\" --customer \"CMF\" --domain \"test\" --verbose"
+      "commandLineArgs": "createinfrastructure --name \"testInfra\" --customer \"VIRTUAL_CMF\" --timeout 180 --verbose --force\""
     },
     "Deploy Agent": {
       "commandName": "Project",

@@ -20,8 +20,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
             {
                 IsRequired = true
             });
-            Add(new Option<string>(new[] { "--force", "-f", }, Resources.INFRASTRUCTURE_FORCE_HELP));
-            Add(new Option<string>(new[] { "--timeout", "-to", }, Resources.INFRASTRUCTURE_CREATION_SECONDS_TIMEOUT_HELP));
+            Add(new Option<bool>(new[] { "--force", "-f", }, Resources.INFRASTRUCTURE_FORCE_HELP));
+            Add(new Option<int>(new[] { "--timeout", "-to", }, Resources.INFRASTRUCTURE_CREATION_SECONDS_TIMEOUT_HELP));
 
             Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureFromTemplateHandler(x));
         }

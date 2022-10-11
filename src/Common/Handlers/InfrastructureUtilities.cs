@@ -2,15 +2,15 @@
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.LightBusinessObjects.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class InfrastructureUtilities
+    public class InfrastructureUtilities : Utilities
     {
+        const int defaultSecondsTimeout = 180;
+
         /// <summary>
         /// Check if Customer Infrastructure already exists. 
         /// </summary>
@@ -26,18 +26,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 session.LogInformation($"Checking if exists the current Customer Infrastructure name '{customerInfrastructureName}'.");
                 currentCustomerInfrastructure = await customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName);
-
-                if (!force)
-                {
-                    string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' already exists and cannot be created. If you want to continue, please run with the 'Force' command.";
-                    session.LogError(errorMessage);
-                    throw new Exception(errorMessage);
-                }
             }
             catch
             {
                 // customerInfrastructure don't exists. Can continue to be created.
                 session.LogInformation($"The Customer Infrastructure name '{customerInfrastructureName}' doesn't exists.");
+            }
+
+            if (!force && currentCustomerInfrastructure != null)
+            {
+                string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' already exists and cannot be created. If you want to continue, please run with the 'Force' command.";
+                session.LogError(errorMessage);
+                throw new Exception(errorMessage);
             }
 
             return currentCustomerInfrastructure;
@@ -106,15 +106,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// <param name="customerInfrastructure"></param>
         /// <param name="secondsTimeout"></param>
         /// <returns></returns>
-        public static async Task<CustomerInfrastructure> WaitForCustomerInfrastructureUnlockAsync(ISession session, ICustomerPortalClient customerPortalClient, CustomerInfrastructure customerInfrastructure, int? secondsTimeout = 180)
+        public static async Task<CustomerInfrastructure> WaitForCustomerInfrastructureUnlockAsync(ISession session, ICustomerPortalClient customerPortalClient, CustomerInfrastructure customerInfrastructure, int? secondsTimeout = defaultSecondsTimeout)
         {
             bool failedUnlock = false;
-            TimeSpan timeout = TimeSpan.FromSeconds(secondsTimeout.Value);
+            TimeSpan timeout = TimeSpan.FromSeconds(secondsTimeout.GetValueOrDefault(defaultSecondsTimeout));
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
             {
                 failedUnlock = await Task.Run(async () =>
                 {
-                    while (!customerInfrastructure.ObjectLocked)
+                    while (customerInfrastructure.ObjectLocked)
                     {
                         try
                         {

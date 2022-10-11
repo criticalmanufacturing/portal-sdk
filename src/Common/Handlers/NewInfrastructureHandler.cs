@@ -25,27 +25,19 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 throw error;
             }
 
-            ProductCustomer customer = null;
+            ProductCustomer customer;
             // Fetch customer name from siteName
             if (string.IsNullOrEmpty(customerName))
             {
-                // Site name was supplied, load the customerName
-                ProductSite site = await _customerPortalClient.GetObjectByName<ProductSite>(siteName, 1);
-                if (site != null && site.Customer != null)
-                {
-                    customer = site.Customer;
-                }
-                else
-                {
-                    Exception error = new Exception("Unable to load customer from supplied site");
-                    Session.LogError(error);
-                    throw error;
-                }
+                customer = await GetCustomerBySiteName(siteName);
             }
             else
             {
-                //todo retornar frieldy exception quando nao existe :)
-                customer = await _customerPortalClient.GetObjectByName<ProductCustomer>(customerName);
+                customer = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductCustomer>(Session,
+                    _customerPortalClient,
+                    customerName,
+                    $"The current Product Customer {customerName} doesn't exists on the system or was not found.",
+                    msgInfoBeforeCall: $"Checking if exists the Product Customer {customerName}...");
             }
 
             // use name or generate one
@@ -64,6 +56,31 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             await InfrastructureUtilities.WaitForCustomerInfrastructureUnlockAsync(Session, _customerPortalClient, customerInfrastructure, secondsTimeout);
 
             InfrastructureUtilities.GetInfrastructureUrl(Session, customerInfrastructure);
+        }
+
+        private async Task<ProductCustomer> GetCustomerBySiteName(string siteName)
+        {
+            ProductCustomer customer;
+            ProductSite site = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductSite>(Session,
+                                _customerPortalClient,
+                                siteName,
+                                $"The current Product Site {siteName} doesn't exists on the system or was not found.",
+                                1,
+                                $"Checking if exists the Product Site {siteName}...");
+
+            // Site name was supplied, load the customerName
+            if (site != null && site.Customer != null)
+            {
+                customer = site.Customer;
+            }
+            else
+            {
+                Exception error = new Exception("Unable to load customer from supplied site");
+                Session.LogError(error);
+                throw error;
+            }
+
+            return customer;
         }
     }
 }

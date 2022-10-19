@@ -25,8 +25,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogDebug($"Loading CustomerInfrastructure template {infrastructureTemplateName}...");
             CustomerEnvironmentCollection templates = new CustomerEnvironmentCollection();
 
-            // load template
-            CustomerInfrastructure customerInfrastructureTemplate = await _customerPortalClient.GetObjectByName<CustomerInfrastructure>(infrastructureTemplateName);
+            // load customer infrastructure template
+            CustomerInfrastructure customerInfrastructureTemplate = await InfrastructureUtilities.GetCustomerInfrastructure(Session, _customerPortalClient, infrastructureTemplateName, true);
 
             // validate is template ?
             // load template relations

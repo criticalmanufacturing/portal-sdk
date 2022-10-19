@@ -1,6 +1,7 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.LightBusinessObjects.Infrastructure;
+using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,42 +10,78 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
     public class InfrastructureUtilities : Utilities
     {
-        const int defaultSecondsTimeout = 180;
+        private const int _defaultSecondsTimeout = 180;
 
         /// <summary>
         /// Check if Customer Infrastructure already exists. 
         /// </summary>
         /// <param name="session">Session</param>
         /// <param name="customerPortalClient">Client to make requests to the Customer Portal's APIs</param>
-        /// <param name="force">Force variable that indicates if the program can continue if the Customer INfrastructure already exists.</param>
+        /// <param name="force">Force variable that indicates if the program can continue if the Customer Infrastructure already exists.</param>
         /// <param name="customerInfrastructureName">Name of Customer Infrastructure</param>
         /// <returns></returns>
         public static async Task<CustomerInfrastructure> CheckCustomerInfrastructureAlreadyExists(ISession session, ICustomerPortalClient customerPortalClient, bool force, string customerInfrastructureName)
         {
-            CustomerInfrastructure currentCustomerInfrastructure = null;
-            try
-            {
-                session.LogInformation($"Checking if exists the current Customer Infrastructure name '{customerInfrastructureName}'.");
-                currentCustomerInfrastructure = await customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName);
-            }
-            catch
-            {
-                // customerInfrastructure don't exists. Can continue to be created.
-                session.LogInformation($"The Customer Infrastructure name '{customerInfrastructureName}' doesn't exists.");
-            }
+            CustomerInfrastructure currentCustomerInfrastructure = await GetCustomerInfrastructure(session, customerPortalClient, customerInfrastructureName, false);
 
-            if (!force && currentCustomerInfrastructure != null)
+            // if customerInfrastructure doesn't exists. Can continue to be created.
+            // else check the force value
+
+            if (currentCustomerInfrastructure != null)
             {
-                string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' already exists and cannot be created. If you want to continue, please run with the 'Force' command.";
-                session.LogError(errorMessage);
-                throw new Exception(errorMessage);
+                if (force)
+                {
+                    session.LogInformation($"The Customer Infrastructure with name '{customerInfrastructureName}' already exists but the force flag has been set. Continuing to create new version.");
+                }
+                else
+                {
+                    string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' already exists and cannot be created. If you want to continue, please use the 'Force' flag on the command.";
+                    session.LogError(errorMessage);
+                    throw new Exception(errorMessage);
+                }
             }
 
             return currentCustomerInfrastructure;
         }
 
         /// <summary>
-        /// Create a Customer Infrastructure without templates and parameters
+        /// Get Customer Infrastructure
+        /// </summary>
+        /// <param name="session">session</param>
+        /// <param name="customerPortalClient">customer portal client</param>
+        /// <param name="customerInfrastructureName">customer infrastructure name</param>
+        /// <param name="throwIfNotExits">throw and exception if not exists</param>
+        /// <returns></returns>
+        public static async Task<CustomerInfrastructure> GetCustomerInfrastructure(ISession session, ICustomerPortalClient customerPortalClient, string customerInfrastructureName, bool throwIfNotExits)
+        {
+            CustomerInfrastructure currentCustomerInfrastructure = null;
+            try
+            {
+                session.LogInformation($"Checking if exists the current Customer Infrastructure with name '{customerInfrastructureName}'.");
+                currentCustomerInfrastructure = await customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName);
+                session.LogInformation($"Customer Infrastructure with name '{customerInfrastructureName}' exists.");
+            }
+            catch (CmfFaultException ex) when (ex.Code?.Name == Cmf.Foundation.Common.CmfExceptionType.Db20001.ToString() && ex.Message.Contains("was not found in the system"))
+            {
+                // when was not found
+
+                string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' doesn't exists.";
+                if (throwIfNotExits)
+                {
+                    session.LogError(errorMessage);
+                    throw new Exception(errorMessage);
+                }
+
+                session.LogInformation(errorMessage);
+            }
+            // other exceptions will throw!
+
+            return currentCustomerInfrastructure;
+        }
+
+        /// <summary>
+        /// Create a Customer Infrastructure without templates and parameters.
+        /// This method does not wait for the cache to be updated and the infrastructure that is returned can have the object locked.
         /// </summary>
         /// <param name="session">Session</param>
         /// <param name="customer">Customer</param>
@@ -56,7 +93,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         }
 
         /// <summary>
-        /// Create a Customer Infrastructure
+        /// Create a Customer Infrastructure.
+        /// This method does not wait for the cache to be updated and the infrastructure that is returned can have the object locked.
         /// </summary>
         /// <param name="session">Session</param>
         /// <param name="customer">Customer</param>
@@ -106,10 +144,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// <param name="customerInfrastructure"></param>
         /// <param name="secondsTimeout"></param>
         /// <returns></returns>
-        public static async Task<CustomerInfrastructure> WaitForCustomerInfrastructureUnlockAsync(ISession session, ICustomerPortalClient customerPortalClient, CustomerInfrastructure customerInfrastructure, int? secondsTimeout = defaultSecondsTimeout)
+        public static async Task<CustomerInfrastructure> WaitForCustomerInfrastructureUnlockAsync(ISession session, ICustomerPortalClient customerPortalClient, CustomerInfrastructure customerInfrastructure, int? secondsTimeout = _defaultSecondsTimeout)
         {
             bool failedUnlock = false;
-            TimeSpan timeout = TimeSpan.FromSeconds(secondsTimeout.GetValueOrDefault(defaultSecondsTimeout));
+            TimeSpan timeout = TimeSpan.FromSeconds(secondsTimeout.GetValueOrDefault(_defaultSecondsTimeout));
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
             {
                 failedUnlock = await Task.Run(async () =>

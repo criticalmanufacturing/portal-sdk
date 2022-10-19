@@ -23,8 +23,8 @@
         public const string INFRASTRUCTURE_CUSTOMER_HELP = "Name of the Customer associated with the Customer Infrastructure";
         public const string INFRASTRUCTURE_EXISTING_NAME_HELP = "Name of the existing Customer Infrastructure";
         public const string INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP = "Name of an existing Customer Environment template that is linked to the Customer Infrastructure";
-        public const string INFRASTRUCTURE_FORCE_HELP = "Flag to don't throw if an error of 'Customer Infrastructure already exist' occurs";
-        public const string INFRASTRUCTURE_CREATION_SECONDS_TIMEOUT_HELP = "The number of seconds to wait for Customer Infrastructure to be created and unlocked";
+        public const string INFRASTRUCTURE_FORCE_HELP = "Flag that ignores a throw if an error of type 'Customer Infrastructure already exist' occurs";
+        public const string INFRASTRUCTURE_CREATION_SECONDS_TIMEOUT_HELP = "The number of seconds to wait for Customer Infrastructure to be created and unlocked before a timeout is issued";
 
         public const string GETAGENTCONNECTION_NAME_HELP = "The name of the Infrastructure Agent";
 

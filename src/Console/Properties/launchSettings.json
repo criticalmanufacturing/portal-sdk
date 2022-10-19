@@ -18,8 +18,12 @@
     },
     "Create Infrastructure": {
       "commandName": "Project",
-      "commandLineArgs": "createinfrastructure --name \"testInfra\" --customer \"VIRTUAL_CMF\" --timeout 180 --verbose --force\""
+      "commandLineArgs": "createinfrastructure --name \"sdkTestInfra\" --customer \"VIRTUAL_CMF\" --timeout 180 --verbose --force\""
     },
+    "Create Infrastructure from Template": {
+      "commandName": "Project",
+      "commandLineArgs": "createinfrastructurefromtemplate --name \"sdkTestInfraCreateFromTemplate\" --template-name \"sdkTestInfraTemplate\" --timeout 180 --verbose --force"
+    },    
     "Deploy Agent": {
       "commandName": "Project",
       "commandLineArgs": "deployagent -params \"..\\..\\..\\..\\..\\Docker\\parameters\\runtime.json\" --verbose --target \"portainer\" --replace-tokens DockerSwarmServerPassword=MyPassword CloudflareAPIToken=myCloudflareToken"

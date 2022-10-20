@@ -43,8 +43,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Extensions
             command.Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
             command.Add(new Option<bool>(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));
-
-            command.Add(new Option<bool>(new[] { "--ignoreIfExists", "-ie" }, Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP));
         }
     }
 }

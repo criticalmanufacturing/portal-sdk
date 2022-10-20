@@ -19,7 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<string>(new[] { "--site", "-s", }, Resources.INFRASTRUCTURE_SITE_HELP));
             Add(new Option<string>(new[] { "--customer", "-c", }, Resources.INFRASTRUCTURE_CUSTOMER_HELP));
-            Add(new Option<bool>(new[] { "--ignoreIfExists", "-ie", }, Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP));
+            Add(new Option<bool>(new[] { "--ignoreIfExists", "-ignore", }, Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP));
             Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureHandler(x));
         }
 

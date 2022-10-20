@@ -23,7 +23,6 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
             CreateRuntimeParameter("DeploymentTargetName", Resources.DEPLOYMENT_PACKAGE_HELP, typeof(DeploymentTarget), mandatory: true);
             CreateRuntimeParameter("TemplateName", Resources.INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP, typeof(string));
             CreateRuntimeParameter("OutputDir", Resources.DEPLOYMENT_OUTPUTDIR_HELP, typeof(DirectoryInfo));
-            CreateRuntimeParameter("IgnoreIfExists", Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP, typeof(string), false); 
         }
 
         public IEnumerable<RuntimeDefinedParameter> GetParameters()

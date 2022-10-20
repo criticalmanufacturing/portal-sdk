@@ -20,7 +20,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             {
                 IsRequired = true
             });
-            Add(new Option<bool>(new[] { "--ignoreIfExists", "-ie", }, Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP));
+            Add(new Option<bool>(new[] { "--ignoreIfExists", "-ignore", }, Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP));
 
             Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureFromTemplateHandler(x));
         }

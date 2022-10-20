@@ -70,11 +70,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
 
-                Session.LogInformation($"Customer environment {name} doesn't exists...");
-            }
-            catch (CmfFaultException)
-            {
                 Session.LogInformation($"Customer environment {name} actually exists...");
+            }
+            catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
+            {
+                Session.LogInformation($"Customer environment {name} doesn't exists...");
             }
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
@@ -91,7 +91,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.Parameters = rawParameters;
                 environment.ChangeSet = null;
 
-                Session.LogInformation($"Creating a new version of Customer environment {name}...");
+                Session.LogInformation($"Creating a new version of the Customer environment {name}...");
 
                 environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
 
@@ -112,7 +112,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, check if we are creating a new environment for an infrastructure
             else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
             {
-                Session.LogInformation($"Creating a customer environment {name} for a customer infrastructure...");
+                Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
 
                 ProductSite environmentSite = null;
                 // If we are creating in an infrastructure, and we are not creating the agent, the user can define the site for the environment

@@ -20,8 +20,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             {
                 IsRequired = true
             });
-            Add(new Option<bool>(new[] { "--force", "-f", }, Resources.INFRASTRUCTURE_FORCE_HELP));
-            Add(new Option<int>(new[] { "--timeout", "-to", }, Resources.INFRASTRUCTURE_CREATION_SECONDS_TIMEOUT_HELP));
+            Add(new Option<bool>(new[] { "--ignoreIfExists", "-ie", }, Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP));
 
             Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureFromTemplateHandler(x));
         }
@@ -31,7 +30,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
-            await newInfrastructureFromTemplateHandler.Run(parameters.Name, parameters.TemplateName, parameters.Force, parameters.Timeout);
+            await newInfrastructureFromTemplateHandler.Run(parameters.Name, parameters.TemplateName, parameters.IgnoreIfExists);
         }
     }
 }

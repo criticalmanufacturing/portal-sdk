@@ -6,9 +6,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Cmf.CustomerPortal.Sdk.Common.Handlers
+namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
-    public class InfrastructureUtilities : Utilities
+    public class InfrastructureCreationService : Utilities
     {
         private const int _defaultSecondsTimeout = 180;
 
@@ -17,25 +17,25 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// </summary>
         /// <param name="session">Session</param>
         /// <param name="customerPortalClient">Client to make requests to the Customer Portal's APIs</param>
-        /// <param name="force">Force variable that indicates if the program can continue if the Customer Infrastructure already exists.</param>
+        /// <param name="ignoreIfExists">IgnoreIfExist is a variable that indicates if the program can continue if the Customer Infrastructure already exists.</param>
         /// <param name="customerInfrastructureName">Name of Customer Infrastructure</param>
         /// <returns></returns>
-        public static async Task<CustomerInfrastructure> CheckCustomerInfrastructureAlreadyExists(ISession session, ICustomerPortalClient customerPortalClient, bool force, string customerInfrastructureName)
+        public static async Task<CustomerInfrastructure> CheckCustomerInfrastructureAlreadyExists(ISession session, ICustomerPortalClient customerPortalClient, bool ignoreIfExists, string customerInfrastructureName)
         {
             CustomerInfrastructure currentCustomerInfrastructure = await GetCustomerInfrastructure(session, customerPortalClient, customerInfrastructureName, false);
 
             // if customerInfrastructure doesn't exists. Can continue to be created.
-            // else check the force value
+            // else check the ignoreIfExists value
 
             if (currentCustomerInfrastructure != null)
             {
-                if (force)
+                if (ignoreIfExists)
                 {
-                    session.LogInformation($"The Customer Infrastructure with name '{customerInfrastructureName}' already exists but the force flag has been set. Continuing to create new version.");
+                    session.LogInformation($"The Customer Infrastructure with name '{customerInfrastructureName}' already exists but the 'ignoreIfExists' flag has been set. Continuing to create new version.");
                 }
                 else
                 {
-                    string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' already exists and cannot be created. If you want to continue, please use the 'Force' flag on the command.";
+                    string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' already exists and cannot be created. If you want to continue, please use the 'ignoreIfExists' flag on the command.";
                     session.LogError(errorMessage);
                     throw new Exception(errorMessage);
                 }
@@ -139,10 +139,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// <summary>
         /// Wait for CustomerInfrastructure to be unlocked. If timed out waiting, a exception will be throw.
         /// </summary>
-        /// <param name="session"></param>
-        /// <param name="customerPortalClient"></param>
-        /// <param name="customerInfrastructure"></param>
-        /// <param name="secondsTimeout"></param>
+        /// <param name="session">session</param>
+        /// <param name="customerPortalClient">customer portal client</param>
+        /// <param name="customerInfrastructure">customer infrastructure</param>
+        /// <param name="secondsTimeout">seconds timeout to unlock the customer infrastructure</param>
         /// <returns></returns>
         public static async Task<CustomerInfrastructure> WaitForCustomerInfrastructureUnlockAsync(ISession session, ICustomerPortalClient customerPortalClient, CustomerInfrastructure customerInfrastructure, int? secondsTimeout = _defaultSecondsTimeout)
         {

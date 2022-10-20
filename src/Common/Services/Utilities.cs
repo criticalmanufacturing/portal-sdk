@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Cmf.CustomerPortal.Sdk.Common.Handlers
+namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
     public class Utilities
     {

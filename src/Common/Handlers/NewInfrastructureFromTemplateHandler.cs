@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects;
 using System;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string infrastructureTemplateName, bool force, int? secondsTimeout)
+        public async Task Run(string infrastructureName, string infrastructureTemplateName, bool ignoreIfExists)
         {
             await EnsureLogin();
 
@@ -26,7 +27,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             CustomerEnvironmentCollection templates = new CustomerEnvironmentCollection();
 
             // load customer infrastructure template
-            CustomerInfrastructure customerInfrastructureTemplate = await InfrastructureUtilities.GetCustomerInfrastructure(Session, _customerPortalClient, infrastructureTemplateName, true);
+            CustomerInfrastructure customerInfrastructureTemplate = await InfrastructureCreationService.GetCustomerInfrastructure(Session, _customerPortalClient, infrastructureTemplateName, true);
 
             // validate is template ?
             // load template relations
@@ -47,19 +48,19 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 }
             }
 
-            // check if the current customerInfrastructureName already exists and continue deppending on the value of Force variable
-            CustomerInfrastructure customerInfrastructure = await InfrastructureUtilities.CheckCustomerInfrastructureAlreadyExists(Session, _customerPortalClient, force, customerInfrastructureName);
+            // check if the current customerInfrastructureName already exists and continue deppending on the value of ignoreIfExists variable
+            CustomerInfrastructure customerInfrastructure = await InfrastructureCreationService.CheckCustomerInfrastructureAlreadyExists(Session, _customerPortalClient, ignoreIfExists, customerInfrastructureName);
 
             if (customerInfrastructure == null)
             {
                 // create customer infrastructure if doesn't exists.
-                customerInfrastructure = await InfrastructureUtilities.CreateCustomerInfrastructure(Session, customerInfrastructureTemplate.Customer, customerInfrastructureName, customerInfrastructureTemplate.Parameters, templates);
+                customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customerInfrastructureTemplate.Customer, customerInfrastructureName, customerInfrastructureTemplate.Parameters, templates);
             }
 
             // wait if necessary to Unlock Customer Infrastructure
-            await InfrastructureUtilities.WaitForCustomerInfrastructureUnlockAsync(Session, _customerPortalClient, customerInfrastructure, secondsTimeout);
+            await InfrastructureCreationService.WaitForCustomerInfrastructureUnlockAsync(Session, _customerPortalClient, customerInfrastructure);
 
-            InfrastructureUtilities.GetInfrastructureUrl(Session, customerInfrastructure);
+            InfrastructureCreationService.GetInfrastructureUrl(Session, customerInfrastructure);
         }
     }
 }

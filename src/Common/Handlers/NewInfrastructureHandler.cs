@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -13,7 +14,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string siteName, string customerName, bool force, int? secondsTimeout)
+        public async Task Run(string infrastructureName, string siteName, string customerName, bool ignoreIfExists)
         {
             await EnsureLogin();
 
@@ -33,7 +34,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
             else
             {
-                customer = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductCustomer>(Session,
+                customer = await InfrastructureCreationService.GetObjectByNameWithDefaultErrorMessage<ProductCustomer>(Session,
                     _customerPortalClient,
                     customerName,
                     $"The current Product Customer {customerName} doesn't exists on the system or was not found.",
@@ -43,19 +44,19 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // use name or generate one
             string customerInfrastructureName = string.IsNullOrWhiteSpace(infrastructureName) ? $"CustomerInfrastructure-{Guid.NewGuid()}" : infrastructureName;
 
-            // check if the current customerInfrastructureName already exists and continue deppending on the value of Force variable
-            CustomerInfrastructure customerInfrastructure = await InfrastructureUtilities.CheckCustomerInfrastructureAlreadyExists(Session, _customerPortalClient, force, customerInfrastructureName);
+            // check if the current customerInfrastructureName already exists and continue deppending on the value of ignoreIfExists variable
+            CustomerInfrastructure customerInfrastructure = await InfrastructureCreationService.CheckCustomerInfrastructureAlreadyExists(Session, _customerPortalClient, ignoreIfExists, customerInfrastructureName);
 
             if (customerInfrastructure == null)
             {
                 // create customer infrastructure if doesn't exists.
-                customerInfrastructure = await InfrastructureUtilities.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName);
+                customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName);
             }
 
             // wait if necessary to Unlock Customer Infrastructure
-            await InfrastructureUtilities.WaitForCustomerInfrastructureUnlockAsync(Session, _customerPortalClient, customerInfrastructure, secondsTimeout);
+            await InfrastructureCreationService.WaitForCustomerInfrastructureUnlockAsync(Session, _customerPortalClient, customerInfrastructure);
 
-            InfrastructureUtilities.GetInfrastructureUrl(Session, customerInfrastructure);
+            InfrastructureCreationService.GetInfrastructureUrl(Session, customerInfrastructure);
         }
 
         private async Task<ProductCustomer> GetCustomerBySiteName(string siteName)

@@ -18,11 +18,11 @@
     },
     "Create Infrastructure": {
       "commandName": "Project",
-      "commandLineArgs": "createinfrastructure --name \"sdkTestInfra\" --customer \"VIRTUAL_CMF\" --timeout 180 --verbose --force\""
+      "commandLineArgs": "createinfrastructure --name \"sdkTestInfra\" --customer \"VIRTUAL_CMF\" --verbose --ignoreIfExists\""
     },
     "Create Infrastructure from Template": {
       "commandName": "Project",
-      "commandLineArgs": "createinfrastructurefromtemplate --name \"sdkTestInfraCreateFromTemplate\" --template-name \"sdkTestInfraTemplate\" --timeout 180 --verbose --force"
+      "commandLineArgs": "createinfrastructurefromtemplate --name \"sdkTestInfraCreateFromTemplate\" --template-name \"sdkTestInfraTemplate\" --verbose --ignoreIfExists"
     },    
     "Deploy Agent": {
       "commandName": "Project",

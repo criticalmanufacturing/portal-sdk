@@ -44,9 +44,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Extensions
 
             command.Add(new Option<bool>(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));
 
-            command.Add(new Option<bool>(new[] { "--force", "-f" }, Resources.INFRASTRUCTURE_FORCE_HELP));
-
-            command.Add(new Option<int>(new[] { "--timeout", "-to" }, Resources.INFRASTRUCTURE_CREATION_SECONDS_TIMEOUT_HELP));
+            command.Add(new Option<bool>(new[] { "--ignoreIfExists", "-ie" }, Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP));
         }
     }
 }

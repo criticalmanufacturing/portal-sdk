@@ -1,5 +1,8 @@
-﻿using Cmf.Foundation.Common.Base;
+﻿using Cmf.Foundation.Common;
+using Cmf.Foundation.Common.Base;
+using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
@@ -13,12 +16,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// <param name="session">Session</param>
         /// <param name="customerPortalClient">Customer Portal Client to make requests to API</param>
         /// <param name="objectName">Name of object</param>
-        /// <param name="msgForError">Error Message to use on exception and log</param>
+        /// <param name="exceptionTypeAndErrorMsg">Dictionary with mapping the exception type and the respective error message to be presented</param>
         /// <param name="levelsToLoad">Levels to load</param>
         /// <param name="msgInfoBeforeCall">Message to use on log before the request</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static Task<T> GetObjectByNameWithDefaultErrorMessage<T>(ISession session, ICustomerPortalClient customerPortalClient, string objectName, string msgForError, int levelsToLoad = 0, string msgInfoBeforeCall = null) where T : CoreBase, new()
+        public static async Task<T> GetObjectByNameWithDefaultErrorMessage<T>(ISession session, ICustomerPortalClient customerPortalClient, string objectName, Dictionary<CmfExceptionType, string> exceptionTypeAndErrorMsg, int levelsToLoad = 0, string msgInfoBeforeCall = null) where T : CoreBase, new()
         {
             try
             {
@@ -27,17 +30,24 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     session.LogInformation(msgInfoBeforeCall);
                 }
 
-                return customerPortalClient.GetObjectByName<T>(objectName, levelsToLoad);
+                return await customerPortalClient.GetObjectByName<T>(objectName, levelsToLoad);
             }
-            catch(Exception e)
+            catch(CmfFaultException e)
             {
-                if(string.IsNullOrWhiteSpace(msgForError))
+                if (Enum.TryParse(e.Code?.Name, out CmfExceptionType exceptionType) && exceptionTypeAndErrorMsg != null && exceptionTypeAndErrorMsg.ContainsKey(exceptionType))
                 {
-                    msgForError = e.Message;
+                    string msgForError = exceptionTypeAndErrorMsg[exceptionType];
+                    if (string.IsNullOrWhiteSpace(msgForError))
+                    {
+                        msgForError = e.Message;
+                    }
+                    session.LogError(msgForError);
+                    throw new Exception(msgForError);
                 }
-
-                session.LogError(msgForError);
-                throw new Exception(msgForError);
+                else
+                {
+                    throw e;
+                }
             }
         }
     }

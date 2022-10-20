@@ -1,6 +1,7 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
@@ -34,10 +35,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
             else
             {
-                customer = await InfrastructureCreationService.GetObjectByNameWithDefaultErrorMessage<ProductCustomer>(Session,
+                customer = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductCustomer>(Session,
                     _customerPortalClient,
                     customerName,
-                    $"The current Product Customer {customerName} doesn't exists on the system or was not found.",
+                    new Dictionary<Foundation.Common.CmfExceptionType, string>()
+                        {
+                            { Foundation.Common.CmfExceptionType.Db20001, $"The current Product Customer {customerName} doesn't exist on the system or was not found."}
+                        },
                     msgInfoBeforeCall: $"Checking if exists the Product Customer {customerName}...");
             }
 
@@ -49,7 +53,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             if (customerInfrastructure == null)
             {
-                // create customer infrastructure if doesn't exists.
+                // create customer infrastructure if doesn't exist.
                 customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName);
             }
 
@@ -65,7 +69,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             ProductSite site = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductSite>(Session,
                                 _customerPortalClient,
                                 siteName,
-                                $"The current Product Site {siteName} doesn't exists on the system or was not found.",
+                                new Dictionary<Foundation.Common.CmfExceptionType, string>()
+                                    {
+                                        { Foundation.Common.CmfExceptionType.Db20001, $"The current Product Site {siteName} doesn't exist on the system or was not found."}
+                                    },
                                 1,
                                 $"Checking if exists the Product Site {siteName}...");
 

@@ -10,7 +10,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
     public class InfrastructureCreationService : Utilities
     {
-        private const int _defaultSecondsTimeout = 180;
+        private static TimeSpan _defaultSecondsTimeout = TimeSpan.FromSeconds(180);
 
         /// <summary>
         /// Check if Customer Infrastructure already exists. 
@@ -22,9 +22,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// <returns></returns>
         public static async Task<CustomerInfrastructure> CheckCustomerInfrastructureAlreadyExists(ISession session, ICustomerPortalClient customerPortalClient, bool ignoreIfExists, string customerInfrastructureName)
         {
-            CustomerInfrastructure currentCustomerInfrastructure = await GetCustomerInfrastructure(session, customerPortalClient, customerInfrastructureName, false);
+            CustomerInfrastructure currentCustomerInfrastructure = null;
+            try
+            {
+                currentCustomerInfrastructure = await GetCustomerInfrastructure(session, customerPortalClient, customerInfrastructureName);
+            }
+            catch (NotFoundException) { }
 
-            // if customerInfrastructure doesn't exists. Can continue to be created.
+            // if customerInfrastructure doesn't exist. Can continue to be created.
             // else check the ignoreIfExists value
 
             if (currentCustomerInfrastructure != null)
@@ -50,31 +55,24 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// <param name="session">session</param>
         /// <param name="customerPortalClient">customer portal client</param>
         /// <param name="customerInfrastructureName">customer infrastructure name</param>
-        /// <param name="throwIfNotExits">throw and exception if not exists</param>
         /// <returns></returns>
-        public static async Task<CustomerInfrastructure> GetCustomerInfrastructure(ISession session, ICustomerPortalClient customerPortalClient, string customerInfrastructureName, bool throwIfNotExits)
+        public static async Task<CustomerInfrastructure> GetCustomerInfrastructure(ISession session, ICustomerPortalClient customerPortalClient, string customerInfrastructureName)
         {
-            CustomerInfrastructure currentCustomerInfrastructure = null;
+            CustomerInfrastructure currentCustomerInfrastructure;
             try
             {
                 session.LogInformation($"Checking if exists the current Customer Infrastructure with name '{customerInfrastructureName}'.");
                 currentCustomerInfrastructure = await customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName);
                 session.LogInformation($"Customer Infrastructure with name '{customerInfrastructureName}' exists.");
             }
-            catch (CmfFaultException ex) when (ex.Code?.Name == Cmf.Foundation.Common.CmfExceptionType.Db20001.ToString() && ex.Message.Contains("was not found in the system"))
+            catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
             {
                 // when was not found
-
-                string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' doesn't exists.";
-                if (throwIfNotExits)
-                {
-                    session.LogError(errorMessage);
-                    throw new Exception(errorMessage);
-                }
-
+                string errorMessage = $"The Customer Infrastructure with name '{customerInfrastructureName}' doesn't exist.";
                 session.LogInformation(errorMessage);
+
+                throw new NotFoundException(errorMessage);
             }
-            // other exceptions will throw!
 
             return currentCustomerInfrastructure;
         }
@@ -142,13 +140,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// <param name="session">session</param>
         /// <param name="customerPortalClient">customer portal client</param>
         /// <param name="customerInfrastructure">customer infrastructure</param>
-        /// <param name="secondsTimeout">seconds timeout to unlock the customer infrastructure</param>
         /// <returns></returns>
-        public static async Task<CustomerInfrastructure> WaitForCustomerInfrastructureUnlockAsync(ISession session, ICustomerPortalClient customerPortalClient, CustomerInfrastructure customerInfrastructure, int? secondsTimeout = _defaultSecondsTimeout)
+        public static async Task<CustomerInfrastructure> WaitForCustomerInfrastructureUnlockAsync(ISession session, ICustomerPortalClient customerPortalClient, CustomerInfrastructure customerInfrastructure)
         {
             bool failedUnlock = false;
-            TimeSpan timeout = TimeSpan.FromSeconds(secondsTimeout.GetValueOrDefault(_defaultSecondsTimeout));
-            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(_defaultSecondsTimeout))
             {
                 failedUnlock = await Task.Run(async () =>
                 {

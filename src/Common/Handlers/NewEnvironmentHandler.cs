@@ -74,7 +74,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
             catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
             {
-                Session.LogInformation($"Customer environment {name} doesn't exists...");
+                Session.LogInformation($"Customer environment {name} doesn't exist...");
             }
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version

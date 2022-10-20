@@ -18,11 +18,11 @@
     },
     "Create Infrastructure": {
       "commandName": "Project",
-      "commandLineArgs": "createinfrastructure --name \"sdkTestInfra\" --customer \"VIRTUAL_CMF\" --verbose --ignoreIfExists\""
+      "commandLineArgs": "createinfrastructure --name \"sdkTestInfra\" --customer \"VIRTUAL_CMF\" --verbose --ignore-if-exists\""
     },
     "Create Infrastructure from Template": {
       "commandName": "Project",
-      "commandLineArgs": "createinfrastructurefromtemplate --name \"sdkTestInfraCreateFromTemplate\" --template-name \"sdkTestInfraTemplate\" --verbose --ignoreIfExists"
+      "commandLineArgs": "createinfrastructurefromtemplate --name \"sdkTestInfraCreateFromTemplate\" --template-name \"sdkTestInfraTemplate\" --verbose --ignore-if-exists"
     },    
     "Deploy Agent": {
       "commandName": "Project",

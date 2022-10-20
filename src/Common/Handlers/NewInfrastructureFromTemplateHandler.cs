@@ -27,7 +27,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             CustomerEnvironmentCollection templates = new CustomerEnvironmentCollection();
 
             // load customer infrastructure template
-            CustomerInfrastructure customerInfrastructureTemplate = await InfrastructureCreationService.GetCustomerInfrastructure(Session, _customerPortalClient, infrastructureTemplateName, true);
+            CustomerInfrastructure customerInfrastructureTemplate = await InfrastructureCreationService.GetCustomerInfrastructure(Session, _customerPortalClient, infrastructureTemplateName);
 
             // validate is template ?
             // load template relations
@@ -53,7 +53,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             if (customerInfrastructure == null)
             {
-                // create customer infrastructure if doesn't exists.
+                // create customer infrastructure if doesn't exist.
                 customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customerInfrastructureTemplate.Customer, customerInfrastructureName, customerInfrastructureTemplate.Parameters, templates);
             }
 

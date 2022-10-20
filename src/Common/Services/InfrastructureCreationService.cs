@@ -31,7 +31,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 if (ignoreIfExists)
                 {
-                    session.LogInformation($"The Customer Infrastructure with name '{customerInfrastructureName}' already exists but the 'ignoreIfExists' flag has been set. Continuing to create new version.");
+                    session.LogInformation($"The Customer Infrastructure with name '{customerInfrastructureName}' already exists but the 'ignoreIfExists' flag has been set. Will be used the current Customer Infrastructure.");
                 }
                 else
                 {

@@ -23,6 +23,7 @@
         public const string INFRASTRUCTURE_CUSTOMER_HELP = "Name of the Customer associated with the Customer Infrastructure";
         public const string INFRASTRUCTURE_EXISTING_NAME_HELP = "Name of the existing Customer Infrastructure";
         public const string INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP = "Name of an existing Customer Environment template that is linked to the Customer Infrastructure";
+        public const string INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP = "Flag that ignores a throw if an error of type 'Customer Infrastructure already exist' occurs";
 
         public const string GETAGENTCONNECTION_NAME_HELP = "The name of the Infrastructure Agent";
 

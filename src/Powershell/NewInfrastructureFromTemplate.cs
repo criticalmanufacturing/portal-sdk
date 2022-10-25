@@ -20,10 +20,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public string TemplateName { get; set; }
 
+        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP)]
+        public SwitchParameter IgnoreIfExists;
+
         protected async override Task ProcessRecordAsync()
         {
             NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
-            await newInfrastructureFromTemplateHandler.Run(Name, TemplateName);
+            await newInfrastructureFromTemplateHandler.Run(Name, TemplateName, IgnoreIfExists.ToBool());
         }
     }
 }

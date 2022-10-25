@@ -18,8 +18,12 @@
     },
     "Create Infrastructure": {
       "commandName": "Project",
-      "commandLineArgs": "createinfrastructure --name \"SDK test\" --customer \"CMF\" --domain \"test\" --verbose"
+      "commandLineArgs": "createinfrastructure --name \"sdkTestInfra\" --customer \"VIRTUAL_CMF\" --verbose --ignore-if-exists\""
     },
+    "Create Infrastructure from Template": {
+      "commandName": "Project",
+      "commandLineArgs": "createinfrastructurefromtemplate --name \"sdkTestInfraCreateFromTemplate\" --template-name \"sdkTestInfraTemplate\" --verbose --ignore-if-exists"
+    },    
     "Deploy Agent": {
       "commandName": "Project",
       "commandLineArgs": "deployagent -params \"..\\..\\..\\..\\..\\Docker\\parameters\\runtime.json\" --verbose --target \"portainer\" --replace-tokens DockerSwarmServerPassword=MyPassword CloudflareAPIToken=myCloudflareToken"

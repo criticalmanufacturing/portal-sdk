@@ -43,7 +43,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             bool isInfrastructureAgent
         )
         {
-
             // login
             await EnsureLogin();
 
@@ -64,15 +63,19 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 rawParameters = await Utils.ReplaceTokens(Session, rawParameters, replaceTokens, true);
             }
 
-            Session.LogInformation($"Creating customer environment {name}...");
-
+            Session.LogInformation($"Checking if customer environment {name} exists...");
             // let's see if the environment already exists
             CustomerEnvironment environment = null;
             try
             {
                 environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
+
+                Session.LogInformation($"Customer environment {name} actually exists...");
             }
-            catch (CmfFaultException) { }
+            catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
+            {
+                Session.LogInformation($"Customer environment {name} doesn't exist...");
+            }
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
             if (environment != null)
@@ -87,6 +90,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
                 environment.Parameters = rawParameters;
                 environment.ChangeSet = null;
+
+                Session.LogInformation($"Creating a new version of the Customer environment {name}...");
 
                 environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
 
@@ -107,6 +112,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, check if we are creating a new environment for an infrastructure
             else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
             {
+                Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
+
                 ProductSite environmentSite = null;
                 // If we are creating in an infrastructure, and we are not creating the agent, the user can define the site for the environment
                 if (!isInfrastructureAgent)
@@ -141,6 +148,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, just create a new environment
             else
             {
+                Session.LogInformation($"Creating customer environment {name}...");
+
                 environment = new CustomerEnvironment
                 {
                     EnvironmentType = environmentType.ToString(),
@@ -154,6 +163,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
             }
+
+            Session.LogInformation($"Customer environment {name} created...");
 
             // handle installation
             await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir);

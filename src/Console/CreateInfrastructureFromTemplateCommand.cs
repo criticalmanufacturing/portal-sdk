@@ -20,16 +20,17 @@ namespace Cmf.CustomerPortal.Sdk.Console
             {
                 IsRequired = true
             });
+            Add(new Option<bool>(new[] { "--ignore-if-exists", }, Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP));
 
-            Handler = CommandHandler.Create((DeployParameters x) => CreateInfrastructureFromTemplateHandler(x));
+            Handler = CommandHandler.Create((CreateInfrastructureParameters x) => CreateInfrastructureFromTemplateHandler(x));
         }
 
-        public async Task CreateInfrastructureFromTemplateHandler(DeployParameters parameters)
+        public async Task CreateInfrastructureFromTemplateHandler(CreateInfrastructureParameters parameters)
         {
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewInfrastructureFromTemplateHandler newInfrastructureFromTemplateHandler = ServiceLocator.Get<NewInfrastructureFromTemplateHandler>();
-            await newInfrastructureFromTemplateHandler.Run(parameters.Name, parameters.TemplateName);
+            await newInfrastructureFromTemplateHandler.Run(parameters.Name, parameters.TemplateName, parameters.IgnoreIfExists);
         }
     }
 }

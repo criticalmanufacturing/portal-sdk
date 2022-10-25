@@ -1,8 +1,7 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
-using Cmf.Foundation.BusinessObjects;
-using Cmf.LightBusinessObjects.Infrastructure;
+using Cmf.CustomerPortal.Sdk.Common.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
@@ -16,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string siteName, string customerName)
+        public async Task Run(string infrastructureName, string siteName, string customerName, bool ignoreIfExists)
         {
             await EnsureLogin();
 
@@ -28,47 +27,68 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 throw error;
             }
 
-            ProductCustomer customer = null;
+            ProductCustomer customer;
             // Fetch customer name from siteName
             if (string.IsNullOrEmpty(customerName))
             {
-                // Site name was supplied, load the customerName
-                ProductSite site = await _customerPortalClient.GetObjectByName<ProductSite>(siteName, 1);
-                if (site != null && site.Customer != null)
-                {
-                    customer = site.Customer;
-                } else
-                {
-                    Exception error = new Exception("Unable to load customer from supplied site");
-                    Session.LogError(error);
-                    throw error;
-                }
-
-            } else
+                customer = await GetCustomerBySiteName(siteName);
+            }
+            else
             {
-                customer = await _customerPortalClient.GetObjectByName<ProductCustomer>(customerName);
+                customer = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductCustomer>(Session,
+                    _customerPortalClient,
+                    customerName,
+                    new Dictionary<Foundation.Common.CmfExceptionType, string>()
+                        {
+                            { Foundation.Common.CmfExceptionType.Db20001, $"The current Product Customer {customerName} doesn't exist on the system or was not found."}
+                        },
+                    msgInfoBeforeCall: $"Checking if exists the Product Customer {customerName}...");
             }
 
             // use name or generate one
             string customerInfrastructureName = string.IsNullOrWhiteSpace(infrastructureName) ? $"CustomerInfrastructure-{Guid.NewGuid()}" : infrastructureName;
 
-            Session.LogInformation($"Creating Customer Infrastructure {customerInfrastructureName}...");
+            // check if the current customerInfrastructureName already exists and continue deppending on the value of ignoreIfExists variable
+            CustomerInfrastructure customerInfrastructure = await InfrastructureCreationService.CheckCustomerInfrastructureAlreadyExists(Session, _customerPortalClient, ignoreIfExists, customerInfrastructureName);
 
-            // create infrastructure
-            CustomerInfrastructure customerInfrastructure = new CustomerInfrastructure
+            if (customerInfrastructure == null)
             {
-                Name = customerInfrastructureName,
-                Customer = customer,
-                //Parameters = @"{""SYSTEM_NAME"" : { ""Value"": ""xpto"" }}",
-            };
+                // create customer infrastructure if doesn't exist.
+                customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName);
+            }
 
-            customerInfrastructure = (await new CreateCustomerInfrastructureInput
+            // wait if necessary to Unlock Customer Infrastructure
+            await InfrastructureCreationService.WaitForCustomerInfrastructureUnlockAsync(Session, _customerPortalClient, customerInfrastructure);
+
+            InfrastructureCreationService.GetInfrastructureUrl(Session, customerInfrastructure);
+        }
+
+        private async Task<ProductCustomer> GetCustomerBySiteName(string siteName)
+        {
+            ProductCustomer customer;
+            ProductSite site = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductSite>(Session,
+                                _customerPortalClient,
+                                siteName,
+                                new Dictionary<Foundation.Common.CmfExceptionType, string>()
+                                    {
+                                        { Foundation.Common.CmfExceptionType.Db20001, $"The current Product Site {siteName} doesn't exist on the system or was not found."}
+                                    },
+                                1,
+                                $"Checking if exists the Product Site {siteName}...");
+
+            // Site name was supplied, load the customerName
+            if (site != null && site.Customer != null)
             {
-                CustomerInfrastructure = customerInfrastructure,
-            }.CreateCustomerInfrastructureAsync(true)).CustomerInfrastructure;
+                customer = site.Customer;
+            }
+            else
+            {
+                Exception error = new Exception("Unable to load customer from supplied site");
+                Session.LogError(error);
+                throw error;
+            }
 
-            string infrastructureUrl = $"{(ClientConfigurationProvider.ClientConfiguration.UseSsl ? "https" : "http")}://{ClientConfigurationProvider.ClientConfiguration.HostAddress}/Entity/CustomerInfrastructure/{customerInfrastructure.Id}";
-            Session.LogInformation($"CustomerInfrastructure {customerInfrastructureName} accessible at {infrastructureUrl}");
+            return customer;
         }
     }
 }

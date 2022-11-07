@@ -21,16 +21,21 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 Argument = new Argument<FileSystemInfo>().ExistingOnly(),
                 IsRequired = true
             });
+            Add(new Option<string>(new string[] { "--datagroup", "-dg" }, Resources.PUBLISHPACKAGE_DATAGROUP_HELP)
+            {
+                Argument = new Argument<string>(),
+                IsRequired = false
+            });
 
             Handler = CommandHandler.Create(typeof(PublishPackageCommand).GetMethod(nameof(PublishPackageCommand.PublishPackageHandler)), this);
         }
 
-        public async Task PublishPackageHandler(bool verbose, FileSystemInfo path)
+        public async Task PublishPackageHandler(bool verbose, FileSystemInfo path, string datagroup)
         {
             // get new environment handler and run it
             CreateSession(verbose);
             PublishPackageHandler newEnvironmentHandler = ServiceLocator.Get<PublishPackageHandler>();
-            await newEnvironmentHandler.Run(path);
+            await newEnvironmentHandler.Run(path, datagroup);
         }
     }
 }

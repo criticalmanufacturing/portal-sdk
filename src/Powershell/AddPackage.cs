@@ -16,10 +16,16 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public string Path { get; set; }
 
+        [Parameter(
+            HelpMessage = Resources.PUBLISHPACKAGE_DATAGROUP_HELP,
+            Mandatory = false
+        )]
+        public string Datagroup { get; set; }
+
         protected async override Task ProcessRecordAsync()
         {
             PublishPackageHandler publishPackageHandler = ServiceLocator.Get<PublishPackageHandler>();
-            await publishPackageHandler.Run(new FileInfo(Path));
+            await publishPackageHandler.Run(new FileInfo(Path), Datagroup);
         }
     }
 }

@@ -30,11 +30,11 @@
     },
     "Publish Manifests": {
       "commandName": "Project",
-      "commandLineArgs": "publish --path \"..\\..\\..\\..\\..\\Docker\\manifests\" --verbose --replace-tokens TargetVersion=8.1.0 ImageTag=development ImageRegistry=dev.criticalmanufacturing.io"
+      "commandLineArgs": "publish --path \"..\\..\\..\\..\\..\\Docker\\manifests\" --datagroup \"DefaultDeploymentPackageAccess\" --verbose --replace-tokens TargetVersion=1.1.1 ImageTag=development-83x ImageRegistry=dev.criticalmanufacturing.io"
     },
     "publish package": {
       "commandName": "Project",
-      "commandLineArgs": "publish-package --path \"C:\\packages\" --verbose"
+      "commandLineArgs": "publish-package --path \"C:\\packages\" --datagroup \"DefaultPackageAccess\" --verbose"
     }
   }
 }

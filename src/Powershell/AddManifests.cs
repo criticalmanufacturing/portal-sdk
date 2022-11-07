@@ -19,6 +19,12 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public string Path { get; set; }
 
+        [Parameter(
+            HelpMessage = Resources.PUBLISHMANIFESTS_DATAGROUP_HELP,
+            Mandatory = false
+        )]
+        public string Datagroup { get; set; }
+
         protected override IParameterExtension ExtendWith()
         {
             ReplaceTokensExtension = new ReplaceTokensParameterExtension();
@@ -28,7 +34,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         protected async override Task ProcessRecordAsync()
         {
             AddManifestsHandler addManifestsHandler = ServiceLocator.Get<AddManifestsHandler>();
-            await addManifestsHandler.Run(new DirectoryInfo(Path), ReplaceTokensExtension.GetTokens());
+            await addManifestsHandler.Run(new DirectoryInfo(Path), Datagroup, ReplaceTokensExtension.GetTokens());
         }
     }
 }

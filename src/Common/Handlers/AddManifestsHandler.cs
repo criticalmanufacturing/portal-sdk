@@ -19,7 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             _customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(FileSystemInfo path, string[] replaceTokens)
+        public async Task Run(FileSystemInfo path, string datagroup, string[] replaceTokens)
         {
             await EnsureLogin();
 
@@ -67,7 +67,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     ChangeSet = changeset,
                     Manifest = content,
-                    IgnoreLastServiceId = true
+                    IgnoreLastServiceId = true,
+                    DatagroupName = datagroup
                 };
 
                 CreateDeploymentPackageOutput output = await deploymentPackageInput.CreateDeploymentPackageAsync();

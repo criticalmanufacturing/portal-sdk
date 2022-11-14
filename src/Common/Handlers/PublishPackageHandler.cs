@@ -56,7 +56,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     var publishNewNewStreamingOutput = await new PackageManagement.PublishApplicationPackageStreamingInput
                     {
                         FilePath = filePath,
-                        datagroupName = datagroup,
+                        DatagroupName = datagroup,
                     }.PublishApplicationPackageAsync();
 
                     Session.LogInformation($"Package {fileName} successfully uploaded");

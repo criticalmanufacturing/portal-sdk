@@ -23,6 +23,12 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
+            Add(new Option<string>(new string[] { "--datagroup", "-dg" }, Resources.PUBLISHMANIFESTS_DATAGROUP_HELP)
+            {
+                Argument = new Argument<string>(),
+                IsRequired = false
+            });
+
             Handler = CommandHandler.Create(typeof(PublishCommand).GetMethod(nameof(PublishCommand.PublishHandler)), this);
         }
 
@@ -31,12 +37,12 @@ namespace Cmf.CustomerPortal.Sdk.Console
             return new ReplaceTokensExtension();
         }
 
-        public async Task PublishHandler(bool verbose, FileSystemInfo path, string[] replaceTokens)
+        public async Task PublishHandler(bool verbose, FileSystemInfo path, string datagroup, string[] replaceTokens)
         {
             // get new environment handler and run it
             CreateSession(verbose);
             AddManifestsHandler newEnvironmentHandler = ServiceLocator.Get<AddManifestsHandler>();
-            await newEnvironmentHandler.Run(path, replaceTokens);
+            await newEnvironmentHandler.Run(path, datagroup, replaceTokens);
         }
     }
 }

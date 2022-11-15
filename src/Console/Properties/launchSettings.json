@@ -23,18 +23,18 @@
     "Create Infrastructure from Template": {
       "commandName": "Project",
       "commandLineArgs": "createinfrastructurefromtemplate --name \"sdkTestInfraCreateFromTemplate\" --template-name \"sdkTestInfraTemplate\" --verbose --ignore-if-exists"
-    },    
+    },
     "Deploy Agent": {
       "commandName": "Project",
       "commandLineArgs": "deployagent -params \"..\\..\\..\\..\\..\\Docker\\parameters\\runtime.json\" --verbose --target \"portainer\" --replace-tokens DockerSwarmServerPassword=MyPassword CloudflareAPIToken=myCloudflareToken"
     },
     "Publish Manifests": {
       "commandName": "Project",
-      "commandLineArgs": "publish --path \"..\\..\\..\\..\\..\\Docker\\manifests\" --verbose --replace-tokens TargetVersion=8.1.0 ImageTag=development ImageRegistry=dev.criticalmanufacturing.io"
+      "commandLineArgs": "publish --path \"..\\..\\..\\..\\..\\Docker\\manifests\" --datagroup \"\" --verbose --replace-tokens TargetVersion=1.1.1 ImageTag=development-83x ImageRegistry=dev.criticalmanufacturing.io"
     },
     "publish package": {
       "commandName": "Project",
-      "commandLineArgs": "publish-package --path \"C:\\packages\" --verbose"
+      "commandLineArgs": "publish-package --path \"C:\\packages\" --datagroup \"\" --verbose"
     }
   }
 }

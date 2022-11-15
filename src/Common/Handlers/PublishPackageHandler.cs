@@ -17,7 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             _customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(FileSystemInfo path)
+        public async Task Run(FileSystemInfo path, string datagroup)
         {
             await EnsureLogin();
 
@@ -26,17 +26,17 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             if (path.Attributes.HasFlag(FileAttributes.Directory)) {
                 foreach (string file in Directory.GetFiles(path.FullName))
                 {
-                    await UploadPackage(file);
+                    await UploadPackage(file, datagroup);
                 }
             }
             else
             {
-                await UploadPackage(path.FullName);
+                await UploadPackage(path.FullName, datagroup);
             }
         }
 
 
-        private async Task UploadPackage(string filePath)
+        private async Task UploadPackage(string filePath, string datagroup)
         {
             string fileName = Path.GetFileName(filePath);
 
@@ -55,7 +55,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Session.LogDebug("Uploading package...");
                     var publishNewNewStreamingOutput = await new PackageManagement.PublishApplicationPackageStreamingInput
                     {
-                        FilePath = filePath
+                        FilePath = filePath,
+                        DatagroupName = datagroup,
                     }.PublishApplicationPackageAsync();
 
                     Session.LogInformation($"Package {fileName} successfully uploaded");

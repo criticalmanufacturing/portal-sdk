@@ -62,5 +62,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="ids">Ids of the CustomerEnvironments</param>
         /// <returns>The collection of CustomerEnvironments with some properties filled.</returns>
         Task<CustomerEnvironmentCollection> GetCustomerEnvironmentsById(long[] ids);
+
+        /// <summary>
+        /// Check if Customer Environment is connected
+        /// </summary>
+        /// <param name="isInfrastructureAgent">isInfrastructureAgent</param>
+        /// <param name="id">definition id, if it is an agente, customer environment id otherwise</param>
+        /// <returns></returns>
+        Task<bool> CheckCustomerEnvironmentConnectionStatus(bool isInfrastructureAgent, long id);
     }
 }

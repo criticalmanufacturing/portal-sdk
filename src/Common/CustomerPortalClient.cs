@@ -1,4 +1,6 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
+using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects;
@@ -341,6 +343,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }
 
             return _transport;
+        }
+   
+        public async Task<bool> CheckCustomerEnvironmentConnectionStatus(bool isInfrastructureAgent, long id) 
+        {
+            CheckCustomerEnvironmentConnectionStatusOutput output =  await new CheckCustomerEnvironmentConnectionStatusInput() { IsInfrastructureAgent = isInfrastructureAgent, Id = id }
+                    .CheckCustomerEnvironmentConnectionStatusAsync();
+            return output.IsCustomerEnvironmentConnected;
         }
     }
 }

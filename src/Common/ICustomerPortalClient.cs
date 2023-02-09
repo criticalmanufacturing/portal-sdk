@@ -2,6 +2,7 @@
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.Common.Base;
+using Cmf.Foundation.Security;
 using Cmf.MessageBus.Client;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -62,5 +63,11 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="ids">Ids of the CustomerEnvironments</param>
         /// <returns>The collection of CustomerEnvironments with some properties filled.</returns>
         Task<CustomerEnvironmentCollection> GetCustomerEnvironmentsById(long[] ids);
+        Task<T> GetObjectById<T>(long id, int levelsToLoad = 0) where T : CoreBase, new();
+        /// <summary>
+        /// Get current user authenticated
+        /// </summary>
+        /// <returns>Current user</returns>
+        Task<User> GetCurrentUser();
     }
 }

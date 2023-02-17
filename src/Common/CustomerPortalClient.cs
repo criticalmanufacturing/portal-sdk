@@ -344,10 +344,17 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
             return _transport;
         }
-   
+
+        /// <summary>
+        /// Check if Customer Environment is connected
+        /// </summary>
+        /// <param name="isInfrastructureAgent">isInfrastructureAgent</param>
+        /// <param name="id">definition id, if it is supposed to know if the agent of an infrastructure is connected, customer environment id otherwise</param>
+        /// <returns></returns>
+
         public async Task<bool> CheckCustomerEnvironmentConnectionStatus(bool isInfrastructureAgent, long id) 
         {
-            CheckCustomerEnvironmentConnectionStatusOutput output =  await new CheckCustomerEnvironmentConnectionStatusInput() { IsInfrastructureAgent = isInfrastructureAgent, Id = id }
+            CheckCustomerEnvironmentConnectionStatusOutput output =  await new CheckCustomerEnvironmentConnectionStatusInput() { IsInInfrastructurePage = isInfrastructureAgent, Id = id }
                     .CheckCustomerEnvironmentConnectionStatusAsync();
             return output.IsCustomerEnvironmentConnected;
         }

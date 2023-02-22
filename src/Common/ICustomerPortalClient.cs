@@ -65,6 +65,11 @@ namespace Cmf.CustomerPortal.Sdk.Common
         Task<CustomerEnvironmentCollection> GetCustomerEnvironmentsById(long[] ids);
 
         /// <summary>
+        /// Check if Customer Environment is connected
+        /// </summary>
+        /// <param name="definitionId">definition id</param>
+        /// <returns></returns>
+        Task<bool> CheckCustomerEnvironmentConnectionStatus(long? definitionId);
         /// Get's an object by its Id.
         /// </summary>
         /// <typeparam name="T">The object's Type</typeparam>

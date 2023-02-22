@@ -66,9 +66,8 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <summary>
         /// Check if Customer Environment is connected
         /// </summary>
-        /// <param name="isInfrastructureAgent">isInfrastructureAgent</param>
-        /// <param name="id">definition id, if it is supposed to know if the agent of an infrastructure is connected, customer environment id otherwise</param>
+        /// <param name="definitionId">definition id</param>
         /// <returns></returns>
-        Task<bool> CheckCustomerEnvironmentConnectionStatus(bool isInfrastructureAgent, long id);
+        Task<bool> CheckCustomerEnvironmentConnectionStatus(long? definitionId);
     }
 }

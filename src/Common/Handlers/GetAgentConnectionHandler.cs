@@ -17,7 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             await EnsureLogin();
 
             CustomerEnvironment agent = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(agentName);
-            return await _customerPortalClient.CheckCustomerEnvironmentConnectionStatus(true, agent.DefinitionId);
+            return await _customerPortalClient.CheckCustomerEnvironmentConnectionStatus(agent.DefinitionId);
         }
     }
 }

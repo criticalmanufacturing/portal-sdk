@@ -1,8 +1,10 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
+using Cmf.Foundation.Security;
 using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -154,7 +156,29 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         {
                             await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationTokenSource.Token);
 
-                            customerInfrastructure = await customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructure.Name, 1);
+                            customerInfrastructure = await customerPortalClient.GetObjectById<CustomerInfrastructure>(customerInfrastructure.Id, 1);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(_defaultSecondsTimeout))
+            {
+                failedUnlock = await Task.Run(async () =>
+                {
+                    User user = await customerPortalClient.GetCurrentUser();
+                    string roleName = $"CI - {customerInfrastructure.Customer.Name} - {customerInfrastructure.Name} - Owner";
+                    while (!user.Roles.Any(x => x.Name == roleName))
+                    {
+                        try
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(0.5), cancellationTokenSource.Token);
+                            user = await customerPortalClient.GetCurrentUser();
                         }
                         catch (TaskCanceledException)
                         {

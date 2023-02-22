@@ -7,6 +7,7 @@ using Cmf.Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObj
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
 using Cmf.Foundation.Common.Base;
+using Cmf.Foundation.Security;
 using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Client;
 using Newtonsoft.Json;
@@ -111,7 +112,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         #endregion
 
         /// <summary>
-        /// Gets object by Id
+        /// Gets object by Name
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
         /// <param name="name">The object name</param>
@@ -283,7 +284,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 // Register events
                 messageBus.Connected += () =>
                 {
-                    _session.LogDebug("Message Bus Connect!");  
+                    _session.LogDebug("Message Bus Connect!");
                 };
 
                 messageBus.Disconnected += () =>
@@ -344,6 +345,33 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
             return _transport;
         }
+        /// Gets object by Id
+        /// </summary>
+        /// <typeparam name="T">The object type</typeparam>
+        /// <param name="name">The object name</param>
+        /// <param name="levelsToLoad">Levels to Load</param>
+        /// <returns></returns>
+        public async Task<T> GetObjectById<T>(long id, int levelsToLoad = 0) where T : CoreBase, new()
+        {
+            var output = await new GetObjectByIdInput
+            {
+                Id = id,
+                Type = typeof(T).BaseType.Name == typeof(CoreBase).Name ? new T() : (object)new T().GetType().Name,
+                LevelsToLoad = levelsToLoad
+            }.GetObjectByIdAsync(true);
+
+            return output.Instance as T;
+        }
+
+        /// <summary>
+        /// Get current user authenticated
+        /// </summary>
+        /// <returns>Current user</returns>
+        public async Task<User> GetCurrentUser()
+        {
+            var result = await new Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects.GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true);
+            return result.User;
+        }
 
         /// <summary>
         /// Check if Customer Environment is connected
@@ -351,9 +379,9 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="definitionId">definition id</param>
         /// <returns></returns>
 
-        public async Task<bool> CheckCustomerEnvironmentConnectionStatus(long? definitionId) 
+        public async Task<bool> CheckCustomerEnvironmentConnectionStatus(long? definitionId)
         {
-            CheckCustomerEnvironmentConnectionStatusOutput output =  await new CheckCustomerEnvironmentConnectionStatusInput() {  DefinitionId = definitionId }
+            CheckCustomerEnvironmentConnectionStatusOutput output = await new CheckCustomerEnvironmentConnectionStatusInput() { DefinitionId = definitionId }
                     .CheckCustomerEnvironmentConnectionStatusAsync();
             return output.IsCustomerEnvironmentConnected;
         }

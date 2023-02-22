@@ -190,7 +190,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
 
             // if we failed to wait for CustomerInfrastructure to be unlocked, throw an error
-             if (failedUnlock)
+            if (failedUnlock)
             {
                 Exception error = new Exception("Timed out waiting for CustomerInfrastructure be Created and Unlocked.");
                 session.LogError(error);

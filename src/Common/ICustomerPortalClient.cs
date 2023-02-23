@@ -2,6 +2,7 @@
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.Common.Base;
+using Cmf.Foundation.Security;
 using Cmf.MessageBus.Client;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -62,5 +63,24 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="ids">Ids of the CustomerEnvironments</param>
         /// <returns>The collection of CustomerEnvironments with some properties filled.</returns>
         Task<CustomerEnvironmentCollection> GetCustomerEnvironmentsById(long[] ids);
+
+        /// <summary>
+        /// Check if Customer Environment is connected
+        /// </summary>
+        /// <param name="definitionId">definition id</param>
+        /// <returns></returns>
+        Task<bool> CheckCustomerEnvironmentConnectionStatus(long? definitionId);
+        /// Get's an object by its Id.
+        /// </summary>
+        /// <typeparam name="T">The object's Type</typeparam>
+        /// <param name="name">Name of the object</param>
+        /// <param name="levelsToLoad">Levels to load, defaulting to 0. More levels means more information and, therefore, a bigger payload.</param>
+        /// <returns>The loaded object</returns>
+        Task<T> GetObjectById<T>(long id, int levelsToLoad = 0) where T : CoreBase, new();
+        /// <summary>
+        /// Get current user authenticated
+        /// </summary>
+        /// <returns>Current user</returns>
+        Task<User> GetCurrentUser();
     }
 }

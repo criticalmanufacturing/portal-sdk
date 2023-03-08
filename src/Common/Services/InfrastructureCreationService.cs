@@ -64,7 +64,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             try
             {
                 session.LogInformation($"Checking if exists the current Customer Infrastructure with name '{customerInfrastructureName}'.");
-                currentCustomerInfrastructure = await customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName);
+                // levelsToLoad  = 1, because the customer name is necessary to get the role later  
+                currentCustomerInfrastructure = await customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName, 1);
                 session.LogInformation($"Customer Infrastructure with name '{customerInfrastructureName}' exists.");
             }
             catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())

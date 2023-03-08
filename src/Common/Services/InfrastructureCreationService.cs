@@ -64,6 +64,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             try
             {
                 session.LogInformation($"Checking if exists the current Customer Infrastructure with name '{customerInfrastructureName}'.");
+                // levelsToLoad  = 1, because the customer name is necessary to get the role later  
                 currentCustomerInfrastructure = await customerPortalClient.GetObjectByName<CustomerInfrastructure>(customerInfrastructureName, 1);
                 session.LogInformation($"Customer Infrastructure with name '{customerInfrastructureName}' exists.");
             }

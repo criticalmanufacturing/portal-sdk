@@ -7,6 +7,7 @@ const path = require('path'),
       axios = require('axios'),
       AdmZip = require("adm-zip"),
       tmp = require('tmp'),
+      rimraf = require('rimraf'),
       node_modules = require('node_modules-path');
 
 // Mapping from Node's `process.arch` to dotnet's `RID`
@@ -47,6 +48,7 @@ axios.get(pkgUrl, { responseType: 'arraybuffer' })
          fs.writeFileSync(zip, response.data);
          console.log(`Extracting zip file ${zip} to ${installScriptLocation}`);
          (new AdmZip(zip)).extractAllTo(installScriptLocation);
+         rimraf.sync(zip)
      })
      .catch(function (error) {
          // handle error

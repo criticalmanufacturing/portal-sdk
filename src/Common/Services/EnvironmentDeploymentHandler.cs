@@ -23,10 +23,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private readonly ICustomerPortalClient _customerPortalClient;
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
-        private bool mbMessageReceived = false;
 
-        private const double timeoutMinutesMainTask = 60;
-        private const double timeoutMinutesToRetry = 15;
+        private static DateTime? utcOfLastMessageReceived = null;
+
+        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(60);
+        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(15);
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
@@ -38,7 +39,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private void ProcessDeploymentMessage(string subject, MbMessage message)
         {
-            mbMessageReceived= true;
+            // set the DateTime of last message received
+            utcOfLastMessageReceived = DateTime.UtcNow;
 
             if (message != null && !string.IsNullOrWhiteSpace(message.Data))
             {
@@ -101,7 +103,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             byte[] buffer = new byte[bytesToRead];
 
                             outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
-                            outputFile = outputFile.Replace(" ", "").Replace("\"","");
+                            outputFile = outputFile.Replace(" ", "").Replace("\"", "");
                             _session.LogDebug($"Downloading to {outputFile}");
 
                             using (BinaryWriter streamWriter = new BinaryWriter(File.Open(outputFile, FileMode.Create, FileAccess.Write)))
@@ -192,47 +194,47 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 _session.LogInformation($"Starting deployment of environment {customerEnvironment.Name}...");
                 var result = await startDeploymentInput.StartDeploymentAsync(true);
             }
+
             
-            TimeSpan timeoutMainTask = TimeSpan.FromMinutes(timeoutMinutesMainTask);
-            TimeSpan timeoutToRetryTask = TimeSpan.FromMinutes(timeoutMinutesToRetry);
             using (CancellationTokenSource cancellationTokenMainTask = new CancellationTokenSource(timeoutMainTask))
             {
-                using (CancellationTokenSource cancellationTokenSmallTask = new CancellationTokenSource(timeoutToRetryTask))
+                // The variable 'utcOfLastMessageReceived' will be set with the UTC of last message received on message bus (on ProcessDeploymentMessage()).
+                // This 'cancellationTokenMBMessageReceived' will be restarted if the time past between 'utcOfLastMessageReceived' and the current datetime
+                // is less than 'timeoutToGetSomeMBMessageTask'.
+                CancellationTokenSource cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
+
+                while (!this._isDeploymentFinished)
                 {
-                    // mbMessageReceived will be set to true every time that that mb send a message. Here we will set to false in the begining each 15min iteration.
-                    mbMessageReceived = false;
+                    _session.LogPendingMessages();
 
-                    while (!this._isDeploymentFinished)
+                    try
                     {
-                        _session.LogPendingMessages();
+                        await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenMBMessageReceived.Token);
+                    }
+                    catch (TaskCanceledException)
+                    {
 
-                        try
+                        if (cancellationTokenMBMessageReceived.Token.IsCancellationRequested)
                         {
-                            await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSmallTask.Token);
+                            if (utcOfLastMessageReceived != null && (DateTime.UtcNow - utcOfLastMessageReceived < timeoutToGetSomeMBMessageTask))
+                            {
+                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
+                            }
+                            else
+                            {
+                                cancellationTokenMBMessageReceived.Dispose();
+                                throw new TaskCanceledException($"Deployment Failed! The deployment timeout after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
+                            }
                         }
-                        catch (TaskCanceledException)
-                        {
-                            if(cancellationTokenSmallTask.Token.IsCancellationRequested)
-                            {
-                                if(mbMessageReceived)
-                                {
-                                    // reset internal timeout and reset the flag of messages received on message bus
-                                    timeoutToRetryTask = TimeSpan.FromMinutes(timeoutMinutesToRetry);
-                                    mbMessageReceived = false;
-                                }
-                                else
-                                {
-                                    throw new Exception($"Deployment Failed! The deployment timeout after {timeoutToRetryTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
-                                }
-                            }
 
-                            if(cancellationTokenMainTask.Token.IsCancellationRequested)
-                            {
-                                throw new Exception($"Deployment Failed! The deployment timeout after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
-                            }
+                        if (cancellationTokenMainTask.Token.IsCancellationRequested)
+                        {
+                            cancellationTokenMBMessageReceived.Dispose();
+                            throw new TaskCanceledException($"Deployment Failed! The deployment timeout after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
                         }
                     }
                 }
+                cancellationTokenMBMessageReceived.Dispose();
             }
             if (_hasDeploymentFailed)
             {

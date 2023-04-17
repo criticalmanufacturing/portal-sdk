@@ -23,6 +23,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private readonly ICustomerPortalClient _customerPortalClient;
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
+        private bool mbMessageReceived = false;
+
+        private const double timeoutMinutesMainTask = 60;
+        private const double timeoutMinutesToRetry = 15;
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
@@ -34,6 +38,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private void ProcessDeploymentMessage(string subject, MbMessage message)
         {
+            mbMessageReceived= true;
+
             if (message != null && !string.IsNullOrWhiteSpace(message.Data))
             {
                 var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = string.Empty };
@@ -186,21 +192,45 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 _session.LogInformation($"Starting deployment of environment {customerEnvironment.Name}...");
                 var result = await startDeploymentInput.StartDeploymentAsync(true);
             }
-
-            // show progress from deployment
-            TimeSpan timeout = TimeSpan.FromHours(1);
-            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+            
+            TimeSpan timeoutMainTask = TimeSpan.FromMinutes(timeoutMinutesMainTask);
+            TimeSpan timeoutToRetryTask = TimeSpan.FromMinutes(timeoutMinutesToRetry);
+            using (CancellationTokenSource cancellationTokenMainTask = new CancellationTokenSource(timeoutMainTask))
             {
-                while (!this._isDeploymentFinished)
+                using (CancellationTokenSource cancellationTokenSmallTask = new CancellationTokenSource(timeoutToRetryTask))
                 {
-                    _session.LogPendingMessages();
-                    try
+                    // mbMessageReceived will be set to true every time that that mb send a message. Here we will set to false in the begining each 15min iteration.
+                    mbMessageReceived = false;
+
+                    while (!this._isDeploymentFinished)
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSource.Token);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        break;
+                        _session.LogPendingMessages();
+
+                        try
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSmallTask.Token);
+                        }
+                        catch (TaskCanceledException)
+                        {
+                            if(cancellationTokenSmallTask.Token.IsCancellationRequested)
+                            {
+                                if(mbMessageReceived)
+                                {
+                                    // reset internal timeout and reset the flag of messages received on message bus
+                                    timeoutToRetryTask = TimeSpan.FromMinutes(timeoutMinutesToRetry);
+                                    mbMessageReceived = false;
+                                }
+                                else
+                                {
+                                    throw new Exception($"Deployment Failed! The deployment timeout after {timeoutToRetryTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
+                                }
+                            }
+
+                            if(cancellationTokenMainTask.Token.IsCancellationRequested)
+                            {
+                                throw new Exception($"Deployment Failed! The deployment timeout after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
+                            }
+                        }
                     }
                 }
             }

@@ -167,8 +167,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
-        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir)
+        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask = null)
         {
+            // assign the timeout of main task to deploy
+            if (minutesTimeoutMainTask > 0)
+            {
+                timeoutMainTask = TimeSpan.FromMinutes(minutesTimeoutMainTask.Value);
+            }
+
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.{customerEnvironment.Id}";
 
@@ -216,9 +222,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                         if (cancellationTokenMBMessageReceived.Token.IsCancellationRequested)
                         {
-                            if (utcOfLastMessageReceived != null && (DateTime.UtcNow - utcOfLastMessageReceived < timeoutToGetSomeMBMessageTask))
+                            if (utcOfLastMessageReceived != null)
                             {
-                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
+                                TimeSpan timeWaited = DateTime.UtcNow - utcOfLastMessageReceived.Value;
+                                if (timeWaited < timeoutToGetSomeMBMessageTask)
+                                {
+                                    cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - timeWaited);
+                                }
                             }
                             else
                             {

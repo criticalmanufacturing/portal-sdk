@@ -35,6 +35,12 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public string DeploymentPackageName { get; set; }
 
+        [Parameter(
+            HelpMessage = Resources.DEPLOYMENT_TIMEOUT_MINUTES,
+            Mandatory = false
+        )]
+        public double? DeploymentTimeoutMinutes { get; set; }
+
         [Parameter(Position = 2, HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP)]
         public SwitchParameter TerminateOtherVersions;
 
@@ -61,7 +67,8 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicenseName, DeploymentPackageName,
                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"),
                 ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), (string)CommonParametersExtension.GetValue("CustomerInfrastructureName"),
-                (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"), TerminateOtherVersions.ToBool(), false);
+                (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"), TerminateOtherVersions.ToBool(), false,
+                 DeploymentTimeoutMinutes);
         }
     }
 }

@@ -241,7 +241,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         if (cancellationTokenMainTask.Token.IsCancellationRequested)
                         {
                             cancellationTokenMBMessageReceived.Dispose();
-                            throw new TaskCanceledException($"Deployment Failed! The deployment timeout after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
+                            throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
+
                         }
                     }
                 }

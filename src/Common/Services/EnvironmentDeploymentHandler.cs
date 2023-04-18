@@ -233,7 +233,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             else
                             {
                                 cancellationTokenMBMessageReceived.Dispose();
-                                throw new TaskCanceledException($"Deployment Failed! The deployment timeout after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
+                                throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
+
                             }
                         }
 

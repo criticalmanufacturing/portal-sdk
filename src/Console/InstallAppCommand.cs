@@ -35,8 +35,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<FileInfo>(new string[] { "--parameters", "-params" }, Resources.APP_PARAMETERS_PATH_HELP)
             {
-                Argument = new Argument<FileInfo>().ExistingOnly(),
-                IsRequired = true
+                Argument = new Argument<FileInfo>().ExistingOnly()
             });
 
             Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
@@ -48,18 +47,17 @@ namespace Cmf.CustomerPortal.Sdk.Console
         {
             return new List<IOptionExtension>
             {
-                new ReplaceTokensExtension(),
-                new CommonParametersExtension()
+                new ReplaceTokensExtension()
             };
         }
 
-        public async Task InstallHandler(bool verbose, string name, string customerEnvironment, string license, FileInfo parameters, DirectoryInfo output)
+        public async Task InstallHandler(bool verbose, string name, string customerEnvironment, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output)
         {
             // get new environment handler and run it
             CreateSession(verbose);
 
             InstallAppHandler installAppHandler = ServiceLocator.Get<InstallAppHandler>();
-            await installAppHandler.Run(name, customerEnvironment, license, parameters, output);
+            await installAppHandler.Run(name, customerEnvironment, license, parameters, replaceTokens, output);
         }
     }
 }

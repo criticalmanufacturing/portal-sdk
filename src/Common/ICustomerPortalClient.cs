@@ -82,5 +82,15 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// </summary>
         /// <returns>Current user</returns>
         Task<User> GetCurrentUser();
+
+        /// <summary>
+        /// Creates or updates the relationship between an Application Package and a Customer Environment.
+        /// </summary>
+        /// <param name="customerEnvironmentId">Id of the CustomerEnvironments.</param>
+        /// <param name="appName">Name of the ApplicationPackage.</param>
+        /// <param name="parameters">Deployment parameters for the CustomerEnvironmentApplicationPackage.</param>
+        /// <param name="customerLicenseName">Name of a CustomerLicense.</param>
+        /// <returns>The CustomerEnvironmentApplicationPackage relation.</returns>
+        Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string parameters, string customerLicenseName);
     }
 }

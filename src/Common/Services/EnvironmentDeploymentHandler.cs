@@ -24,6 +24,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
 
+        private static DateTime? utcOfLastMessageReceived = null;
+
+        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(60);
+        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(15);
+
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
             _session = session;
@@ -34,6 +39,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private void ProcessDeploymentMessage(string subject, MbMessage message)
         {
+            // set the DateTime of last message received
+            utcOfLastMessageReceived = DateTime.UtcNow;
+
             if (message != null && !string.IsNullOrWhiteSpace(message.Data))
             {
                 var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = string.Empty };
@@ -95,7 +103,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             byte[] buffer = new byte[bytesToRead];
 
                             outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
-                            outputFile = outputFile.Replace(" ", "").Replace("\"","");
+                            outputFile = outputFile.Replace(" ", "").Replace("\"", "");
                             _session.LogDebug($"Downloading to {outputFile}");
 
                             using (BinaryWriter streamWriter = new BinaryWriter(File.Open(outputFile, FileMode.Create, FileAccess.Write)))
@@ -159,8 +167,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
-        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir)
+        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask = null)
         {
+            // assign the timeout of main task to deploy
+            if (minutesTimeoutMainTask > 0)
+            {
+                timeoutMainTask = TimeSpan.FromMinutes(minutesTimeoutMainTask.Value);
+            }
+
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.{customerEnvironment.Id}";
 
@@ -187,22 +201,52 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 var result = await startDeploymentInput.StartDeploymentAsync(true);
             }
 
-            // show progress from deployment
-            TimeSpan timeout = TimeSpan.FromHours(1);
-            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+            
+            using (CancellationTokenSource cancellationTokenMainTask = new CancellationTokenSource(timeoutMainTask))
             {
+                // The variable 'utcOfLastMessageReceived' will be set with the UTC of last message received on message bus (on ProcessDeploymentMessage()).
+                // This 'cancellationTokenMBMessageReceived' will be restarted if the time past between 'utcOfLastMessageReceived' and the current datetime
+                // is less than 'timeoutToGetSomeMBMessageTask'.
+                CancellationTokenSource cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
+
                 while (!this._isDeploymentFinished)
                 {
                     _session.LogPendingMessages();
+
                     try
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSource.Token);
+                        await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenMBMessageReceived.Token);
                     }
                     catch (TaskCanceledException)
                     {
-                        break;
+
+                        if (cancellationTokenMBMessageReceived.Token.IsCancellationRequested)
+                        {
+                            if (utcOfLastMessageReceived != null)
+                            {
+                                TimeSpan timeWaited = DateTime.UtcNow - utcOfLastMessageReceived.Value;
+                                if (timeWaited < timeoutToGetSomeMBMessageTask)
+                                {
+                                    cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - timeWaited);
+                                }
+                            }
+                            else
+                            {
+                                cancellationTokenMBMessageReceived.Dispose();
+                                throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
+
+                            }
+                        }
+
+                        if (cancellationTokenMainTask.Token.IsCancellationRequested)
+                        {
+                            cancellationTokenMBMessageReceived.Dispose();
+                            throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
+
+                        }
                     }
                 }
+                cancellationTokenMBMessageReceived.Dispose();
             }
             if (_hasDeploymentFailed)
             {

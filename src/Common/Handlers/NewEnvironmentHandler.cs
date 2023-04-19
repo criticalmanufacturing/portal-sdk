@@ -40,7 +40,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string description,
             string templateName,
             bool terminateOtherVersions,
-            bool isInfrastructureAgent
+            bool isInfrastructureAgent,
+            double? minutesTimeoutMainTask
         )
         {
             // login
@@ -167,7 +168,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation($"Customer environment {name} created...");
 
             // handle installation
-            await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir);
+            await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask);
         }
     }
 }

@@ -209,13 +209,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 // is less than 'timeoutToGetSomeMBMessageTask'.
                 CancellationTokenSource cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
 
+                // The compositeTokenSource will be a composed token between the cancellationTokenMainTask and the cancellationTokenMBMessageReceived. The first ending returns the exception.
+                CancellationTokenSource compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
+
                 while (!this._isDeploymentFinished)
                 {
                     _session.LogPendingMessages();
 
                     try
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenMBMessageReceived.Token);
+                        await Task.Delay(TimeSpan.FromSeconds(0.1), compositeTokenSource.Token);
                     }
                     catch (TaskCanceledException)
                     {
@@ -228,24 +231,28 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                                 if (timeWaited < timeoutToGetSomeMBMessageTask)
                                 {
                                     cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - timeWaited);
+                                    compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
                                 }
                             }
                             else
                             {
+                                compositeTokenSource.Dispose();
                                 cancellationTokenMBMessageReceived.Dispose();
-                                throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
 
+                                throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
                             }
                         }
 
                         if (cancellationTokenMainTask.Token.IsCancellationRequested)
                         {
+                            compositeTokenSource.Dispose();
                             cancellationTokenMBMessageReceived.Dispose();
-                            throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
 
+                            throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
                         }
                     }
                 }
+                compositeTokenSource.Dispose();
                 cancellationTokenMBMessageReceived.Dispose();
             }
             if (_hasDeploymentFailed)

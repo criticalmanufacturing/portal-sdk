@@ -20,6 +20,7 @@
         public const string APP_NAME_HELP = "The name of the App to install.";
         public const string APP_CUSTOMER_ENVIRONMENT_HELP = "The name of a Convergence Customer Environment to install the App on.";
         public const string APP_LICENSE_HELP = "Name of the License to use for the App.";
+        public const string APP_INSTALLATION_TIMEOUT = "Timeout, in minutes, to wait for an App to install. The default is 60 minutes.";
         public const string APP_PARAMETERS_PATH_HELP = "Path to parameters file that describes the App in a Convergence Customer Environment.";
         public const string INFRASTRUCTUREFROMTEMPLATE_NAME_HELP = "The name of the Customer Infrastructure to be created";
         public const string INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP = "The name of the Customer Infrastructure template that the new Customer Infrastructure will derive from";

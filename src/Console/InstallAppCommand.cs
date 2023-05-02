@@ -39,6 +39,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
             });
 
             Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
+
+            Add(new Option<double?>(new[] { "--timeout" }, Resources.APP_INSTALLATION_TIMEOUT));
             
             Handler = CommandHandler.Create(typeof(InstallAppCommand).GetMethod(nameof(InstallAppCommand.InstallHandler)), this);
         }
@@ -51,13 +53,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
             };
         }
 
-        public async Task InstallHandler(bool verbose, string name, string customerEnvironment, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output)
+        public async Task InstallHandler(bool verbose, string name, string customerEnvironment, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout)
         {
             // get new environment handler and run it
             CreateSession(verbose);
 
             InstallAppHandler installAppHandler = ServiceLocator.Get<InstallAppHandler>();
-            await installAppHandler.Run(name, customerEnvironment, license, parameters, replaceTokens, output);
+            await installAppHandler.Run(name, customerEnvironment, license, parameters, replaceTokens, output, timeout);
         }
     }
 }

@@ -6,6 +6,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
     public interface IAppInstallationHandler
     {
-        Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir);
+        Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir, double? timeout = null);
     }
 }

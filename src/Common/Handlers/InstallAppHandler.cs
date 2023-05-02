@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             _appInstallationHandler = appInstallationHandler;
         }
 
-        public async Task Run(string name, string customerEnvironmentName, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output)
+        public async Task Run(string name, string customerEnvironmentName, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout)
         {
             // login
             await EnsureLogin();
@@ -42,7 +42,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             );
 
             // start deployment
-            await _appInstallationHandler.Handle(name, customerEnvironmentApplicationPackage, environment.DeploymentTarget, output);
+            await _appInstallationHandler.Handle(name, customerEnvironmentApplicationPackage, environment.DeploymentTarget, output, timeout);
         }
     }
 }

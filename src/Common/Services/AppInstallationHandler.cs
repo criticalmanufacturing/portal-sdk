@@ -20,9 +20,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     public class AppInstallationHandler : IAppInstallationHandler
     {
         private readonly ISession _session;
+
         private readonly ICustomerPortalClient _customerPortalClient;
+
         private bool _isInstallationFinished = false;
+
         private bool _hasInstallationFailed = false;
+
+        private static DateTime? utcOfLastMessageReceived = null;
+
+        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(60);
+
+        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(15);
 
         public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
@@ -34,6 +43,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private void ProcessDeploymentMessage(string subject, MbMessage message)
         {
+            // set the DateTime of last message received
+            utcOfLastMessageReceived = DateTime.UtcNow;
+
             if (message != null && !string.IsNullOrWhiteSpace(message.Data))
             {
                 var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (AppInstallationStatus?)AppInstallationStatus.NotInstalled, StepId = string.Empty };
@@ -95,7 +107,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             byte[] buffer = new byte[bytesToRead];
 
                             outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
-                            outputFile = outputFile.Replace(" ", "").Replace("\"","");
+                            outputFile = outputFile.Replace(" ", "").Replace("\"", "");
                             _session.LogDebug($"Downloading to {outputFile}");
 
                             using (BinaryWriter streamWriter = new BinaryWriter(File.Open(outputFile, FileMode.Create, FileAccess.Write)))
@@ -159,8 +171,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
-        public async Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir)
+        public async Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir, double? timeout = null)
         {
+            // assign the timeout of main task to deploy
+            if (timeout > 0)
+            {
+                timeoutMainTask = TimeSpan.FromMinutes(timeout.Value);
+            }
+
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.APP.{customerEnvironmentApplicationPackage.Id}";
 
@@ -177,25 +195,61 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             var result = await startDeploymentInput.StartDeploymentAsync(true);
 
             // show progress from deployment
-            TimeSpan timeout = TimeSpan.FromHours(1);
-            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+            using (CancellationTokenSource cancellationTokenMainTask = new CancellationTokenSource(timeoutMainTask))
             {
+                // The variable 'utcOfLastMessageReceived' will be set with the UTC of last message received on message bus (on ProcessDeploymentMessage()).
+                // This 'cancellationTokenMBMessageReceived' will be restarted if the time past between 'utcOfLastMessageReceived' and the current datetime
+                // is less than 'timeoutToGetSomeMBMessageTask'.
+                CancellationTokenSource cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
+
+                // The compositeTokenSource will be a composed token between the cancellationTokenMainTask and the cancellationTokenMBMessageReceived. The first ending returns the exception.
+                CancellationTokenSource compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
+
                 while (!this._isInstallationFinished)
                 {
                     _session.LogPendingMessages();
                     try
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSource.Token);
+                        await Task.Delay(TimeSpan.FromSeconds(0.1), compositeTokenSource.Token);
                     }
                     catch (TaskCanceledException)
                     {
-                        break;
+                        if (cancellationTokenMainTask.Token.IsCancellationRequested)
+                        {
+                            cancellationTokenMBMessageReceived.Dispose();
+                            compositeTokenSource.Dispose();
+
+                            throw new TaskCanceledException($"Installation Failed! The installation timed out after waiting {timeoutMainTask.TotalMinutes} minutes to finish.");
+                        }
+
+                        if (cancellationTokenMBMessageReceived.Token.IsCancellationRequested)
+                        {
+                            if (utcOfLastMessageReceived == null || (DateTime.UtcNow - utcOfLastMessageReceived.Value) >= timeoutToGetSomeMBMessageTask)
+                            {
+                                compositeTokenSource.Dispose();
+                                cancellationTokenMBMessageReceived.Dispose();
+
+                                throw new TaskCanceledException($"Installation Failed! The installation timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on the MessageBus.");
+                            }
+                            else
+                            {
+                                cancellationTokenMBMessageReceived.Dispose();
+                                compositeTokenSource.Dispose();
+                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - (DateTime.UtcNow - utcOfLastMessageReceived.Value));
+                                compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
+
+                            }
+                        }
                     }
                 }
+
+                compositeTokenSource.Dispose();
+                cancellationTokenMBMessageReceived.Dispose();
             }
+
             if (_hasInstallationFailed)
             {
-                throw new Exception("Deployment Failed! Check the logs for more information");
+                throw new Exception("Installation Failed! Check the logs for more information.");
             }
 
             await ProcessAppInstallation(appName, customerEnvironmentApplicationPackage, target, outputDir);

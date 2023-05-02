@@ -10,15 +10,27 @@ The Customer Portal SDK has 2 versions that can be used:
  - <a href="#console">```Console```</a> - this version works as a standalone executable. To use it run the executable in a console or powershell with the appropriate commands.
  - <a href="#powershell">```Powershell```</a> - this version compiles into a DLL with a cmdlet for each command. To use it, import the DLL into a powershell and then call the desired cmdlet. 
 
+**Important:** You need to authenticate before running other commands/cmdlets. The command is ```login``` and the cmdlet is ```Set-Login```.
+
+You can get the tool from the Releases section in GitHub, from npm using ```npm install @criticalmanufacturing/portal --global``` or by compiling the source code manually.
+
 Below we will provide documentation on each version's usage and commands. This documentation provides the same information as the documentation built-in to the tools themselves. The way to access it depends on the version used but will be explained appropriately below. Since the information is the same here in this README and on the tools themselves you can decide to use whichever you prefer without the fear of missing out on any information.
 
 ## Console
 
-To use this version you'll have to first compile the solution and then run the output executable with a valid command and/or option(s). Note that some commands require certain options in order to execute.
+- If you downloaded the zip from the Releases section, you just need to run the executable ```cmf-portal.exe``` with a valid command and/or option(s).
+
+- If you installed from npm using ```npm install @criticalmanufacturing/portal --global``` you can use the tool from any console on any directory. 
+
+- If you're not using the Release published on GitHub you'll have to first compile the solution and then run the output executable with a valid command and/or option(s). Note that some commands require certain options in order to execute.
 
 Usage: 
-  - ```cmf-portal [options]```
-  - ```cmf-portal [command] [commandOptions] ```
+  - Executable from Release or manually compiled:
+    - ```.\cmf-portal.exe [options]```
+    - ```.\cmf-portal.exe [command] [commandOptions] ```
+  - Installed from npm:  
+    - ```cmf-portal [options]```
+    - ```cmf-portal [command] [commandOptions] ```
 
 Options:
   - ```--version```         Show version information
@@ -182,12 +194,15 @@ Options:
 
 ## Powershell
 
-To use this version you'll have to first compile the solution and then import the DLL with the cmdlets. 
- - If the solution hasn't been compiled you can simply run the ```run.ps1``` script found in the root of repository.  
- Simply running ```.\run.ps1``` is enough and no other parameters are necessary. Optionally you can use the ```Configuration``` parameter but it is set to ```Release``` by default which should be the use case for most users.
- This will compile the Powershell version and automatically import the module in a new powershell window. It is important to note that imported cmdlets only work on the powershell where the import is called and will not be recognized on other powershell windows.
- - If the project has already been compiled and you only wish to import the cmdlets you can run  
-```Import-Module .\src\Powershell\bin\Release\netstandard2.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll``` 
+- If you downloaded the zip from the Releases section, you just need to import the dll using  
+```Import-Module .\Cmf.CustomerPortal.Sdk.Powershell.dll``` 
+
+- If you're not using the Release published on GitHub you'll have to first compile the solution and then import the DLL with the cmdlets. 
+  - If the solution hasn't been compiled you can simply run the ```run.ps1``` script found in the root of repository.  
+  Simply running ```.\run.ps1``` is enough and no other parameters are necessary. Optionally you can use the ```Configuration``` parameter but it is set to ```Release``` by default which should be the use case for most users.
+  This will compile the Powershell version and automatically import the module in a new powershell window. It is important to note that imported cmdlets only work on the powershell where the import is called and will not be recognized on other powershell windows.
+  - If the project has already been compiled and you only wish to import the cmdlets you can run  
+  ```Import-Module .\src\Powershell\bin\Release\netstandard2.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll``` 
 
 After this the cmdlets can be called to execute the desired operations. Note that some cmdlets require certain options in order to execute. These options can be passed directly in the cmdlet call or if none is provided the cmdlet will ask for the parameters one by one.
 

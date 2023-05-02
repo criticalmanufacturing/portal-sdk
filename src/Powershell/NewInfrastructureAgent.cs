@@ -15,6 +15,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
     {
         private ReplaceTokensParameterExtension ReplaceTokensExtension;
         private CommonParametersExtension CommonParametersExtension;
+
+        [Parameter(
+            HelpMessage = Resources.DEPLOYMENT_TIMEOUT_MINUTES,
+            Mandatory = false
+        )]
+        public double? DeploymentTimeoutMinutes { get; set; }
+
         [Parameter(Position = 1)]
         public SwitchParameter Interactive;
         protected override IEnumerable<IParameterExtension> ExtendWithRange()
@@ -35,7 +42,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), null, null, null,
                 (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), 
                 (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"),
-                false, true);
+                false, true, DeploymentTimeoutMinutes);
         }
     }
 }

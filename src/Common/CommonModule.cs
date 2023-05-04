@@ -11,6 +11,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddSingleton<ICustomerPortalClient, CustomerPortalClient>();
             serviceCollection.AddSingleton<INewEnvironmentUtilities, NewEnvironmentUtilities>();
             serviceCollection.AddTransient<IEnvironmentDeploymentHandler, EnvironmentDeploymentHandler>();
+            serviceCollection.AddTransient<IAppInstallationHandler, AppInstallationHandler>();
 
             // Add Handlers
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();
@@ -20,6 +21,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<Handlers.GetAgentConnectionHandler>();
             serviceCollection.AddTransient<Handlers.AddManifestsHandler>();
             serviceCollection.AddTransient<Handlers.PublishPackageHandler>();
+            serviceCollection.AddTransient<Handlers.InstallAppHandler>();
         }
     }
 }

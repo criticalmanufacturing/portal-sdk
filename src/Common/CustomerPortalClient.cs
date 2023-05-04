@@ -385,5 +385,17 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     .CheckCustomerEnvironmentConnectionStatusAsync();
             return output.IsCustomerEnvironmentConnected;
         }
+
+        /// <inheritdoc/>
+        public async Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string parameters, string customerLicenseName)
+        {
+            return (await new CreateOrUpdateAppInstallationInput()
+            {
+                CustomerEnvironmentId = customerEnvironmentId,
+                ApplicationPackageName = appName,
+                Parameters = parameters,
+                CustomerLicenseName = customerLicenseName
+            }.CreateOrUpdateAppInstallationAsync(true)).CustomerEnvironmentApplicationPackage;
+        }
     }
 }

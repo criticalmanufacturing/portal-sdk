@@ -387,12 +387,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
         }
 
         /// <inheritdoc/>
-        public async Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string parameters, string customerLicenseName)
+        public async Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string appVersion, string parameters, string customerLicenseName)
         {
             return (await new CreateOrUpdateAppInstallationInput()
             {
                 CustomerEnvironmentId = customerEnvironmentId,
                 ApplicationPackageName = appName,
+                AppVersion = appVersion,
                 Parameters = parameters,
                 CustomerLicenseName = customerLicenseName
             }.CreateOrUpdateAppInstallationAsync(true)).CustomerEnvironmentApplicationPackage;

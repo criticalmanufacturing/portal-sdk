@@ -18,6 +18,7 @@
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP = "Flag that controls if all the other versions of the Customer Environment should be terminated";
         public const string DEPLOYMENT_TIMEOUT_MINUTES = "Number of minutes that are allowed to wait for the deployment to succeed. The default is 60 minutes.";
         public const string APP_NAME_HELP = "The name of the App to install.";
+        public const string APP_VERSION_HELP = "The version of the App to install.";
         public const string APP_CUSTOMER_ENVIRONMENT_HELP = "The name of a Convergence Customer Environment to install the App on.";
         public const string APP_LICENSE_HELP = "Name of the License to use for the App.";
         public const string APP_INSTALLATION_TIMEOUT = "Timeout, in minutes, to wait for an App to install. The default is 60 minutes.";

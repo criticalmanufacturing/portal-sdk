@@ -43,8 +43,8 @@ Commands:
   - <a href="#deployagent">```deployagent```</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#deploy">```deploy```</a> - Creates and deploys a new Customer Environment
   - <a href="#login">```login```</a> - Log in to the CMF Portal
-  - <a href="#publish">```publish```</a> - Publishes one or more Deployment Package(s) into Customer Portal
-  - <a href="#publish-package">```publish-package```</a> - Publishes a Deployment Package into Customer Portal
+  - <a href="#publish">```publish```</a> - Publishes one or more Deployment Manifests into Customer Portal
+  - <a href="#publish-package">```publish-package```</a> - Publishes one or more Customization Packages into Customer Portal
 
 
 Examples:
@@ -165,7 +165,7 @@ Options:
 
 ### publish
 
-Publishes one or more Deployment Package(s) into Customer Portal
+Publishes one or more Deployment Manifests into Customer Portal
 
 Equivalent to powershell cmdlet <a href="#add-manifests">Add-Manifests</a>
 
@@ -174,13 +174,13 @@ Usage: ```cmf-portal publish [options]```
 Options:
   - ```-v, --verbose``` - Show detailed logging
   - ```--replace-tokens <MyToken=value MyToken2=value2>``` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
-  - ```-p, --path <path>``` - **REQUIRED** - Path to Deployment Package Manifest file, or folder to a folder containing multiple manifest files
-  - ```-dg, --datagroup <datagroup>``` - Name of the datagroup to assign to the published deployment packages
+  - ```-p, --path <path>``` - **REQUIRED** - Path to the manifest file or path to a folder containing multiple manifest files
+  - ```-dg, --datagroup <datagroup>``` - Name of the existing datagroup to assign to the published manifests
   - ```-?, -h, --help``` - Show help and usage information
 
 ### publish-package
 
-Publishes a Deployment Package into Customer Portal
+Publishes one or more Customization Packages into Customer Portal
 
 Equivalent to powershell cmdlet <a href="#add-package">Add-Package</a>
 
@@ -188,8 +188,8 @@ Usage: ```cmf-portal publish-package [options]```
 
 Options:
   - ```-v, --verbose``` - Show detailed logging
-  - ```-p, --path <path>``` - **REQUIRED** - Path to Package zip file
-  - ```-dg, --datagroup <datagroup>``` - Name of the datagroup to assign to the published packages
+  - ```-p, --path <path>``` - **REQUIRED** - Path to the package zip file or folder containing multiple package files
+  - ```-dg, --datagroup <datagroup>``` - Name of the existing datagroup to assign to the published packages
   - ```-?, -h, --help``` - Show help and usage information
 
 ## Powershell
@@ -209,8 +209,8 @@ After this the cmdlets can be called to execute the desired operations. Note tha
 Usage: ```[cmdlet] [options]```
 
 Cmdlets:
-  - <a href="#add-manifests">```Add-Manifests```</a> - Publishes one or more Deployment Package(s) into Customer Portal
-  - <a href="#add-package">```Add-Package```</a> - Publishes a Deployment Package into Customer Portal
+  - <a href="#add-manifests">```Add-Manifests```</a> - Publishes one or more Deployment Manifests into Customer Portal
+  - <a href="#add-package">```Add-Package```</a> - Publishes one or more Customization Packages into Customer Portal
   - <a href="#get-agentconnection">```Get-AgentConnection```</a> - Check if an Infrastructure Agent is connected
   - <a href="#new-environment">```New-Environment```</a> - Creates and deploys a new Customer Environment
   - <a href="#new-infrastructure">```New-Infrastructure```</a> - Creates a customer Infrastructure
@@ -227,7 +227,7 @@ Below we will show the documentation for each cmdlet.
 
 ### Add-Manifests
 
-Publishes one or more Deployment Package(s) into Customer Portal
+Publishes one or more Deployment Manifests into Customer Portal
 
 Equivalent to the console command <a href="#publish">publish</a>
 
@@ -235,20 +235,20 @@ Usage: ```Add-Manifests [options]```
 
 Options:
   - ```-ReplaceTokens <MyToken=value MyToken2=value2>``` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
-  - ```-Path <path>``` - **REQUIRED** - Path to Deployment Package Manifest file, or folder to a folder containing multiple manifest files
-  - ```-Datagroup <datagroup>``` - Name of the datagroup to assign to the published deployment packages
+  - ```-Path <path>``` - **REQUIRED** - Path to the manifest file or path to a folder containing multiple manifest files
+  - ```-Datagroup <datagroup>``` - Name of the existing datagroup to assign to the published deployment manifests
 
 ### Add-Package
 
-Publishes a Deployment Package into Customer Portal
+Publishes one or more Customization Packages into Customer Portal
 
 Equivalent to the console command <a href="#publish-package">publish-package</a>
 
 Usage: ```Add-Package [options]```
 
 Options:
-  - ```-Path <path>``` - **REQUIRED** - Path to Package zip file
-  - ```-Datagroup <datagroup>``` - Name of the datagroup to assign to the published packages
+  - ```-Path <path>``` - **REQUIRED** - Path to the package zip file or folder containing multiple package files
+  - ```-Datagroup <datagroup>``` - Name of the existing datagroup to assign to the published packages
 
 ### Get-AgentConnection
 

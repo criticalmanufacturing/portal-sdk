@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
-            Add(new Option<string>(new[] { "--app-version" }, Resources.APP_VERSION_HELP)
+            Add(new Option<string>(new[] { "--app-version", "-av" }, Resources.APP_VERSION_HELP)
             {
                 IsRequired = true
             });

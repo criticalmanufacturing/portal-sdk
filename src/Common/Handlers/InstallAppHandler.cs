@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             _appInstallationHandler = appInstallationHandler;
         }
 
-        public async Task Run(string name, string customerEnvironmentName, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout)
+        public async Task Run(string name, string appVersion, string customerEnvironmentName, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout)
         {
             // login
             await EnsureLogin();
@@ -38,7 +38,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // create or update the relationship between the environment and the app
             CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage = null;
             customerEnvironmentApplicationPackage = await _customerPortalClient.CreateOrUpdateAppInstallation(
-                environment.Id, name, appParameters, license
+                environment.Id, name, appVersion, appParameters, license
             );
 
             // start deployment

@@ -23,6 +23,11 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
+            Add(new Option<string>(new[] { "--app-version", "-av" }, Resources.APP_VERSION_HELP)
+            {
+                IsRequired = true
+            });
+
             Add(new Option<string>(new[] { "--customer-environment", "-ce", }, Resources.APP_CUSTOMER_ENVIRONMENT_HELP)
             {
                 IsRequired = true
@@ -53,13 +58,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
             };
         }
 
-        public async Task InstallHandler(bool verbose, string name, string customerEnvironment, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout)
+        public async Task InstallHandler(bool verbose, string name, string appVersion, string customerEnvironment, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout)
         {
             // get new environment handler and run it
             CreateSession(verbose);
 
             InstallAppHandler installAppHandler = ServiceLocator.Get<InstallAppHandler>();
-            await installAppHandler.Run(name, customerEnvironment, license, parameters, replaceTokens, output, timeout);
+            await installAppHandler.Run(name, appVersion, customerEnvironment, license, parameters, replaceTokens, output, timeout);
         }
     }
 }

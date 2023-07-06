@@ -38,7 +38,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             bool interactive,
             string customerInfrastructureName,
             string description,
-            string templateName,
             bool terminateOtherVersions,
             bool isInfrastructureAgent,
             double? minutesTimeoutMainTask
@@ -119,7 +118,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // If we are creating in an infrastructure, and we are not creating the agent, the user can define the site for the environment
                 if (!isInfrastructureAgent)
                 {
-                    // If the user defined a site, load it, otherwise the template site will be used
+                    // If the user defined a site, load it
                     if (!string.IsNullOrEmpty(siteName))
                     {
                         environmentSite = await _customerPortalClient.GetObjectByName<ProductSite>(siteName);
@@ -142,7 +141,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     CustomerInfrastructureName = customerInfrastructureName,
                     CustomerEnvironment = environment,
-                    TemplateName = templateName,
                     IsInfrastructureAgent = isInfrastructureAgent
                 }.CreateCustomerEnvironmentForCustomerInfrastructureAsync(true)).CustomerEnvironment;
             }

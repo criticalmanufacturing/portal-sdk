@@ -23,12 +23,10 @@
         public const string APP_LICENSE_HELP = "Name of the License to use for the App.";
         public const string APP_INSTALLATION_TIMEOUT = "Timeout, in minutes, to wait for an App to install. The default is 60 minutes.";
         public const string APP_PARAMETERS_PATH_HELP = "Path to parameters file that describes the App in a Convergence Customer Environment.";
-        public const string INFRASTRUCTUREFROMTEMPLATE_NAME_HELP = "The name of the Customer Infrastructure to be created";
-        public const string INFRASTRUCTUREFROMTEMPLATE_TEMPLATENAME_HELP = "The name of the Customer Infrastructure template that the new Customer Infrastructure will derive from";
+        public const string INFRASTRUCTURE_NAME_HELP = "The name of the Customer Infrastructure to be created";
         public const string INFRASTRUCTURE_SITE_HELP = "(deprecated) Name of a Site used to match a Customer with the Customer Infrastructure";
         public const string INFRASTRUCTURE_CUSTOMER_HELP = "Name of the Customer associated with the Customer Infrastructure";
         public const string INFRASTRUCTURE_EXISTING_NAME_HELP = "Name of the existing Customer Infrastructure";
-        public const string INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP = "Name of an existing Customer Environment template that is linked to the Customer Infrastructure";
         public const string INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP = "Flag that ignores a throw if an error of type 'Customer Infrastructure already exist' occurs";
 
         public const string GETAGENTCONNECTION_NAME_HELP = "The name of the Infrastructure Agent";

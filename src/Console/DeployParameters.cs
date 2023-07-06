@@ -16,7 +16,6 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public string License { get; set; }
         public string Package { get; set; }
         public string Target { get; set; }
-        public string TemplateName { get; set; }
         public DirectoryInfo Output { get; set; }
         public string[] ReplaceTokens { get; set; }
         public bool Interactive { get; set; }

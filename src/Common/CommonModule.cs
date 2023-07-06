@@ -17,7 +17,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();
             serviceCollection.AddTransient<Handlers.LoginHandler>();
             serviceCollection.AddTransient<Handlers.NewInfrastructureHandler>();
-            serviceCollection.AddTransient<Handlers.NewInfrastructureFromTemplateHandler>();
             serviceCollection.AddTransient<Handlers.GetAgentConnectionHandler>();
             serviceCollection.AddTransient<Handlers.AddManifestsHandler>();
             serviceCollection.AddTransient<Handlers.PublishPackageHandler>();

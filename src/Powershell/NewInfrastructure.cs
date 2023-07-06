@@ -9,7 +9,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
     [Cmdlet(VerbsCommon.New, "Infrastructure")]
     public class NewInfrastructure : BaseCmdlet<NewInfrastructureHandler>
     {
-        [Parameter(HelpMessage = Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP)]
+        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_NAME_HELP)]
         public string Name { get; set; }
 
         [Parameter(HelpMessage = Resources.INFRASTRUCTURE_SITE_HELP)]

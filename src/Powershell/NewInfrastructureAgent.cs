@@ -41,7 +41,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"),(FileInfo)CommonParametersExtension.GetValue("ParametersPath"), 
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), null, null, null,
                 (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), 
-                (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), (string)CommonParametersExtension.GetValue("TemplateName"),
+                (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), 
                 false, true, DeploymentTimeoutMinutes);
         }
     }

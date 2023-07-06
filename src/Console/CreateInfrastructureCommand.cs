@@ -15,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public CreateInfrastructureCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new[] { "--name", "-n" }, Resources.INFRASTRUCTUREFROMTEMPLATE_NAME_HELP));
+            Add(new Option<string>(new[] { "--name", "-n" }, Resources.INFRASTRUCTURE_NAME_HELP));
 
             Add(new Option<string>(new[] { "--site", "-s", }, Resources.INFRASTRUCTURE_SITE_HELP));
             Add(new Option<string>(new[] { "--customer", "-c", }, Resources.INFRASTRUCTURE_CUSTOMER_HELP));

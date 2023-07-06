@@ -26,7 +26,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 				case DeploymentTarget.portainer:
 					return "PortainerV2Target";
 				case DeploymentTarget.KubernetesOnPremisesTarget:
+				case DeploymentTarget.KubernetesRemoteTarget:
 				case DeploymentTarget.OpenShiftOnPremisesTarget:
+				case DeploymentTarget.OpenShiftRemoteTarget:
 				case DeploymentTarget.AzureKubernetesServiceTarget:
 					return abbreviatedDeploymentTarget.ToString();
                 default:

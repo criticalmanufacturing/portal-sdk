@@ -5,7 +5,9 @@
         dockerswarm,
         portainer,
         KubernetesOnPremisesTarget,
+        KubernetesRemoteTarget,
         OpenShiftOnPremisesTarget,
+        OpenShiftRemoteTarget,
         AzureKubernetesServiceTarget
     }
 }

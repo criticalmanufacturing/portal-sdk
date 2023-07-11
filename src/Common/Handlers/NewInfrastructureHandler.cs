@@ -2,6 +2,7 @@
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
@@ -15,7 +16,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string siteName, string customerName, bool ignoreIfExists)
+        public async Task Run(string infrastructureName, string siteName, string customerName, bool ignoreIfExists, FileInfo parameters)
         {
             await EnsureLogin();
 
@@ -25,6 +26,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 Exception error = new Exception("Customer is required to create a new infrastructure");
                 Session.LogError(error);
                 throw error;
+            }
+
+            // Read parameters file
+            string infrastructureParameters = null;
+            if (parameters != null)
+            {
+                infrastructureParameters = File.ReadAllText(parameters.FullName);
             }
 
             ProductCustomer customer;
@@ -54,7 +62,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             if (customerInfrastructure == null)
             {
                 // create customer infrastructure if doesn't exist.
-                customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName);
+                customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName, infrastructureParameters);
             }
 
             // wait if necessary to Unlock Customer Infrastructure

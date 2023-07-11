@@ -81,6 +81,7 @@ Options:
   - ```-s, --site <site>``` - **deprecated** - Name of a Site used to match a Customer with the Customer Infrastructure
   - ```-c, --customer <customer>``` - Name of the Customer associated with the Customer Infrastructure
   - ```--ignore-if-exists``` - Flag that ignores a throw if an error of type 'Customer Infrastructure already exist' occurs
+  - ```-params, --parameters <filePath>``` - Path to parameters json file that includes parameters for the Customer Infrastructure
   - ```-?, -h, --help``` - Show help and usage information
 
 ### deployagent
@@ -298,6 +299,7 @@ Options:
   - ```-SiteName <site>``` - **deprecated** - Name of a Site used to match a Customer with the Customer Infrastructure
   - ```-CustomerName <customer>``` - Name of the Customer associated with the Customer Infrastructure
   - ```-IgnoreIfExists``` - Flag that ignores a throw if an error of type 'Customer Infrastructure already exist' occurs
+  - ```-ParametersPath <parameters>``` - Path to parameters json file that includes parameters for the Customer Infrastructure
 
 ### New-InfrastructureAgent
 

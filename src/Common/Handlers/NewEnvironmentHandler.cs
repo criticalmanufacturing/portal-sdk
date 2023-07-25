@@ -115,13 +115,17 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
 
                 ProductSite environmentSite = null;
-                // If we are creating in an infrastructure, and we are not creating the agent, the user can define the site for the environment
+                // If we are creating in an infrastructure, and we are not creating the agent, the user must define the site for the environment
                 if (!isInfrastructureAgent)
                 {
                     // If the user defined a site, load it
                     if (!string.IsNullOrEmpty(siteName))
                     {
                         environmentSite = await _customerPortalClient.GetObjectByName<ProductSite>(siteName);
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException("Name of the Site is mandatory to create a Customer Environment");
                     }
                 }
 

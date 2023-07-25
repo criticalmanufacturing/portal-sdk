@@ -21,7 +21,6 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
             CreateRuntimeParameter("ParametersPath", Resources.DEPLOYMENT_PARAMETERSPATH_HELP, typeof(FileInfo));
             CreateRuntimeParameter("EnvironmentType", Resources.DEPLOYMENT_ENVIRONMENTTYPE_HELP, typeof(EnvironmentType), defaultValue: EnvironmentType.Development);
             CreateRuntimeParameter("DeploymentTargetName", Resources.DEPLOYMENT_TARGET_HELP, typeof(DeploymentTarget), mandatory: true);
-            CreateRuntimeParameter("TemplateName", Resources.INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP, typeof(string));
             CreateRuntimeParameter("OutputDir", Resources.DEPLOYMENT_OUTPUTDIR_HELP, typeof(DirectoryInfo));
         }
 

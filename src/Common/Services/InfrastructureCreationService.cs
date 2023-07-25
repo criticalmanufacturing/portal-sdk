@@ -81,7 +81,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         }
 
         /// <summary>
-        /// Create a Customer Infrastructure without templates and parameters.
+        /// Create a Customer Infrastructure without parameters.
         /// This method does not wait for the cache to be updated and the infrastructure that is returned can have the object locked.
         /// </summary>
         /// <param name="session">Session</param>
@@ -90,7 +90,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// <returns></returns>
         public static Task<CustomerInfrastructure> CreateCustomerInfrastructure(ISession session, ProductCustomer customer, string customerInfrastructureName)
         {
-            return CreateCustomerInfrastructure(session, customer, customerInfrastructureName, null, null);
+            return CreateCustomerInfrastructure(session, customer, customerInfrastructureName, null);
         }
 
         /// <summary>
@@ -101,9 +101,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// <param name="customer">Customer</param>
         /// <param name="customerInfrastructureName">Name of Customer Infrastructure</param>
         /// <param name="parameters">Parameters of Customer Infrastructure</param>
-        /// <param name="templates">Templates to Add to Customer Infrastructure</param>
         /// <returns></returns>
-        public static async Task<CustomerInfrastructure> CreateCustomerInfrastructure(ISession session, ProductCustomer customer, string customerInfrastructureName, string parameters, CustomerEnvironmentCollection templates)
+        public static async Task<CustomerInfrastructure> CreateCustomerInfrastructure(ISession session, ProductCustomer customer, string customerInfrastructureName, string parameters)
         {
             session.LogInformation($"Creating Customer Infrastructure {customerInfrastructureName}...");
 
@@ -117,8 +116,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
             customerInfrastructure = (await new CreateCustomerInfrastructureInput
             {
-                CustomerInfrastructure = customerInfrastructure,
-                TemplatesToAdd = templates
+                CustomerInfrastructure = customerInfrastructure
             }.CreateCustomerInfrastructureAsync(true)).CustomerInfrastructure;
 
             return customerInfrastructure;

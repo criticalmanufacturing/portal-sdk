@@ -10,7 +10,6 @@ namespace Cmf.CustomerPortal.Sdk.Console
             var rootCommand = new RootCommand("Client command line application to interact with CustomerPortal DevOps Center");
 
             rootCommand.AddCommand(new CheckAgentConnectionCommand());
-            rootCommand.AddCommand(new CreateInfrastructureFromTemplateCommand());
             rootCommand.AddCommand(new CreateInfrastructureCommand());
             rootCommand.AddCommand(new DeployAgentCommand());
             rootCommand.AddCommand(new DeployCommand());

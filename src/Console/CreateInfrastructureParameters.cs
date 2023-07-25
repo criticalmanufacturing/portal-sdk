@@ -8,7 +8,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public string Name { get; set; }
         public string Site { get; set; }
         public string Customer { get; set; }
-        public string TemplateName { get; set; }
         public bool IgnoreIfExists { get; set; }
+        public FileInfo Parameters { get; set; }
     }
 }

@@ -38,8 +38,6 @@ namespace Cmf.CustomerPortal.Sdk.Console.Extensions
                 IsRequired = true
             });
 
-            command.Add(new Option<string>(new[] { "--template-name", "-template", }, Resources.INFRASTRUCTURE_EXISTING_ENVIRONMENT_TEMPLATE_NAME_HELP));
-
             command.Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
             command.Add(new Option<bool>(new[] { "--interactive", "-i" }, Resources.DEPLOYMENT_INTERACTIVE_HELP));

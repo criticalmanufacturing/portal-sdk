@@ -147,13 +147,14 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }.ExecuteQueryAsync(true)).NgpDataSet);
         }
 
-        public async Task<T> TerminateObjects<T, U>(T obj, OperationAttributeCollection operationAttributes = null) where T : List<U>, new() where U : new()
+        public async Task<T> TerminateObjects<T, U>(T obj, OperationAttributeCollection operationAttributes = null, bool isToTerminateAllVersions = false) where T : List<U>, new() where U : new()
         {
             return (await new TerminateObjectsInput
             {
                 Objects = new Collection<object>(obj.ConvertAll(x => x as object)),
                 OperationAttributes = operationAttributes,
-                IgnoreLastServiceId = true
+                IgnoreLastServiceId = true,
+                OperationTarget = isToTerminateAllVersions ? EntityTypeSource.Revision : EntityTypeSource.Version
             }.TerminateObjectsAsync(true)).Objects as T;
         }
 

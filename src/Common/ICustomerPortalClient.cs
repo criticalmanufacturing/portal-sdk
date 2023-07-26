@@ -55,7 +55,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="obj">The list of objects</param>
         /// <param name="operationAttributes">Operation attributes to pass to the service</param>
         /// <returns>The same list of objects</returns>
-        Task<T> TerminateObjects<T, U>(T obj, OperationAttributeCollection operationAttributes = null) where T : List<U>, new() where U : new();
+        Task<T> TerminateObjects<T, U>(T obj, OperationAttributeCollection operationAttributes = null, bool isToTerminateAllVersions = false) where T : List<U>, new() where U : new();
 
         /// <summary>
         /// Gets a collection of CustomerEnvironments.

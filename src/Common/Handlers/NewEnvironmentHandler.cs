@@ -1,6 +1,7 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
+using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
@@ -93,7 +94,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 Session.LogInformation($"Creating a new version of the Customer environment {name}...");
 
-                environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
+                environment = await CreateEnvironment(_customerPortalClient, environment);
 
                 // terminate other versions
                 if (terminateOtherVersions)
@@ -164,13 +165,53 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Parameters = rawParameters
                 };
 
-                environment = (await new CreateObjectVersionInput { Object = environment }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
+                environment = await CreateEnvironment(_customerPortalClient, environment);
             }
 
             Session.LogInformation($"Customer environment {name} created...");
 
             // handle installation
             await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask);
+        }
+
+        /// <summary>
+        /// Creates the environment or a new version if it already exists.
+        /// </summary>
+        /// <param name="customerEnvironment">The customer environment.</param>
+        /// <returns>The created environment.</returns>
+        public static async Task<CustomerEnvironment> CreateEnvironment(ICustomerPortalClient client, CustomerEnvironment customerEnvironment)
+        {
+            try
+            {
+                CustomerEnvironment ceFound = await client.GetObjectByName<CustomerEnvironment>(customerEnvironment.Name);
+
+                // was found on GetObjectByName, so let's create a new version
+                return CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Version);
+            }
+            catch (CmfFaultException exception) when (exception.Code?.Name == "Db20001")
+            {
+                // was not found on GetObjectByName, so let's create a new Entity
+                return CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Entity);
+            }
+        }
+
+        /// <summary>
+        /// Creates new customer environment entity or a new customer environment version.
+        /// A new entity (entityType = Entity) of a customer environment makes sense when the customer environment doesn't exists and we want to create a new customer environment entity with the first version.
+        /// To create a new customer environment version (entityType = Version) makes sense when the entity (with the first version) already exists.
+        /// </summary>
+        /// <param name="customerEnvironment">customer environment to create new entity</param>
+        /// <param name="entityType">entityType for operation target (Entity -> for first version and entity creation | Version -> for a new version)</param>
+        /// <returns>new customer environment with the first version</returns>
+        public static CustomerEnvironment CreateNewEnvironmentEntityOrVersion(CustomerEnvironment customerEnvironment, EntityTypeSource entityType)
+        {
+            customerEnvironment.ChangeSet = null;
+            customerEnvironment = new CreateObjectVersionInput
+            {
+                Object = customerEnvironment,
+                OperationTarget = entityType
+            }.CreateObjectVersionSync().Object as CustomerEnvironment;
+            return customerEnvironment;
         }
     }
 }

@@ -155,6 +155,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     ObjectAlias = "Package_1",
                     Operator = Cmf.Foundation.Common.FieldOperator.IsEqualTo,
                     Value = version,
+                    LogicalOperator = Cmf.Foundation.Common.LogicalOperator.AND,
+                    FilterType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,
+                },
+                new Filter()
+                {
+                    Name = "UniversalState",
+                    ObjectName = "Package",
+                    ObjectAlias = "Package_1",
+                    Operator = Cmf.Foundation.Common.FieldOperator.IsNotEqualTo,
+                    Value = 4,
                     LogicalOperator = Cmf.Foundation.Common.LogicalOperator.Nothing,
                     FilterType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,
                 }

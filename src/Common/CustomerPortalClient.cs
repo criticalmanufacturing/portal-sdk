@@ -1,4 +1,16 @@
-﻿using Cmf.CustomerPortal.BusinessObjects;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
 using Cmf.Foundation.BusinessObjects;
@@ -8,26 +20,15 @@ using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects
 using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
 using Cmf.Foundation.Common.Base;
 using Cmf.Foundation.Security;
-using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Client;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
     public class CustomerPortalClient : ICustomerPortalClient
     {
         private static readonly SemaphoreSlim _transportLock = new SemaphoreSlim(1, 1);
+        private const string jwtTenantNameKey = "tenantName";
 
         private readonly ISession _session;
         private Transport _transport;
@@ -276,10 +277,11 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 _session.LogDebug($"Configuring message bus...");
 
                 // create new transport using the config
-                TransportConfig transportConfig = JsonConvert.DeserializeObject<TransportConfig>((await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true)).TransportConfig);
-                transportConfig.ApplicationName = "Customer Portal Client";
-                transportConfig.TenantName = ClientConfigurationProvider.ClientConfiguration.ClientTenantName;
-                transportConfig.SecurityToken = ClientConfigurationProvider.DiscoverAuthProvider().AccessToken;
+                var applicationBootInformation = await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true);
+                TransportConfig transportConfig = JsonConvert.DeserializeObject<TransportConfig>(applicationBootInformation.TransportConfig);
+                transportConfig.ApplicationName = "Customer Portal Client (PortalSDK)";
+                transportConfig.TenantName = new JwtSecurityTokenHandler().ReadJwtToken(applicationBootInformation.MessageBusToken).Payload[jwtTenantNameKey].ToString();
+                transportConfig.SecurityToken = applicationBootInformation.MessageBusToken;
                 Transport messageBus = new Transport(transportConfig);
 
                 // Register events

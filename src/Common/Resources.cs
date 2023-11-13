@@ -17,6 +17,8 @@
         public const string DEPLOYMENT_INTERACTIVE_HELP = "Flag that controls if the user should be prompted to go to the portal to initialize the installation manually";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP = "Flag that controls if all the other versions of the Customer Environment should be terminated";
         public const string DEPLOYMENT_TIMEOUT_MINUTES = "Number of minutes that are allowed to wait for the deployment to succeed. The default is 60 minutes.";
+        public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP = "Flag that controls if the deployments of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions flag.";
+        public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flag.";
         public const string APP_NAME_HELP = "The name of the App to install.";
         public const string APP_VERSION_HELP = "The version of the App to install.";
         public const string APP_CUSTOMER_ENVIRONMENT_HELP = "The name of a Convergence Customer Environment to install the App on.";

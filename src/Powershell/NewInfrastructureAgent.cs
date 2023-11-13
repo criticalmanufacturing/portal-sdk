@@ -42,7 +42,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), null, null, null,
                 (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), 
                 (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), 
-                false, true, DeploymentTimeoutMinutes);
+                false, true, DeploymentTimeoutMinutes, false, false);
         }
     }
 }

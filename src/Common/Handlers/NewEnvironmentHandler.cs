@@ -2,6 +2,7 @@
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects;
+using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
@@ -41,7 +42,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string description,
             bool terminateOtherVersions,
             bool isInfrastructureAgent,
-            double? minutesTimeoutMainTask
+            double? minutesTimeoutMainTask,
+            bool terminateOtherVersionsRemove,
+            bool terminateOtherVersionsRemoveVolumes
         )
         {
             // login
@@ -102,7 +105,29 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Session.LogInformation("Terminating other versions...");
 
                     var customerEnvironmentsToTerminate = await _newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
-                    await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate);
+                    OperationAttributeCollection terminateOperationAttibutes = new OperationAttributeCollection();
+                    EntityType ceET = new GetEntityTypeByNameInput { Name = "CustomerEnvironment" }.GetEntityTypeByNameSync().EntityType;
+                    foreach (var ce in  customerEnvironmentsToTerminate)
+                    {
+                        OperationAttribute attributeRemove = new OperationAttribute();
+                        attributeRemove.EntityId = ce.Id;
+                        attributeRemove.EntityType = ceET;
+                        attributeRemove.Name = "RemoveDeployments";
+                        attributeRemove.OperationName = "TerminateVersion";
+                        attributeRemove.Value = terminateOtherVersionsRemove ? 1 : 0;
+
+                        OperationAttribute attributeRemoveVolumes = new OperationAttribute();
+                        attributeRemoveVolumes.EntityId = ce.Id;
+                        attributeRemoveVolumes.EntityType = ceET;
+                        attributeRemoveVolumes.Name = "RemoveVolumes";
+                        attributeRemoveVolumes.OperationName = "TerminateVersion";
+                        attributeRemoveVolumes.Value = (terminateOtherVersionsRemove && terminateOtherVersionsRemoveVolumes) ? 1 : 0;
+
+                        terminateOperationAttibutes.Add(attributeRemove);
+                        terminateOperationAttibutes.Add(attributeRemoveVolumes);
+                    }
+
+                    await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
 
                     // wait until they're terminated
                     await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);

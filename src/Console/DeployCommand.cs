@@ -39,6 +39,10 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<double?>(new[] { "--deploymentTimeoutMinutes", "-to", }, Resources.DEPLOYMENT_TIMEOUT_MINUTES));
 
+            Add(new Option<bool>(new[] { "--terminateOtherVersionsRemove", "-tovr" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP));
+
+            Add(new Option<bool>(new[] { "--terminateOtherVersionsRemoveVolumes", "-tovrv" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP));
+
             Handler = CommandHandler.Create((DeployParameters x) => DeployHandler(x));
         }
 
@@ -60,7 +64,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 parameters.Package,
                 (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TerminateOtherVersions, false,
-                parameters.DeploymentTimeoutMinutes);
+                parameters.DeploymentTimeoutMinutes, parameters.TerminateOtherVersionsRemove, parameters.TerminateOtherVersionsRemoveVolumes);
         }
     }
 }

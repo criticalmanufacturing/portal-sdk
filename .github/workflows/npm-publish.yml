@@ -67,6 +67,9 @@ jobs:
       # Replace Version token on NPM package.json
       - name: Replace package.json Version token
         run: cd npm && sed -i ''s/#{Version}#/${{ steps.getver.outputs.result }}/g'' package.json
+      # Replace Version token on NPM install.js
+      - name: Replace install.js Version token
+        run: cd npm && sed -i ''s/#{Version}#/${{ github.ref_name }}/g'' install.js
       # Setup Node.js environment
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.4.1

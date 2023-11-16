@@ -38,7 +38,7 @@ fs.unlink(path.join(installScriptLocation, 'cmf-portal'), (err) => {
 
 // download respective release zip from github
 console.info(`Current platform / arch: ${process.platform} / ${process.arch}`);
-const pkgUrl = `https://github.com/criticalmanufacturing/portal-sdk/releases/download/${process.env.npm_package_version}/Cmf.CustomerPortal.Sdk.Console-${process.env.npm_package_version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`;// opts.binUrl.replace("{{version}}", opts.version).replace("{{platform}}", PLATFORM_MAPPING[process.platform]).replace("{{arch}}", ARCH_MAPPING[process.arch]);
+const pkgUrl = `https://github.com/criticalmanufacturing/portal-sdk/releases/download/#{Version}#/Cmf.CustomerPortal.Sdk.Console-${process.env.npm_package_version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`;// opts.binUrl.replace("{{version}}", opts.version).replace("{{platform}}", PLATFORM_MAPPING[process.platform]).replace("{{arch}}", ARCH_MAPPING[process.arch]);
 console.info(`Getting release archive from ${pkgUrl} into ${path.resolve(installScriptLocation)}`);
 axios.get(pkgUrl, { responseType: 'arraybuffer' })
      .then(function (response) {

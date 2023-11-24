@@ -21,6 +21,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public bool Interactive { get; set; }
         public bool TerminateOtherVersions { get; set; }
         public double? DeploymentTimeoutMinutes { get; set; }
+        public double? DeploymentTimeoutMinutesToGetSomeMBMessage { get; set; }
         public bool TerminateOtherVersionsRemove { get; set; }
         public bool TerminateOtherVersionsRemoveVolumes { get; set; }
     }

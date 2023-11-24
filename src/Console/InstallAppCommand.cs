@@ -46,7 +46,12 @@ namespace Cmf.CustomerPortal.Sdk.Console
             Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
             Add(new Option<double?>(new[] { "--timeout" }, Resources.APP_INSTALLATION_TIMEOUT));
-            
+
+            Add(new Option<double?>(new[] { "--timeoutToGetSomeMBMessage", "-tom" }, Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE)
+            {
+                IsRequired = false
+            });
+
             Handler = CommandHandler.Create(typeof(InstallAppCommand).GetMethod(nameof(InstallAppCommand.InstallHandler)), this);
         }
 
@@ -58,13 +63,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
             };
         }
 
-        public async Task InstallHandler(bool verbose, string name, string appVersion, string customerEnvironment, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout)
+        public async Task InstallHandler(bool verbose, string name, string appVersion, string customerEnvironment, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout, double? timeoutToGetSomeMBMessage = null)
         {
             // get new environment handler and run it
             CreateSession(verbose);
 
             InstallAppHandler installAppHandler = ServiceLocator.Get<InstallAppHandler>();
-            await installAppHandler.Run(name, appVersion, customerEnvironment, license, parameters, replaceTokens, output, timeout);
+            await installAppHandler.Run(name, appVersion, customerEnvironment, license, parameters, replaceTokens, output, timeout, timeoutToGetSomeMBMessage);
         }
     }
 }

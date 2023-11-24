@@ -29,9 +29,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private static DateTime? utcOfLastMessageReceived = null;
 
-        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(60);
+        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(360); // Same than RING
 
-        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(15);
+        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(30);
 
         public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
@@ -171,12 +171,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
-        public async Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir, double? timeout = null)
+        public async Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir, double? timeoutMinutesMainTask = null, double? timeoutMinutesToGetSomeMBMsg = null)
         {
             // assign the timeout of main task to deploy
-            if (timeout > 0)
+            if (timeoutMinutesMainTask > 0)
             {
-                timeoutMainTask = TimeSpan.FromMinutes(timeout.Value);
+                timeoutMainTask = TimeSpan.FromMinutes(timeoutMinutesMainTask.Value);
+            }
+
+            // assign the timeout of don't receive any message from portal by MB
+            if (timeoutMinutesToGetSomeMBMsg > 0)
+            {
+                timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(timeoutMinutesToGetSomeMBMsg.Value);
             }
 
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
@@ -229,7 +235,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                                 compositeTokenSource.Dispose();
                                 cancellationTokenMBMessageReceived.Dispose();
 
-                                throw new TaskCanceledException($"Installation Failed! The installation timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on the MessageBus.");
+                                throw new TaskCanceledException($"Installation Failed! The installation timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes because the SDK client did not receive additional expected messages on MessageBus from the portal and was waiting for installation to be finished.");
                             }
                             else
                             {

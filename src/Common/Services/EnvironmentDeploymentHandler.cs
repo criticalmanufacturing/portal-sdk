@@ -26,8 +26,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private static DateTime? utcOfLastMessageReceived = null;
 
-        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(60);
-        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(15);
+        private TimeSpan timeoutMainTask = TimeSpan.FromHours(6); // same timeout than RING
+        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(30);
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
@@ -167,12 +167,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
-        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask = null)
+        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask = null, double? minutesTimeoutToGetSomeMBMsg = null)
         {
             // assign the timeout of main task to deploy
             if (minutesTimeoutMainTask > 0)
             {
                 timeoutMainTask = TimeSpan.FromMinutes(minutesTimeoutMainTask.Value);
+            }
+
+            // assign the timeout of don't receive any message from portal by MB
+            if (minutesTimeoutToGetSomeMBMsg > 0)
+            {
+                timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(minutesTimeoutToGetSomeMBMsg.Value);
             }
 
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
@@ -237,7 +243,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                                 compositeTokenSource.Dispose();
                                 cancellationTokenMBMessageReceived.Dispose();
 
-                                throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on MessageBus and waiting for deployment to be finished.");
+                                throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes because the SDK client did not receive additional expected messages on MessageBus from the portal and was waiting for deployment to be finished.");
                             }
                             else
                             {

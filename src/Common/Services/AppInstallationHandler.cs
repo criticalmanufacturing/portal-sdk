@@ -29,7 +29,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private static DateTime? utcOfLastMessageReceived = null;
 
-        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(360); // Same than RING
+        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(360); // same timeout than RING (6 hours)
 
         private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(30);
 

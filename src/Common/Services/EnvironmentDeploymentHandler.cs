@@ -26,8 +26,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private static DateTime? utcOfLastMessageReceived = null;
 
-        private TimeSpan timeoutMainTask = TimeSpan.FromHours(6); // same timeout as RING (6 hours)
-        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(30);
+        private TimeSpan timeoutMainTask;
+        private TimeSpan timeoutToGetSomeMBMessageTask;
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
@@ -167,19 +167,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
-        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask = null, double? minutesTimeoutToGetSomeMBMsg = null)
+        public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask, double? minutesTimeoutToGetSomeMBMsg = null)
         {
             // assign the timeout of main task to deploy
-            if (minutesTimeoutMainTask > 0)
-            {
-                timeoutMainTask = TimeSpan.FromMinutes(minutesTimeoutMainTask.Value);
-            }
+            timeoutMainTask = minutesTimeoutMainTask > 0 ? TimeSpan.FromMinutes(minutesTimeoutMainTask.Value) : TimeSpan.FromHours(6); // same timeout as RING (6 hours)
+
 
             // assign the timeout of don't receive any message from portal by MB
-            if (minutesTimeoutToGetSomeMBMsg > 0)
-            {
-                timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(minutesTimeoutToGetSomeMBMsg.Value);
-            }
+            timeoutToGetSomeMBMessageTask = minutesTimeoutToGetSomeMBMsg > 0 ? TimeSpan.FromMinutes(minutesTimeoutToGetSomeMBMsg.Value) : TimeSpan.FromMinutes(30);
+            
 
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.{customerEnvironment.Id}";

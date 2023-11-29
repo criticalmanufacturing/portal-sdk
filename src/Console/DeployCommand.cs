@@ -39,7 +39,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<double?>(new[] { "--deploymentTimeoutMinutes", "-to", }, Resources.DEPLOYMENT_TIMEOUT_MINUTES));
 
-            Add(new Option<double?>(new[] { "--deploymentTimeoutMinutesToGetSomeMBMessage", "-tom", }, Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE));
+            Add(new Option<double?>(new[] { "--deploymentTimeoutMinutesToGetSomeMBMessage", "-tombm", }, Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE));
 
             Add(new Option<bool>(new[] { "--terminateOtherVersionsRemove", "-tovr" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP));
 

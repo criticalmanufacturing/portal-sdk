@@ -26,7 +26,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private static DateTime? utcOfLastMessageReceived = null;
 
-        private TimeSpan timeoutMainTask = TimeSpan.FromHours(6); // same timeout than RING (6 hours)
+        private TimeSpan timeoutMainTask = TimeSpan.FromHours(6); // same timeout as RING (6 hours)
         private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(30);
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient)
@@ -243,7 +243,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                                 compositeTokenSource.Dispose();
                                 cancellationTokenMBMessageReceived.Dispose();
 
-                                throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes because the SDK client did not receive additional expected messages on MessageBus from the portal and was waiting for deployment to be finished.");
+                                throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes because the SDK client did not receive additional expected messages on MessageBus from the portal and the installation is not finished.");
                             }
                             else
                             {

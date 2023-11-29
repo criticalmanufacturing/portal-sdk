@@ -17,7 +17,7 @@
         public const string DEPLOYMENT_INTERACTIVE_HELP = "Flag that controls if the user should be prompted to go to the portal to initialize the installation manually";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP = "Flag that controls if all the other versions of the Customer Environment should be terminated";
         public const string DEPLOYMENT_TIMEOUT_MINUTES = "Timeout, in minutes, that are allowed to wait for the deployment to succeed. The default is 360 minutes (6 hours).";
-        public const string DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE = "Timeout, in minutes, that SDK client will wait to receive any message from portal by Message Bus. The default is 30 minutes.";
+        public const string DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE = "Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP = "Flag that controls if the deployments of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions flag.";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.";
         public const string APP_NAME_HELP = "The name of the App to install.";

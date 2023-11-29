@@ -45,9 +45,9 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
-            Add(new Option<double?>(new[] { "--timeout" }, Resources.APP_INSTALLATION_TIMEOUT));
+            Add(new Option<double?>(new[] { "--timeout" , "-to" }, Resources.APP_INSTALLATION_TIMEOUT));
 
-            Add(new Option<double?>(new[] { "--timeoutToGetSomeMBMessage", "-tom" }, Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE)
+            Add(new Option<double?>(new[] { "--timeoutToGetSomeMBMessage", "-tombm" }, Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE)
             {
                 IsRequired = false
             });

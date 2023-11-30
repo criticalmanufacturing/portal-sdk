@@ -8,7 +8,6 @@ using Cmf.MessageBus.Messages;
 using Cmf.Services.GenericServiceManagement;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -28,10 +27,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private bool _hasInstallationFailed = false;
 
         private static DateTime? utcOfLastMessageReceived = null;
-
-        private TimeSpan timeoutMainTask = TimeSpan.FromMinutes(60);
-
-        private TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(15);
 
         public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
@@ -171,13 +166,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
-        public async Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir, double? timeout = null)
+        public async Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir, double? timeoutMinutesMainTask = null, double? timeoutMinutesToGetSomeMBMsg = null)
         {
             // assign the timeout of main task to deploy
-            if (timeout > 0)
-            {
-                timeoutMainTask = TimeSpan.FromMinutes(timeout.Value);
-            }
+            TimeSpan timeoutMainTask = timeoutMinutesMainTask > 0 ? TimeSpan.FromMinutes(timeoutMinutesMainTask.Value) : TimeSpan.FromHours(6); // same timeout as RING (6 hours)
+
+            // assign the timeout of don't receive any message from portal by MB
+            TimeSpan timeoutToGetSomeMBMessageTask = timeoutMinutesToGetSomeMBMsg > 0 ? TimeSpan.FromMinutes(timeoutMinutesToGetSomeMBMsg.Value) : TimeSpan.FromMinutes(30);
+
 
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.APP.{customerEnvironmentApplicationPackage.Id}";
@@ -229,7 +225,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                                 compositeTokenSource.Dispose();
                                 cancellationTokenMBMessageReceived.Dispose();
 
-                                throw new TaskCanceledException($"Installation Failed! The installation timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes without messages received on the MessageBus.");
+                                throw new TaskCanceledException($"Installation Failed! The installation timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes because the SDK client did not receive additional expected messages on MessageBus from the portal and the installation is not finished.");
                             }
                             else
                             {

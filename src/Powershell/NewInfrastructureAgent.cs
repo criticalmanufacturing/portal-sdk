@@ -30,6 +30,15 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
 
         [Parameter(Position = 1)]
         public SwitchParameter Interactive;
+
+        [Parameter(Position = 2, HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP)]
+        public SwitchParameter TerminateOtherVersions;
+
+        [Parameter(Position = 3, HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP)]
+        public SwitchParameter TerminateOtherVersionsRemove;
+
+        [Parameter(Position = 4, HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP)]
+        public SwitchParameter TerminateOtherVersionsRemoveVolumes;
         protected override IEnumerable<IParameterExtension> ExtendWithRange()
         {
             List<IParameterExtension> parameterExtensions = new List<IParameterExtension>();
@@ -46,9 +55,9 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"), (FileInfo)CommonParametersExtension.GetValue("ParametersPath"),
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), null, null, null,
-                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(),
-                (string)CommonParametersExtension.GetValue("CustomerInfrastructureName"), (string)CommonParametersExtension.GetValue("Description"),
-                false, true, DeploymentTimeoutMinutes, DeploymentTimeoutMinutesToGetSomeMBMsg, false, false);
+                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), 
+                (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), 
+                TerminateOtherVersions, true, DeploymentTimeoutMinutes, DeploymentTimeoutMinutesToGetSomeMBMsg, TerminateOtherVersionsRemove, TerminateOtherVersionsRemoveVolumes);
         }
     }
 }

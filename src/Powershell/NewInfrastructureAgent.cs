@@ -22,11 +22,17 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public double? DeploymentTimeoutMinutes { get; set; }
 
+        [Parameter(
+            HelpMessage = Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE,
+            Mandatory = false
+        )]
+        public double? DeploymentTimeoutMinutesToGetSomeMBMsg { get; set; }
+
         [Parameter(Position = 1)]
         public SwitchParameter Interactive;
         protected override IEnumerable<IParameterExtension> ExtendWithRange()
         {
-            List <IParameterExtension> parameterExtensions = new List<IParameterExtension>();
+            List<IParameterExtension> parameterExtensions = new List<IParameterExtension>();
             ReplaceTokensExtension = new ReplaceTokensParameterExtension();
             CommonParametersExtension = new CommonParametersExtension();
             parameterExtensions.Add(ReplaceTokensExtension);
@@ -35,14 +41,14 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
 
         }
         protected async override Task ProcessRecordAsync()
-        { 
+        {
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"),(FileInfo)CommonParametersExtension.GetValue("ParametersPath"), 
+            await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"), (FileInfo)CommonParametersExtension.GetValue("ParametersPath"),
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), null, null, null,
-                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), 
-                (string)CommonParametersExtension.GetValue("CustomerInfrastructureName") , (string)CommonParametersExtension.GetValue("Description"), 
-                false, true, DeploymentTimeoutMinutes, false, false);
+                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"), ReplaceTokensExtension.GetTokens(), Interactive.ToBool(),
+                (string)CommonParametersExtension.GetValue("CustomerInfrastructureName"), (string)CommonParametersExtension.GetValue("Description"),
+                false, true, DeploymentTimeoutMinutes, DeploymentTimeoutMinutesToGetSomeMBMsg, false, false);
         }
     }
 }

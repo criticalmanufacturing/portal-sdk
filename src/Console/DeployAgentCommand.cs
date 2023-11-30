@@ -22,6 +22,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         {
             Add(new Option<double?>(new[] { "--deploymentTimeoutMinutes", "-to", }, Resources.DEPLOYMENT_TIMEOUT_MINUTES));
 
+            Add(new Option<double?>(new[] { "--deploymentTimeoutMinutesToGetSomeMBMsg", "-tombm", }, Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE));
+
             Handler = CommandHandler.Create((DeployParameters x) => DeployHandler(x));
         }
 
@@ -42,7 +44,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, null, null,
                 (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, false, true, parameters.DeploymentTimeoutMinutes,
-                false, false);
+                parameters.DeploymentTimeoutMinutesToGetSomeMBMessage, false, false);
         }
     }
 }

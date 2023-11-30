@@ -43,6 +43,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             bool terminateOtherVersions,
             bool isInfrastructureAgent,
             double? minutesTimeoutMainTask,
+            double? minutesTimeoutToGetSomeMBMsg,
             bool terminateOtherVersionsRemove,
             bool terminateOtherVersionsRemoveVolumes
         )
@@ -196,7 +197,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation($"Customer environment {name} created...");
 
             // handle installation
-            await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask);
+            await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg);
         }
 
         /// <summary>

@@ -137,7 +137,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         Session.LogInformation("Other versions terminated!");
                     } else
                     {
-                        Session.LogInformation("There are no versions with a eligible status to be terminated.");
+                        Session.LogInformation("There are no versions with an eligible status to be terminated.");
                     }
                 }
             }

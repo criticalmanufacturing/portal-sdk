@@ -127,13 +127,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         terminateOperationAttibutes.Add(attributeRemove);
                         terminateOperationAttibutes.Add(attributeRemoveVolumes);
                     }
+                    if (customerEnvironmentsToTerminate.Count > 0)
+                    {
+                        await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
 
-                    await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
+                        // wait until they're terminated
+                        await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
 
-                    // wait until they're terminated
-                    await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
-
-                    Session.LogInformation("Other versions terminated!");
+                        Session.LogInformation("Other versions terminated!");
+                    } else
+                    {
+                        Session.LogInformation("There are no versions with an eligible status to be terminated.");
+                    }
                 }
             }
             // if not, check if we are creating a new environment for an infrastructure

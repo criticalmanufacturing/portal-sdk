@@ -46,7 +46,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 }
                 else
                 {
-                    throw e;
+                    throw;
                 }
             }
         }

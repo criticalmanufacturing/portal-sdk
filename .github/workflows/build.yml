@@ -23,7 +23,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: 8.0.x
       # Run build
       - name: Build Windows
         env:
@@ -45,14 +45,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64
-          path: src/Console/bin/Release/netcoreapp3.1/win-x64/publish/
+          path: src/Console/bin/Release/net8.0/win-x64/publish/
       - name: Archive Console Linux64
         uses: actions/upload-artifact@v2
         with:
           name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64
-          path: src/Console/bin/Release/netcoreapp3.1/linux-x64/publish/
+          path: src/Console/bin/Release/net8.0/linux-x64/publish/
       - name: Archive PowerShell
         uses: actions/upload-artifact@v2
         with:
           name: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}
-          path: src/Powershell/bin/Release/netstandard2.0/linux-x64/publish/
+          path: src/Powershell/bin/Release/net8.0/linux-x64/publish/

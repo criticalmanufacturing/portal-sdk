@@ -31,6 +31,10 @@
     "publish package": {
       "commandName": "Project",
       "commandLineArgs": "publish-package --path \"C:\\packages\" --datagroup \"\" --verbose"
+    },
+    "Check Agent Connection": {
+      "commandName": "Project",
+      "commandLineArgs": "checkagentconnection -n \"sdkTestInfra\""
     }
   }
 }

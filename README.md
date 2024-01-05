@@ -1,5 +1,5 @@
 # portal-sdk
-Customer Portal SDK that allows the creation of automation script for integration with CMF DevOps Center
+Customer Portal SDK that allows the creation of automation script for integration with CM DevOps Center.
 
 # Pre-Requisites
 Make sure to run the Powershell Cmdlets from in Powershell Core 7.1.3 or above.
@@ -10,7 +10,9 @@ The Customer Portal SDK has 2 versions that can be used:
  - <a href="#console">```Console```</a> - this version works as a standalone executable. To use it run the executable in a console or powershell with the appropriate commands.
  - <a href="#powershell">```Powershell```</a> - this version compiles into a DLL with a cmdlet for each command. To use it, import the DLL into a powershell and then call the desired cmdlet. 
 
-**Important:** You need to authenticate before running other commands/cmdlets. The command is ```login``` and the cmdlet is ```Set-Login```.
+**Important:** You need to authenticate before running other commands/cmdlets. There are two ways to achieve this:
+1. Provide a ```CM_PORTAL_TOKEN``` environment variable - variable read from the system where the application is run.
+1. Explicit login operation - login using a PAT as a parameter or in an interactive way if none is provided. **This alternative caches the Auth Token in a file** on the host filesystem, under _{AppDataFolder}/cmfportal/cmfportaltoken_. The command is ```login``` and the cmdlet is ```Set-Login```.
 
 You can get the tool from the Releases section in GitHub, from npm using ```npm install @criticalmanufacturing/portal --global``` or by compiling the source code manually.
 
@@ -42,7 +44,7 @@ Commands:
   - <a href="#deployagent">```deployagent```</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#deploy">```deploy```</a> - Creates and deploys a new Customer Environment
   - <a href="#install-app">```install-app```</a> - Installs an App in a previous deployed Convergence Customer Environment
-  - <a href="#login">```login```</a> - Log in to the CMF Portal
+  - <a href="#login">```login```</a> - Log in to the CM Portal
   - <a href="#publish">```publish```</a> - Publishes one or more Deployment Manifests into Customer Portal
   - <a href="#publish-package">```publish-package```</a> - Publishes one or more Customization Packages into Customer Portal
 
@@ -162,7 +164,7 @@ Options:
 
 ### login
 
-Log in to the CMF Portal
+Log in to the CM Portal. This command will cache the Auth Token to a file in the host filesystem. 
 
 Equivalent to powershell cmdlet <a href="#set-login">Set-Login</a>
 
@@ -225,7 +227,7 @@ Cmdlets:
   - <a href="#new-environment">```New-Environment```</a> - Creates and deploys a new Customer Environment
   - <a href="#new-infrastructure">```New-Infrastructure```</a> - Creates a customer Infrastructure
   - <a href="#new-infrastructureagent">```New-InfrastructureAgent```</a> - Creates and deploys a new Infrastructure Agent
-  - <a href="#set-login">```Set-Login```</a> - Log in to the CMF Portal
+  - <a href="#set-login">```Set-Login```</a> - Log in to the CM Portal
 
 
 Examples:
@@ -338,7 +340,7 @@ Options:
 
 ### Set-Login
 
-Log in to the CMF Portal
+Log in to the CM Portal. This command will cache the Auth Token to a file in the host filesystem. 
 
 Equivalent to the console command <a href="#login">login</a>
 

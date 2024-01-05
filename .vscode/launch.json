@@ -2,6 +2,42 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Login",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/Console/bin/Debug/net8.0/cmf-portal.dll",
+            "args": [
+                "login",
+                "--verbose"
+            ],
+            "cwd": "${workspaceFolder}/src/Console",
+            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "CheckAgentConnection",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/Console/bin/Debug/net8.0/cmf-portal.dll",
+            "args": [
+                "checkagentconnection",
+                "-n", "myagent123",
+                "--verbose"
+            ],
+            "env": {
+                "CM_PORTAL_TOKEN": ""
+            },
+            "cwd": "${workspaceFolder}/src/Console",
+            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
@@ -10,7 +46,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Console/bin/Debug/netcoreapp3.1/cmf-portal.dll",
+            "program": "${workspaceFolder}/src/Console/bin/Debug/net8.0/cmf-portal.dll",
             "args": [
                 "install-app",
                 "-n", "",

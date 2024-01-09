@@ -47,12 +47,12 @@ axios.get(pkgUrl, { responseType: 'arraybuffer' })
          console.log(`Writing temporary zip file to ${zip}`);
          fs.writeFileSync(zip, response.data);
          console.log(`Extracting zip file ${zip} to ${installScriptLocation}`);
-         (new AdmZip(zip)).extractAllTo(installScriptLocation);
+         (new AdmZip(zip)).extractAllTo(installScriptLocation, undefined, true);
          rimraf.sync(zip)
      })
      .catch(function (error) {
          // handle error
          console.error(error);
-         console.error(error(`Could not install version ${process.env.npm_package_version} on your platform ${process.platform}/${process.arch}: ${e.message}`));
+         console.error(error(`Could not install version ${process.env.npm_package_version} on your platform ${process.platform}/${process.arch}: ${error.message}`));
          process.exit(1);
      });

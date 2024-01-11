@@ -86,8 +86,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 						(int)DeploymentStatus.NotDeployed,
 						(int)DeploymentStatus.DeploymentFailed,
 						(int)DeploymentStatus.DeploymentPartiallySucceeded,
-						(int)DeploymentStatus.DeploymentSucceeded,
-						(int)DeploymentStatus.TerminationFailed
+						(int)DeploymentStatus.DeploymentSucceeded
 					},
 					LogicalOperator = Cmf.Foundation.Common.LogicalOperator.AND,
 					FilterType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,

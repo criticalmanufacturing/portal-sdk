@@ -21,5 +21,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// <param name="customerEnvironment">Specific customer environment version</param>
         /// <returns></returns>
         Task<CustomerEnvironmentCollection> GetOtherVersionToTerminate(CustomerEnvironment customerEnvironment);
+
+
+        /// <summary>
+        /// Check the connection of an environment.
+        /// If is a remote target and the deployment and the connection to the agent can't be startd, a exception is returned.
+        /// </summary>
+        /// <param name="environment">Environment</param>
+        /// <exception cref="CmfFaultException">Throw an exception if the environment needs to have a connection established with the agent, and that is not possible.</exception>
+        void CheckEnvironmentConnection(CustomerEnvironment environment);
     }
 }

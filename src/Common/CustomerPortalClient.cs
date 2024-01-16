@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Common.CustomerInfrastructure;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
 using Cmf.Foundation.BusinessObjects;
@@ -386,7 +387,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         {
             CheckCustomerEnvironmentConnectionStatusOutput output = await new CheckCustomerEnvironmentConnectionStatusInput() { DefinitionId = definitionId }
                     .CheckCustomerEnvironmentConnectionStatusAsync();
-            return output.IsCustomerEnvironmentConnected;
+            return output.CustomerEnvironmentConnectionStatus == InfrastructureConnectionStatus.Connected;
         }
 
         /// <inheritdoc/>
@@ -400,6 +401,16 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 Parameters = parameters,
                 CustomerLicenseName = customerLicenseName
             }.CreateOrUpdateAppInstallationAsync(true)).CustomerEnvironmentApplicationPackage;
+        }
+
+
+        public async Task<CheckStartDeploymentConnectionOutput> CheckStartDeploymentConnection(CustomerEnvironment customerEnvironment, CustomerInfrastructure customerInfrastructure)
+        {
+            return (await new CheckStartDeploymentConnectionInput()
+            {
+                CustomerEnvironment = customerEnvironment,
+                CustomerInfrastructure = customerInfrastructure
+            }.CheckStartDeploymentConnectionAsync(true));
         }
     }
 }

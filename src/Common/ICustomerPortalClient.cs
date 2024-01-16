@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.Common.Base;
@@ -70,6 +71,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="definitionId">definition id</param>
         /// <returns></returns>
         Task<bool> CheckCustomerEnvironmentConnectionStatus(long? definitionId);
+
         /// Get's an object by its Id.
         /// </summary>
         /// <typeparam name="T">The object's Type</typeparam>
@@ -93,5 +95,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="customerLicenseName">Name of a CustomerLicense.</param>
         /// <returns>The CustomerEnvironmentApplicationPackage relation.</returns>
         Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string appVersion, string parameters, string customerLicenseName);
+
+        /// <summary>
+        /// Check the Deployment connection to verify if the deployment/removal of an environment/app can occurs.
+        /// </summary>
+        /// <param name="customerEnvironment">customer environment</param>
+        /// <param name="customerInfrastructure">customer infrastructure</param>
+        /// <returns></returns>
+        Task<CheckStartDeploymentConnectionOutput> CheckStartDeploymentConnection(CustomerEnvironment customerEnvironment, CustomerInfrastructure customerInfrastructure);
     }
 }

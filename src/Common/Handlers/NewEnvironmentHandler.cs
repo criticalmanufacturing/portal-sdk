@@ -176,8 +176,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     CustomerLicense = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName)
                 };
 
-
-                Session.LogInformation($"Checking the environment connection of the Customer environment {name}...");
+                // check environment connection
                 CheckConnectionNewEnvironmentCreation(environment, customerInfrastructureName);
 
                 environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput

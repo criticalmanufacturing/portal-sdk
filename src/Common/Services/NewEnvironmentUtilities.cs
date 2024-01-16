@@ -73,7 +73,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         {
             _session.LogInformation($"Checking the environment connection of the Customer environment {environment?.Name}...");
 
-            if (_customerPortalClient != null && environment != null && IsRemoteDeploymentTarget(environment.DeploymentTarget))
+            if (environment != null && IsRemoteDeploymentTarget(environment.DeploymentTarget))
             {
                 var checkConnectionResult = await _customerPortalClient.CheckStartDeploymentConnection(environment, environment.CustomerInfrastructure);
 

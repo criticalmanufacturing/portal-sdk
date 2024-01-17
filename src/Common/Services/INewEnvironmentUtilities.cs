@@ -1,5 +1,5 @@
-﻿using Cmf.CustomerPortal.BusinessObjects;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Cmf.CustomerPortal.BusinessObjects;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
@@ -29,6 +29,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// </summary>
         /// <param name="environment">Environment</param>
         /// <exception cref="CmfFaultException">Throw an exception if the environment needs to have a connection established with the agent, and that is not possible.</exception>
-        void CheckEnvironmentConnection(CustomerEnvironment environment);
+        Task CheckEnvironmentConnection(CustomerEnvironment environment);
     }
 }

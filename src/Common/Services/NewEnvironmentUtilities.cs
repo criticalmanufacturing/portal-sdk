@@ -69,7 +69,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         }
 
         /// <inheritdoc/>
-        public async void CheckEnvironmentConnection(CustomerEnvironment environment)
+        public async Task CheckEnvironmentConnection(CustomerEnvironment environment)
         {
             _session.LogInformation($"Checking the environment connection of the Customer environment {environment?.Name}...");
 

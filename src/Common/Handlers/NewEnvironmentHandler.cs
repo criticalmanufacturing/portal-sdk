@@ -147,8 +147,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, check if we are creating a new environment for an infrastructure
             else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
             {
-                Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
-
                 ProductSite environmentSite = null;
                 // If we are creating in an infrastructure, and we are not creating the agent, the user must define the site for the environment
                 if (!isInfrastructureAgent)
@@ -178,6 +176,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 // check environment connection
                 await CheckConnectionNewEnvironmentCreation(environment, customerInfrastructureName);
+
+                Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
 
                 environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
                 {

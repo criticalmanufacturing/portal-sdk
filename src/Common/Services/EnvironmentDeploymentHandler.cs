@@ -259,13 +259,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             await ProcessEnvironmentDeployment(customerEnvironment, deploymentTarget, outputDir);
         }
 
-        public async Task WaitForEnvironmentsToBeTerminated(CustomerEnvironmentCollection customerEnvironments)
+        public async Task<List<long>> WaitForEnvironmentsToBeTerminated(CustomerEnvironmentCollection customerEnvironments)
         {
             var timeout = new TimeSpan(0, 30, 0);
             var waitPeriod = new TimeSpan(0, 0, 5);
             var ids = new HashSet<long>(customerEnvironments.Select(ce => ce.Id));
             var ctSource = new CancellationTokenSource();
             CancellationToken ct = ctSource.Token;
+            List<long> ceTerminationFailedIds = new List<long>();
             var task = Task.Run(async () =>
             {
                 var result = false;
@@ -284,6 +285,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         ce.UniversalState == Foundation.Common.Base.UniversalState.Terminated)
                         {
                             ids.Remove(ce.Id);
+
+                            if (ce.Status == DeploymentStatus.TerminationFailed)
+                            {
+                                ceTerminationFailedIds.Add(ce.Id);
+                            }
                         }
                     }
 
@@ -302,6 +308,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 {
                     throw new TimeoutException($"Timeout while waiting for Customer Environment {customerEnvironments.First().Name} versions to be terminated.");
                 }
+                return ceTerminationFailedIds;
             }
             catch
             {

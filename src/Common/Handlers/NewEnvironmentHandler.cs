@@ -9,6 +9,7 @@ using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
@@ -132,7 +133,25 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
 
                         // wait until they're terminated
-                        await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
+                        List<long> ceTerminationFailedIds = await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
+
+                        if (ceTerminationFailedIds?.Count > 0)
+                        {
+                            string failedIdsString = string.Join(", ", ceTerminationFailedIds.Select(x => x.ToString()));
+                            string errorMessage = $"Stopping deploy process because termination of other environment versions failed. The environments with the Ids {failedIdsString} failed.";
+                            Exception ex = new Exception(errorMessage);
+                            Session.LogError(ex);
+
+                            var customerEnvironmentsFailedTermination = await _customerPortalClient.GetCustomerEnvironmentsById(ceTerminationFailedIds.ToArray());
+
+                            foreach (CustomerEnvironment ce in customerEnvironmentsFailedTermination)
+                            {
+                                // TODO terminationlogs is null
+                                Session.LogError($"\nCustomer Environment {ce.Id} did not terminate sucessully. Termination logs:\n {ce.TerminationLogs}\n");
+                            }
+
+                            throw ex;
+                        }
 
                         Session.LogInformation("Other versions terminated!");
                     } else

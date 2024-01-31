@@ -142,11 +142,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                             Exception ex = new Exception(errorMessage);
                             Session.LogError(ex);
 
-                            var customerEnvironmentsFailedTermination = await _customerPortalClient.GetCustomerEnvironmentsById(ceTerminationFailedIds.ToArray());
-
-                            foreach (CustomerEnvironment ce in customerEnvironmentsFailedTermination)
+                            foreach (long ceId in ceTerminationFailedIds)
                             {
-                                // TODO terminationlogs is null
+                                var output = await (new GetCustomerEnvironmentByIdInput() { CustomerEnvironmentId = ceId }.GetCustomerEnvironmentByIdAsync(true));
+                                CustomerEnvironment ce = output.CustomerEnvironment;
                                 Session.LogError($"\nCustomer Environment {ce.Id} did not terminate sucessully. Termination logs:\n {ce.TerminationLogs}\n");
                             }
 

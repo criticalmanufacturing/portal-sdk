@@ -97,7 +97,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string appVersion, string parameters, string customerLicenseName);
 
         /// <summary>
-        /// Check the Deployment connection to verify if the deployment/removal of an environment/app can occurs.
+        /// Check the Deployment connection to verify if the deployment of an environment/app can occur.
         /// </summary>
         /// <param name="customerEnvironment">customer environment</param>
         /// <param name="customerInfrastructure">customer infrastructure</param>

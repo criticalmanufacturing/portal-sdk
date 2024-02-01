@@ -10,6 +10,7 @@ using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
+using System.Linq;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -134,7 +135,24 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
 
                         // wait until they're terminated
-                        await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
+                        List<long> ceTerminationFailedIds = await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
+
+                        if (ceTerminationFailedIds?.Count > 0)
+                        {
+                            string failedIdsString = string.Join(", ", ceTerminationFailedIds.Select(x => x.ToString()));
+                            string errorMessage = $"Stopping deploy process because termination of other environment versions failed. Environment Ids of failed terminations: {failedIdsString}.";
+                            Exception ex = new Exception(errorMessage);
+                            Session.LogError(ex);
+
+                            foreach (long ceId in ceTerminationFailedIds)
+                            {
+                                var output = await (new GetCustomerEnvironmentByIdInput() { CustomerEnvironmentId = ceId }.GetCustomerEnvironmentByIdAsync(true));
+                                CustomerEnvironment ce = output.CustomerEnvironment;
+                                Session.LogError($"\nCustomer Environment {ce.Id} did not terminate sucessully. Termination logs:\n {ce.TerminationLogs}\n");
+                            }
+
+                            throw ex;
+                        }
 
                         Session.LogInformation("Other versions terminated!");
                     }

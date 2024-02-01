@@ -17,7 +17,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             _session = session;
             _customerPortalClient = customerPortalClient;
         }
-        private static DeploymentTarget GetAbbreviatedDeploymentTargetFromDeploymentTargetValue(string deploymentTargetValue)
+
+        public static DeploymentTarget GetAbbreviatedDeploymentTargetFromDeploymentTargetValue(string deploymentTargetValue)
         {
             return deploymentTargetValue switch
             {
@@ -51,7 +52,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-
         /// <summary>
         /// Informs if the deployment is a remote target
         /// </summary>
@@ -61,11 +61,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         {
             DeploymentTarget deploymentTarget = GetAbbreviatedDeploymentTargetFromDeploymentTargetValue(depoymentTargetValue);
 
-            return deploymentTarget switch
-            {
-                DeploymentTarget.portainer or DeploymentTarget.KubernetesRemoteTarget or DeploymentTarget.OpenShiftRemoteTarget or DeploymentTarget.AzureKubernetesServiceTarget => true,
-                _ => false,
-            };
+            return IsRemoteDeploymentTarget(deploymentTarget);
         }
 
         /// <inheritdoc/>

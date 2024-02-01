@@ -138,7 +138,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         if (ceTerminationFailedIds?.Count > 0)
                         {
                             string failedIdsString = string.Join(", ", ceTerminationFailedIds.Select(x => x.ToString()));
-                            string errorMessage = $"Stopping deploy process because termination of other environment versions failed. The environments with the Ids {failedIdsString} failed.";
+                            string errorMessage = $"Stopping deploy process because termination of other environment versions failed. Environment Ids of failed terminations: {failedIdsString}.";
                             Exception ex = new Exception(errorMessage);
                             Session.LogError(ex);
 

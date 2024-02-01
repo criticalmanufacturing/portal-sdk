@@ -1,4 +1,8 @@
-﻿using Cmf.CustomerPortal.BusinessObjects;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects;
@@ -6,11 +10,7 @@ using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -97,8 +97,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.Parameters = rawParameters;
                 environment.ChangeSet = null;
 
-                Session.LogInformation($"Creating a new version of the Customer environment {name}...");
+                // check environment connection
+                await _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
 
+                Session.LogInformation($"Creating a new version of the Customer environment {name}...");
                 environment = await CreateEnvironment(_customerPortalClient, environment);
 
                 // terminate other versions
@@ -109,7 +111,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     var customerEnvironmentsToTerminate = await _newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
                     OperationAttributeCollection terminateOperationAttibutes = new OperationAttributeCollection();
                     EntityType ceET = new GetEntityTypeByNameInput { Name = "CustomerEnvironment" }.GetEntityTypeByNameSync().EntityType;
-                    foreach (var ce in  customerEnvironmentsToTerminate)
+                    foreach (var ce in customerEnvironmentsToTerminate)
                     {
                         OperationAttribute attributeRemove = new OperationAttribute();
                         attributeRemove.EntityId = ce.Id;
@@ -153,7 +155,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         }
 
                         Session.LogInformation("Other versions terminated!");
-                    } else
+                    }
+                    else
                     {
                         Session.LogInformation("There are no versions with an eligible status to be terminated.");
                     }
@@ -162,8 +165,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, check if we are creating a new environment for an infrastructure
             else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
             {
-                Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
-
                 ProductSite environmentSite = null;
                 // If we are creating in an infrastructure, and we are not creating the agent, the user must define the site for the environment
                 if (!isInfrastructureAgent)
@@ -175,7 +176,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     }
                     else
                     {
-                        throw new ArgumentNullException("Name of the Site is mandatory to create a Customer Environment");
+                        throw new ArgumentNullException(nameof(siteName), "Name of the Site is mandatory to create a Customer Environment");
                     }
                 }
 
@@ -190,6 +191,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Site = environmentSite,
                     CustomerLicense = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName)
                 };
+
+                // check environment connection
+                await CheckConnectionNewEnvironmentCreation(environment, customerInfrastructureName);
+
+                Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
 
                 environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
                 {
@@ -219,8 +225,23 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             Session.LogInformation($"Customer environment {name} created...");
 
+
             // handle installation
             await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg);
+        }
+
+        /// <summary>
+        /// Check the connection for a creation of a new environment in some infrastructure
+        /// </summary>
+        /// <param name="newEnvironment">The new environment</param>
+        /// <param name="infrastructureName">Infrastructure name</param>
+        private async Task CheckConnectionNewEnvironmentCreation(CustomerEnvironment newEnvironment, string infrastructureName)
+        {
+            CustomerInfrastructure infrastructure = new() { Name = infrastructureName };
+            newEnvironment.CustomerInfrastructure = infrastructure;
+
+            // check environment connection
+            await _newEnvironmentUtilities.CheckEnvironmentConnection(newEnvironment);
         }
 
         /// <summary>

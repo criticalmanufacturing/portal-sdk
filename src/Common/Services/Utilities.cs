@@ -1,9 +1,9 @@
-﻿using Cmf.Foundation.Common;
-using Cmf.Foundation.Common.Base;
-using Cmf.LightBusinessObjects.Infrastructure.Errors;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cmf.Foundation.Common;
+using Cmf.Foundation.Common.Base;
+using Cmf.LightBusinessObjects.Infrastructure.Errors;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
@@ -32,7 +32,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                 return await customerPortalClient.GetObjectByName<T>(objectName, levelsToLoad);
             }
-            catch(CmfFaultException e)
+            catch (CmfFaultException e)
             {
                 if (Enum.TryParse(e.Code?.Name, out CmfExceptionType exceptionType) && exceptionTypeAndErrorMsg != null && exceptionTypeAndErrorMsg.ContainsKey(exceptionType))
                 {

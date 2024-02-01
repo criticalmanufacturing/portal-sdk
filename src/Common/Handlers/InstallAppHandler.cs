@@ -1,9 +1,7 @@
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
-using Cmf.LightBusinessObjects.Infrastructure.Errors;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -32,14 +30,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string appParameters = parameters == null ? null : await Utils.ReplaceTokens(Session, File.ReadAllText(parameters.FullName), replaceTokens, true);
 
             // load the customer environment
-            CustomerEnvironment environment = null;
-            environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(customerEnvironmentName);
+            CustomerEnvironment environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(customerEnvironmentName);
+
+            // check environment connection
+            await _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
 
             // create or update the relationship between the environment and the app
-            CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage = null;
-            customerEnvironmentApplicationPackage = await _customerPortalClient.CreateOrUpdateAppInstallation(
-                environment.Id, name, appVersion, appParameters, license
-            );
+            CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage = await _customerPortalClient.CreateOrUpdateAppInstallation(
+                    environment.Id, name, appVersion, appParameters, license);
 
             // start deployment
             await _appInstallationHandler.Handle(name, customerEnvironmentApplicationPackage, environment.DeploymentTarget, output, timeout, timeoutToGetSomeMBMessage);

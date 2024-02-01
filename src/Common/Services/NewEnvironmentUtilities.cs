@@ -77,7 +77,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 var checkConnectionResult = await _customerPortalClient.CheckStartDeploymentConnection(environment, environment.CustomerInfrastructure);
 
-                if (!checkConnectionResult.CanStartDeploymentConnection)
+                if (!checkConnectionResult)
                 {
                     throw new CmfFaultException("The deployment can't be started because the connection can't be established with the agent!");
                 }

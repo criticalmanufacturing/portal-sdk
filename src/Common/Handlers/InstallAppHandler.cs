@@ -33,7 +33,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             CustomerEnvironment environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(customerEnvironmentName);
 
             // check environment connection
-            await _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
+            _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
 
             // create or update the relationship between the environment and the app
             CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage = await _customerPortalClient.CreateOrUpdateAppInstallation(

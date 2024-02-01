@@ -29,6 +29,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// </summary>
         /// <param name="environment">Environment</param>
         /// <exception cref="CmfFaultException">Throw an exception if the environment needs to have a connection established with the agent, and that is not possible.</exception>
-        Task CheckEnvironmentConnection(CustomerEnvironment environment);
+        void CheckEnvironmentConnection(CustomerEnvironment environment);
     }
 }

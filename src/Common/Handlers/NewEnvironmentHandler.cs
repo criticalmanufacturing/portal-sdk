@@ -97,7 +97,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.ChangeSet = null;
 
                 // check environment connection
-                await _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
+                _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
 
                 Session.LogInformation($"Creating a new version of the Customer environment {name}...");
                 environment = await CreateEnvironment(_customerPortalClient, environment);
@@ -175,7 +175,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 };
 
                 // check environment connection
-                await CheckConnectionNewEnvironmentCreation(environment, customerInfrastructureName);
+                CheckConnectionNewEnvironmentCreation(environment, customerInfrastructureName);
 
                 Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
 
@@ -217,13 +217,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// </summary>
         /// <param name="newEnvironment">The new environment</param>
         /// <param name="infrastructureName">Infrastructure name</param>
-        private async Task CheckConnectionNewEnvironmentCreation(CustomerEnvironment newEnvironment, string infrastructureName)
+        private void CheckConnectionNewEnvironmentCreation(CustomerEnvironment newEnvironment, string infrastructureName)
         {
             CustomerInfrastructure infrastructure = new() { Name = infrastructureName };
             newEnvironment.CustomerInfrastructure = infrastructure;
 
             // check environment connection
-            await _newEnvironmentUtilities.CheckEnvironmentConnection(newEnvironment);
+            _newEnvironmentUtilities.CheckEnvironmentConnection(newEnvironment);
         }
 
         /// <summary>

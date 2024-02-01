@@ -404,13 +404,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
         }
 
 
-        public async Task<CheckStartDeploymentConnectionOutput> CheckStartDeploymentConnection(CustomerEnvironment customerEnvironment, CustomerInfrastructure customerInfrastructure)
+        public bool CheckStartDeploymentConnection(CustomerEnvironment customerEnvironment, CustomerInfrastructure customerInfrastructure)
         {
-            return (await new CheckStartDeploymentConnectionInput()
+            return new CheckStartDeploymentConnectionInput()
             {
                 CustomerEnvironment = customerEnvironment,
                 CustomerInfrastructure = customerInfrastructure
-            }.CheckStartDeploymentConnectionAsync(true));
+            }.CheckStartDeploymentConnectionSync().CanStartDeploymentConnection;
         }
     }
 }

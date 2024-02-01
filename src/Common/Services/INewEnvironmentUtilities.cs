@@ -24,7 +24,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
 
         /// <summary>
-        /// Check the connection of an environment.
+        /// In the case of a remote target, checks if the necessary connections are possible (if any) to make a deployment possible
         /// If is a remote target and the deployment and the connection to the agent can't be startd, a exception is returned.
         /// </summary>
         /// <param name="environment">Environment</param>

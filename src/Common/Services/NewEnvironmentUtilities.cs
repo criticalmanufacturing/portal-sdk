@@ -69,15 +69,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         }
 
         /// <inheritdoc/>
-        public void CheckEnvironmentConnection(CustomerEnvironment environment)
+        public async Task CheckEnvironmentConnection(CustomerEnvironment environment)
         {
             _session.LogInformation($"Checking the environment connection of the Customer environment {environment?.Name}...");
 
             if (environment != null && IsRemoteDeploymentTarget(environment.DeploymentTarget))
             {
-                var checkConnectionResult = _customerPortalClient.CheckStartDeploymentConnection(environment, environment.CustomerInfrastructure);
+                var checkConnectionResult = await _customerPortalClient.CheckStartDeploymentConnection(environment, environment.CustomerInfrastructure);
 
-                if (!checkConnectionResult)
+                if (!checkConnectionResult.CanStartDeploymentConnection)
                 {
                     throw new CmfFaultException("The deployment can't be started because the connection can't be established with the agent!");
                 }

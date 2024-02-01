@@ -102,6 +102,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="customerEnvironment">customer environment</param>
         /// <param name="customerInfrastructure">customer infrastructure</param>
         /// <returns></returns>
-        bool CheckStartDeploymentConnection(CustomerEnvironment customerEnvironment, CustomerInfrastructure customerInfrastructure);
+        Task<CheckStartDeploymentConnectionOutput> CheckStartDeploymentConnection(CustomerEnvironment customerEnvironment, CustomerInfrastructure customerInfrastructure);
     }
 }

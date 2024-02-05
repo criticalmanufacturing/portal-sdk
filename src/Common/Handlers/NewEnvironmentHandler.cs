@@ -11,6 +11,7 @@ using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System.Linq;
+using Cmf.CustomerPortal.Common.Deployment;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -297,7 +298,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             customerEnvironment.ChangeSet = null;
             return new UpdateCustomerEnvironmentInput
             {
-                CustomerEnvironment = customerEnvironment
+                CustomerEnvironment = customerEnvironment,
+                MergeMode = MergeMode.Merge
             }.UpdateCustomerEnvironmentSync().CustomerEnvironment;
         }
     }

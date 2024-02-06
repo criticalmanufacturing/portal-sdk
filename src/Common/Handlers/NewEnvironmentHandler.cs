@@ -299,7 +299,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             return new UpdateCustomerEnvironmentInput
             {
                 CustomerEnvironment = customerEnvironment,
-                MergeMode = MergeMode.Merge
+                DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge
             }.UpdateCustomerEnvironmentSync().CustomerEnvironment;
         }
     }

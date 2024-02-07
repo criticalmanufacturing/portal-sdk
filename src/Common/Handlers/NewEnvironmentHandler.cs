@@ -11,6 +11,7 @@ using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System.Linq;
+using Cmf.CustomerPortal.Common.Deployment;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -94,7 +95,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.DeploymentPackage = isInfrastructureAgent || string.IsNullOrWhiteSpace(deploymentPackageName) ? environment.DeploymentPackage : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
                 environment.CustomerLicense = isInfrastructureAgent || string.IsNullOrWhiteSpace(licenseName) ? environment.CustomerLicense : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName);
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
-                environment.Parameters = rawParameters;
                 environment.ChangeSet = null;
 
                 // check environment connection
@@ -102,6 +102,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 Session.LogInformation($"Creating a new version of the Customer environment {name}...");
                 environment = await CreateEnvironment(_customerPortalClient, environment);
+
+                // Update environment with the parameters to be merged instead of overwriting
+                environment.Parameters = rawParameters;
+                environment = UpdateEnvironment(environment);
 
                 // terminate other versions
                 if (terminateOtherVersions)
@@ -282,6 +286,21 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 OperationTarget = entityType
             }.CreateObjectVersionSync().Object as CustomerEnvironment;
             return customerEnvironment;
+        }
+
+        /// <summary>
+        /// Update a customer environment.
+        /// </summary>
+        /// <param name="customerEnvironment">customer environment</param>
+        /// <returns></returns>
+        public static CustomerEnvironment UpdateEnvironment(CustomerEnvironment customerEnvironment)
+        {
+            customerEnvironment.ChangeSet = null;
+            return new UpdateCustomerEnvironmentInput
+            {
+                CustomerEnvironment = customerEnvironment,
+                DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge
+            }.UpdateCustomerEnvironmentSync().CustomerEnvironment;
         }
     }
 }

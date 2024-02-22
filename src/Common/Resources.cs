@@ -31,7 +31,7 @@
         public const string INFRASTRUCTURE_CUSTOMER_HELP = "Name of the Customer associated with the Customer Infrastructure";
         public const string INFRASTRUCTURE_EXISTING_NAME_HELP = "Name of the existing Customer Infrastructure";
         public const string INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP = "Flag that ignores a throw if an error of type 'Customer Infrastructure already exist' occurs";
-        public const string INFRASTRUCTURE_PARAMETERSPATH_HELP = "Path to parameters json file that includes parameters for the Customer Infrastructure";
+        public const string INFRASTRUCTURE_PARAMETERSPATH_HELP = "Path to deployment parameters json file that includes parameters for the Customer Infrastructure";
 
         public const string GETAGENTCONNECTION_NAME_HELP = "The name of the Infrastructure Agent";
 

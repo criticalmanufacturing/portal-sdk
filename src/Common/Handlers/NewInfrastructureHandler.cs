@@ -1,9 +1,9 @@
-﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Sdk.Common.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Services;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -16,7 +16,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             this._customerPortalClient = customerPortalClient;
         }
 
-        public async Task Run(string infrastructureName, string siteName, string customerName, bool ignoreIfExists, FileInfo parameters)
+        public async Task Run(string infrastructureName, string siteName, string customerName, bool ignoreIfExists, FileInfo deploymentParameters)
         {
             await EnsureLogin();
 
@@ -29,10 +29,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
 
             // Read parameters file
-            string infrastructureParameters = null;
-            if (parameters != null)
+            string infrastructureDeploymentParameters = null;
+            if (deploymentParameters != null)
             {
-                infrastructureParameters = File.ReadAllText(parameters.FullName);
+                infrastructureDeploymentParameters = File.ReadAllText(deploymentParameters.FullName);
             }
 
             ProductCustomer customer;
@@ -62,7 +62,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             if (customerInfrastructure == null)
             {
                 // create customer infrastructure if doesn't exist.
-                customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName, infrastructureParameters);
+                customerInfrastructure = await InfrastructureCreationService.CreateCustomerInfrastructure(Session, customer, customerInfrastructureName, infrastructureDeploymentParameters);
             }
 
             // wait if necessary to Unlock Customer Infrastructure

@@ -386,7 +386,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         public async Task<bool> CheckCustomerEnvironmentConnectionStatus(long? definitionId)
         {
             CheckCustomerEnvironmentConnectionStatusOutput output = await new CheckCustomerEnvironmentConnectionStatusInput() { DefinitionId = definitionId }
-                    .CheckCustomerEnvironmentConnectionStatusAsync();
+                    .CheckCustomerEnvironmentConnectionStatusAsync(true);
             return output.CustomerEnvironmentConnectionStatus == InfrastructureConnectionStatus.Connected;
         }
 

@@ -105,7 +105,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 // Update environment with the parameters to be merged instead of overwriting
                 environment.Parameters = rawParameters;
-                environment = UpdateEnvironment(environment);
+                environment = await UpdateEnvironment(environment);
 
                 // terminate other versions
                 if (terminateOtherVersions)
@@ -114,7 +114,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                     var customerEnvironmentsToTerminate = await _newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
                     OperationAttributeCollection terminateOperationAttibutes = new OperationAttributeCollection();
-                    EntityType ceET = new GetEntityTypeByNameInput { Name = "CustomerEnvironment" }.GetEntityTypeByNameSync().EntityType;
+                    EntityType ceET = (await new GetEntityTypeByNameInput { Name = "CustomerEnvironment" }.GetEntityTypeByNameAsync(true)).EntityType;
                     foreach (var ce in customerEnvironmentsToTerminate)
                     {
                         OperationAttribute attributeRemove = new OperationAttribute();
@@ -260,12 +260,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 CustomerEnvironment ceFound = await client.GetObjectByName<CustomerEnvironment>(customerEnvironment.Name);
 
                 // was found on GetObjectByName, so let's create a new version
-                return CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Version);
+                return await CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Version);
             }
             catch (CmfFaultException exception) when (exception.Code?.Name == "Db20001")
             {
                 // was not found on GetObjectByName, so let's create a new Entity
-                return CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Entity);
+                return await CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Entity);
             }
         }
 
@@ -277,14 +277,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// <param name="customerEnvironment">customer environment to create new entity</param>
         /// <param name="entityType">entityType for operation target (Entity -> for first version and entity creation | Version -> for a new version)</param>
         /// <returns>new customer environment with the first version</returns>
-        public static CustomerEnvironment CreateNewEnvironmentEntityOrVersion(CustomerEnvironment customerEnvironment, EntityTypeSource entityType)
+        public static async Task<CustomerEnvironment> CreateNewEnvironmentEntityOrVersion(CustomerEnvironment customerEnvironment, EntityTypeSource entityType)
         {
             customerEnvironment.ChangeSet = null;
-            customerEnvironment = new CreateObjectVersionInput
+            customerEnvironment = (await new CreateObjectVersionInput
             {
                 Object = customerEnvironment,
                 OperationTarget = entityType
-            }.CreateObjectVersionSync().Object as CustomerEnvironment;
+            }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
             return customerEnvironment;
         }
 
@@ -293,14 +293,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// </summary>
         /// <param name="customerEnvironment">customer environment</param>
         /// <returns></returns>
-        public static CustomerEnvironment UpdateEnvironment(CustomerEnvironment customerEnvironment)
+        public static async Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment)
         {
             customerEnvironment.ChangeSet = null;
-            return new UpdateCustomerEnvironmentInput
+            return (await new UpdateCustomerEnvironmentInput
             {
                 CustomerEnvironment = customerEnvironment,
                 DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge
-            }.UpdateCustomerEnvironmentSync().CustomerEnvironment;
+            }.UpdateCustomerEnvironmentAsync(true)).CustomerEnvironment;
         }
     }
 }

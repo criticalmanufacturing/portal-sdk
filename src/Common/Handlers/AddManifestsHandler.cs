@@ -51,7 +51,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     MakeEffectiveOnApproval = true
                 }
             };
-            ChangeSet changeset = (await createObjectInput.CreateObjectAsync()).Object as ChangeSet;
+            ChangeSet changeset = (await createObjectInput.CreateObjectAsync(true)).Object as ChangeSet;
 
             Session.LogDebug($"Changeset created: {changeset.Name}");
 
@@ -71,7 +71,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     DatagroupName = datagroup
                 };
 
-                CreateDeploymentPackageOutput output = await deploymentPackageInput.CreateDeploymentPackageAsync();
+                CreateDeploymentPackageOutput output = await deploymentPackageInput.CreateDeploymentPackageAsync(true);
 
                 Session.LogInformation($"Deployment Package created: {output.DeploymentPackage.Name}");
             }
@@ -83,7 +83,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 IgnoreLastServiceId = true
             };
 
-            await requestApproval.RequestChangeSetApprovalAsync();
+            await requestApproval.RequestChangeSetApprovalAsync(true);
 
             Session.LogDebug($"Changeset approved: {changeset.Name}");
 

@@ -134,15 +134,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         private async Task<bool> PackageExistsInPortal(string name, string version)
         {
             QueryObject query = new QueryObject();
-            query.EntityTypeName = "Package";
+            query.EntityTypeName = "CPInstallationPackage";
             query.Query = new Query();
             query.Query.Distinct = false;
             query.Query.Filters = new FilterCollection() {
                 new Filter()
                 {
                     Name = "Name",
-                    ObjectName = "Package",
-                    ObjectAlias = "Package_1",
+                    ObjectName = "CPInstallationPackage",
+                    ObjectAlias = "CPInstallationPackage_1",
                     Operator = Cmf.Foundation.Common.FieldOperator.IsEqualTo,
                     Value = name,
                     LogicalOperator = Cmf.Foundation.Common.LogicalOperator.AND,
@@ -151,8 +151,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 new Filter()
                 {
                     Name = "PackageVersion",
-                    ObjectName = "Package",
-                    ObjectAlias = "Package_1",
+                    ObjectName = "CPInstallationPackage",
+                    ObjectAlias = "CPInstallationPackage_1",
                     Operator = Cmf.Foundation.Common.FieldOperator.IsEqualTo,
                     Value = version,
                     LogicalOperator = Cmf.Foundation.Common.LogicalOperator.AND,
@@ -161,8 +161,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 new Filter()
                 {
                     Name = "UniversalState",
-                    ObjectName = "Package",
-                    ObjectAlias = "Package_1",
+                    ObjectName = "CPInstallationPackage",
+                    ObjectAlias = "CPInstallationPackage_1",
                     Operator = Cmf.Foundation.Common.FieldOperator.IsNotEqualTo,
                     Value = 4,
                     LogicalOperator = Cmf.Foundation.Common.LogicalOperator.Nothing,
@@ -173,8 +173,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 new Field()
                 {
                     Alias = "Id",
-                    ObjectName = "Package",
-                    ObjectAlias = "Package_1",
+                    ObjectName = "CPInstallationPackage",
+                    ObjectAlias = "CPInstallationPackage_1",
                     IsUserAttribute = false,
                     Name = "Id",
                     Position = 0,

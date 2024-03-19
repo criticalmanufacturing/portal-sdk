@@ -57,7 +57,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     {
                         FilePath = filePath,
                         DatagroupName = datagroup,
-                    }.PublishApplicationPackageAsync();
+                    }.PublishApplicationPackageAsync(true);
 
                     Session.LogInformation($"Package {fileName} successfully uploaded");
                 }
@@ -191,7 +191,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     QueryObject = query,
                     PageNumber = 1,
                     PageSize = 1
-                }.ExecuteQueryAsync();
+                }.ExecuteQueryAsync(true);
             } catch (Exception e)
             {
                 Session.LogDebug($"Failed to verify if package exists: {e.Message}");

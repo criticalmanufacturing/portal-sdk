@@ -100,9 +100,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// <param name="session">Session</param>
         /// <param name="customer">Customer</param>
         /// <param name="customerInfrastructureName">Name of Customer Infrastructure</param>
-        /// <param name="parameters">Parameters of Customer Infrastructure</param>
+        /// <param name="deploymentParameters">Deployment Parameters of Customer Infrastructure</param>
         /// <returns></returns>
-        public static async Task<CustomerInfrastructure> CreateCustomerInfrastructure(ISession session, ProductCustomer customer, string customerInfrastructureName, string parameters)
+        public static async Task<CustomerInfrastructure> CreateCustomerInfrastructure(ISession session, ProductCustomer customer, string customerInfrastructureName, string deploymentParameters)
         {
             session.LogInformation($"Creating Customer Infrastructure {customerInfrastructureName}...");
 
@@ -111,7 +111,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 Name = customerInfrastructureName,
                 Customer = customer,
-                Parameters = parameters,
+                DeploymentParameters = deploymentParameters,
             };
 
             customerInfrastructure = (await new CreateCustomerInfrastructureInput

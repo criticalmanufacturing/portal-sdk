@@ -21,6 +21,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             IConfiguration configuration = new ConfigurationBuilder()
                     .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    .AddEnvironmentVariables()
                     .Build();
             builder.AddSingleton<IConfiguration>(configuration);
             session.Configuration = configuration;

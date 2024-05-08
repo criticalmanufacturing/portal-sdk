@@ -53,11 +53,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     // publish
                     Session.LogDebug("Uploading package...");
-                    var publishNewNewStreamingOutput = await new PackageManagement.PublishApplicationPackageStreamingInput
+                    var publishNewNewStreamingOutput = await new PackageManagement.PublishApplicationPackageBaseStreamingInput
                     {
                         FilePath = filePath,
                         DatagroupName = datagroup,
-                    }.PublishApplicationPackageAsync(true);
+                    }.PublishApplicationPackageBaseAsync(true);
 
                     Session.LogInformation($"Package {fileName} successfully uploaded");
                 }

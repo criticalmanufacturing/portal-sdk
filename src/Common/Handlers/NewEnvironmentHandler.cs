@@ -75,7 +75,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             CustomerEnvironment environment = null;
             try
             {
-                environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
+                environment = (await (new GetCustomerEnvironmentByNameInput() { CustomerEnvironmentName = name }.GetCustomerEnvironmentByNameAsync(true))).CustomerEnvironment;
 
                 Session.LogInformation($"Customer environment {name} actually exists...");
             }

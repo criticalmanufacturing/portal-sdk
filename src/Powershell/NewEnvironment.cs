@@ -27,7 +27,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             HelpMessage = Resources.DEPLOYMENT_LICENSE_HELP,
             Mandatory = true
         )]
-        public string LicenseName { get; set; }
+        public long LicenseId { get; set; }
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_PACKAGE_HELP,
@@ -75,7 +75,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"), (FileInfo)CommonParametersExtension.GetValue("ParametersPath"),
-                (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicenseName, DeploymentPackageName,
+                (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicenseId, DeploymentPackageName,
                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"),
                 ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), (string)CommonParametersExtension.GetValue("CustomerInfrastructureName"),
                 (string)CommonParametersExtension.GetValue("Description"), TerminateOtherVersions.ToBool(), false,

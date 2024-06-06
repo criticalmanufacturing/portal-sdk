@@ -34,7 +34,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             FileInfo parameters,
             EnvironmentType environmentType,
             string siteName,
-            string licenseName,
+            long licenseId,
             string deploymentPackageName,
             DeploymentTarget target,
             DirectoryInfo outputDir,
@@ -93,7 +93,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 }
 
                 environment.DeploymentPackage = isInfrastructureAgent || string.IsNullOrWhiteSpace(deploymentPackageName) ? environment.DeploymentPackage : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
-                environment.CustomerLicense = isInfrastructureAgent || string.IsNullOrWhiteSpace(licenseName) ? environment.CustomerLicense : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName);
+                environment.CustomerLicense = isInfrastructureAgent || licenseId > 0 ? environment.CustomerLicense : await _customerPortalClient.GetObjectById<CustomerLicense>(licenseId);
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
                 environment.ChangeSet = null;
 
@@ -193,7 +193,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     DeploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
                     DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
                     Site = environmentSite,
-                    CustomerLicense = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName)
+                    CustomerLicense = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectById<CustomerLicense>(licenseId)
                 };
 
                 // check environment connection
@@ -219,7 +219,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Site = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<ProductSite>(siteName),
                     Name = name,
                     DeploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                    CustomerLicense = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName),
+                    CustomerLicense = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectById<CustomerLicense>(licenseId),
                     DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
                     Parameters = rawParameters
                 };

@@ -92,9 +92,9 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="appName">Name of the ApplicationPackage.</param>
         /// <param name="appVersion">Version of the ApplicationPackage.</param>
         /// <param name="parameters">Deployment parameters for the CustomerEnvironmentApplicationPackage.</param>
-        /// <param name="customerLicenseName">Name of a CustomerLicense.</param>
+        /// <param name="customerLicenseId">Id of a CustomerLicense.</param>
         /// <returns>The CustomerEnvironmentApplicationPackage relation.</returns>
-        Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string appVersion, string parameters, string customerLicenseName);
+        Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string appVersion, string parameters, long customerLicenseId);
 
         /// <summary>
         /// Check the Deployment connection to verify if the deployment of an environment/app can occur.

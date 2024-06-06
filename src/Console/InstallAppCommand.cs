@@ -63,13 +63,13 @@ namespace Cmf.CustomerPortal.Sdk.Console
             };
         }
 
-        public async Task InstallHandler(bool verbose, string name, string appVersion, string customerEnvironment, string license, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout, double? timeoutToGetSomeMBMessage = null)
+        public async Task InstallHandler(bool verbose, string name, string appVersion, string customerEnvironment, long licenseId, FileInfo parameters, string[] replaceTokens, DirectoryInfo output, double? timeout, double? timeoutToGetSomeMBMessage = null)
         {
             // get new environment handler and run it
             CreateSession(verbose);
 
             InstallAppHandler installAppHandler = ServiceLocator.Get<InstallAppHandler>();
-            await installAppHandler.Run(name, appVersion, customerEnvironment, license, parameters, replaceTokens, output, timeout, timeoutToGetSomeMBMessage);
+            await installAppHandler.Run(name, appVersion, customerEnvironment, licenseId, parameters, replaceTokens, output, timeout, timeoutToGetSomeMBMessage);
         }
     }
 }

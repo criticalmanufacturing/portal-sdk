@@ -82,7 +82,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 var zipFile = System.IO.Compression.ZipFile.OpenRead(filePath);
                 if (zipFile.Entries.Count == 0)
                 {
-                    throw Exception("No files in package zip");
+                    throw new Exception("No files in package zip");
                 }
                 zipFile.Dispose();
             }
@@ -93,11 +93,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 return false;
             }
             return true;
-        }
-
-        private Exception Exception(string v)
-        {
-            throw new NotImplementedException();
         }
 
         private async Task<bool> PackageExists(string fileName)

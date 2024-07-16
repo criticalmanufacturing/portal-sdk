@@ -284,6 +284,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 transportConfig.TenantName = new JwtSecurityTokenHandler().ReadJwtToken(applicationBootInformation.MessageBusToken).Payload[jwtTenantNameKey].ToString();
                 transportConfig.SecurityToken = applicationBootInformation.MessageBusToken;
                 Transport messageBus = new Transport(transportConfig);
+                messageBus.SetDataGroupToken(applicationBootInformation.MessageBusDataGroupsToken);
 
                 // Register events
                 messageBus.Connected += () =>

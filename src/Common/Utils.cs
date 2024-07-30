@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.Foundation.BusinessObjects.QueryObject;
+using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
+using Cmf.Foundation.Common;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
@@ -84,6 +89,34 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 }
                 return tokens;
             });
+        }
+
+        /// <summary>
+        /// Name of SoftwareLicense is not unique, since it is a versioned entity
+        /// To load a license by name, we need to get it by the LicenseUniqueName
+        /// </summary>
+        /// <param name="licenseUniqueName"></param>
+        /// <returns></returns>
+        public static async Task<CPSoftwareLicense> GetLicenseByUniqueName(string licenseUniqueName)
+        {
+            FilterCollection fcCollection = new FilterCollection()
+            {
+                new Filter()
+                {
+                    Name = "LicenseUniqueName",
+                    LogicalOperator = LogicalOperator.AND,
+                    Operator = FieldOperator.IsEqualTo,
+                    Value = licenseUniqueName
+                }
+            };
+
+            GetObjectsByFilterInput gobfiInput = new GetObjectsByFilterInput
+            {
+                Filter = fcCollection,
+                Type = Activator.CreateInstance<CPSoftwareLicense>()
+            };
+
+            return (CPSoftwareLicense)gobfiInput.GetObjectsByFilterSync().Instance[0];
         }
     }
 }

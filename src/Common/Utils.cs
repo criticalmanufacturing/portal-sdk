@@ -117,7 +117,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 Type = Activator.CreateInstance<CPSoftwareLicense>()
             };
 
-            GetObjectsByFilterOutput gobfOutput = gobfiInput.GetObjectsByFilterAsync(true).Result;
+            GetObjectsByFilterOutput gobfOutput = await gobfiInput.GetObjectsByFilterAsync(true);
 
             if (gobfOutput.Instance.Count == 0)
             {

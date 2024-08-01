@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
+using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.OutputObjects;
 using Cmf.Foundation.Common;
 
 namespace Cmf.CustomerPortal.Sdk.Common
@@ -116,7 +117,14 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 Type = Activator.CreateInstance<CPSoftwareLicense>()
             };
 
-            return (CPSoftwareLicense)gobfiInput.GetObjectsByFilterSync().Instance[0];
+            GetObjectsByFilterOutput gobfOutput = gobfiInput.GetObjectsByFilterAsync(true).Result;
+
+            if (gobfOutput.Instance.Count == 0)
+            {
+                throw new Exception($"License with name {licenseUniqueName} does not exist");
+            }
+
+            return (CPSoftwareLicense)gobfOutput.Instance[0];
         }
     }
 }

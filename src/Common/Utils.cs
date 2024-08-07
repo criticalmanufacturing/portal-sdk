@@ -108,6 +108,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     LogicalOperator = LogicalOperator.AND,
                     Operator = FieldOperator.IsEqualTo,
                     Value = licenseUniqueName
+                },
+                new Filter() // exclude Definition or Revision results
+                {
+                    Name = "Version",
+                    LogicalOperator= LogicalOperator.AND,
+                    Operator= FieldOperator.GreaterThan,
+                    Value = 0
                 }
             };
 
@@ -122,6 +129,11 @@ namespace Cmf.CustomerPortal.Sdk.Common
             if (gobfOutput.Instance.Count == 0)
             {
                 throw new Exception($"License with name {licenseUniqueName} does not exist");
+            }
+            
+            if (gobfOutput.Instance.Count > 1)
+            {
+                throw new Exception($"Too many matches for license {licenseUniqueName}");
             }
 
             return (CPSoftwareLicense)gobfOutput.Instance[0];

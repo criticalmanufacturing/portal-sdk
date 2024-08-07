@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
+using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.OutputObjects;
 using Cmf.Foundation.Common;
 
 namespace Cmf.CustomerPortal.Sdk.Common
@@ -107,6 +108,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     LogicalOperator = LogicalOperator.AND,
                     Operator = FieldOperator.IsEqualTo,
                     Value = licenseUniqueName
+                },
+                new Filter() // exclude Definition or Revision results
+                {
+                    Name = "Version",
+                    LogicalOperator= LogicalOperator.AND,
+                    Operator= FieldOperator.GreaterThan,
+                    Value = 0
                 }
             };
 
@@ -116,7 +124,19 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 Type = Activator.CreateInstance<CPSoftwareLicense>()
             };
 
-            return (CPSoftwareLicense)gobfiInput.GetObjectsByFilterSync().Instance[0];
+            GetObjectsByFilterOutput gobfOutput = await gobfiInput.GetObjectsByFilterAsync(true);
+
+            if (gobfOutput.Instance.Count == 0)
+            {
+                throw new Exception($"License with name {licenseUniqueName} does not exist");
+            }
+            
+            if (gobfOutput.Instance.Count > 1)
+            {
+                throw new Exception($"Too many matches for license {licenseUniqueName}");
+            }
+
+            return (CPSoftwareLicense)gobfOutput.Instance[0];
         }
     }
 }

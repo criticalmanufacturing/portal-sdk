@@ -21,18 +21,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         private readonly ISession _session;
         private readonly ICustomerPortalClient _customerPortalClient;
-        private readonly IArtifactDownloaderHandler _downloadDeployArtifactHandler;
+        private readonly IManifestsDownloaderHandler _manifestsDownloaderHandler;
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
 
         private static DateTime? utcOfLastMessageReceived = null;
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                            IArtifactDownloaderHandler downloadDeployArtifactHandler)
+                                            IManifestsDownloaderHandler manifestsDownloaderHandler)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
-            _downloadDeployArtifactHandler = downloadDeployArtifactHandler;
+            _manifestsDownloaderHandler = manifestsDownloaderHandler;
         }
 
         #region Private Methods
@@ -71,7 +71,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 case DeploymentTarget.dockerswarm:
                 case DeploymentTarget.KubernetesOnPremisesTarget:
                 case DeploymentTarget.OpenShiftOnPremisesTarget:
-                    await _downloadDeployArtifactHandler.Handle(environment.Name, outputPath);
+                    await _manifestsDownloaderHandler.Handle(environment.Name, outputPath);
                     break;
                 default:
                     break;

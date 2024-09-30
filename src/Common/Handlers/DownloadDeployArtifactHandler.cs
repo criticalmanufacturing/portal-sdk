@@ -4,17 +4,17 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class DownloaderDeployArtifactHandler : AbstractHandler
+    public class ManifestsDownloaderHandler : AbstractHandler
     {
         private readonly ICustomerPortalClient _customerPortalClient;
 
-        private readonly IArtifactDownloaderHandler _artifactDownloaderHandler;
+        private readonly IManifestsDownloaderHandler _manifestsDownloaderHandler;
 
-        public DownloaderDeployArtifactHandler(ICustomerPortalClient customerPortalClient, ISession session,
-                                               IArtifactDownloaderHandler artifactDownloaderHandler) : base(session, true)
+        public ManifestsDownloaderHandler(ICustomerPortalClient customerPortalClient, ISession session,
+            IManifestsDownloaderHandler manifestsDownloaderHandler) : base(session, true)
         {
             _customerPortalClient = customerPortalClient;
-            _artifactDownloaderHandler = artifactDownloaderHandler;
+            _manifestsDownloaderHandler = manifestsDownloaderHandler;
         }
 
         public async Task Run(string customerEnvironmentName, DirectoryInfo outputDir)
@@ -23,7 +23,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             await EnsureLogin();
 
             // start download
-            await _artifactDownloaderHandler.Handle(customerEnvironmentName, outputDir);
+            await _manifestsDownloaderHandler.Handle(customerEnvironmentName, outputDir);
         }
     }
 }

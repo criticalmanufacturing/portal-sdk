@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
-    public class ArtifactDownloaderHandler : IArtifactDownloaderHandler
+    public class ManifestsDownloaderHandler : IManifestsDownloaderHandler
     {
         private readonly ISession _session;
 
         private readonly ICustomerPortalClient _customerPortalClient;
 
-        public ArtifactDownloaderHandler(ISession session, ICustomerPortalClient customerPortalClient)
+        public ManifestsDownloaderHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
@@ -130,8 +130,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                 _session.LogInformation($"Customer environment created at {outputPathFullName}");
             }
-
-            _session.LogInformation($"Customer environment {name} artifact downloaded...");
         }
     }
 }

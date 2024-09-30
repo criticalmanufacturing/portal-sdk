@@ -3,10 +3,8 @@ using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.OutputObjects;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
-using Cmf.Services.GenericServiceManagement;
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -59,77 +57,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 attachmentToDownload = output.Attachments.Where(x => x.Filename.Contains(environment.Name)).FirstOrDefault();
             }
 
-            if (attachmentToDownload == null)
-            {
-                _session.LogError("No attachment was found to download.");
-            }
-            else
-            {
-                // Download the attachment
-                _session.LogDebug($"Downloading attachment {attachmentToDownload.Filename}");
+            await Utilities.DownloadAttachment(_session, attachmentToDownload, outputDir);
 
-                string outputFile = "";
-                using (DownloadAttachmentStreamingOutput downloadAttachmentOutput = await new DownloadAttachmentStreamingInput() { attachmentId = attachmentToDownload.Id }.DownloadAttachmentAsync(true))
-                {
-                    int bytesToRead = 10000;
-                    byte[] buffer = new byte[bytesToRead];
-
-                    outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
-                    outputFile = outputFile.Replace(" ", "").Replace("\"", "");
-                    _session.LogDebug($"Downloading to {outputFile}");
-
-                    using (BinaryWriter streamWriter = new BinaryWriter(File.Open(outputFile, FileMode.Create, FileAccess.Write)))
-                    {
-                        int length;
-                        do
-                        {
-                            length = downloadAttachmentOutput.Stream.Read(buffer, 0, bytesToRead);
-                            streamWriter.Write(buffer, 0, length);
-                            buffer = new byte[bytesToRead];
-
-                        } while (length > 0);
-                    }
-                }
-
-                // create the dir to extract to
-                string extractionTarget = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-                Directory.CreateDirectory(extractionTarget);
-
-                _session.LogDebug($"Extracting environment contents to {extractionTarget}");
-
-                // extract the zip to the previously created dir
-                ZipFile.ExtractToDirectory(outputFile, extractionTarget);
-
-                // get target full dir
-                string outputPathFullName = outputDir?.FullName;
-                if (string.IsNullOrEmpty(outputPathFullName))
-                {
-                    outputPathFullName = Path.Combine(Directory.GetCurrentDirectory(), "out", environment.Name);
-                }
-                else
-                {
-                    outputPathFullName = Path.GetFullPath(outputPathFullName);
-                }
-
-                // ensure the output path exists
-                Directory.CreateDirectory(outputPathFullName);
-
-                _session.LogDebug($"Moving environment contents from {extractionTarget} to {outputPathFullName}");
-
-                // create all of the directories
-                foreach (string dirPath in Directory.GetDirectories(extractionTarget, "*", SearchOption.AllDirectories))
-                {
-                    Directory.CreateDirectory(dirPath.Replace(extractionTarget, outputPathFullName));
-                }
-
-                // copy all the files & Replaces any files with the same name
-                foreach (string newPath in Directory.GetFiles(extractionTarget, "*.*", SearchOption.AllDirectories))
-                {
-                    File.Copy(newPath, newPath.Replace(extractionTarget, outputPathFullName), true);
-                }
-
-                _session.LogInformation($"Customer environment created at {outputPathFullName}");
-            }
+            _session.LogInformation($"Customer environment created at {outputDir.FullName}");
         }
     }
 }

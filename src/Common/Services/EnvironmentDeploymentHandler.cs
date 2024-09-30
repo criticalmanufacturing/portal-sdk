@@ -1,16 +1,11 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
-using Cmf.Foundation.BusinessObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.OutputObjects;
 using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Messages;
-using Cmf.Services.GenericServiceManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,7 +66,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 case DeploymentTarget.dockerswarm:
                 case DeploymentTarget.KubernetesOnPremisesTarget:
                 case DeploymentTarget.OpenShiftOnPremisesTarget:
-                    await _manifestsDownloaderHandler.Handle(environment.Name, outputPath);
+                    bool success = await _manifestsDownloaderHandler.Handle(environment, outputPath);
+                    if (success)
+                    {
+                        _session.LogInformation($"Customer Environment created at {outputPath.FullName}");
+                    }
                     break;
                 default:
                     break;

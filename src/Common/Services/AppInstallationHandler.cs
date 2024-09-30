@@ -1,16 +1,9 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
-using Cmf.Foundation.BusinessObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.OutputObjects;
-using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Messages;
-using Cmf.Services.GenericServiceManagement;
 using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +14,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private readonly ISession _session;
 
         private readonly ICustomerPortalClient _customerPortalClient;
+        
+        private readonly IManifestsDownloaderHandler _manifestsDownloaderHandler;
 
         private bool _isInstallationFinished = false;
 
@@ -28,10 +23,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private static DateTime? utcOfLastMessageReceived = null;
 
-        public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient)
+        public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient,
+                                            IManifestsDownloaderHandler manifestsDownloaderHandler)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
+            _manifestsDownloaderHandler = manifestsDownloaderHandler;
         }
 
         #region Private Methods
@@ -71,24 +68,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 case "PortainerV2Target":
                 case "KubernetesOnPremisesTarget":
                 case "OpenShiftOnPremisesTarget":
-                    // get the attachments of the current customer environment application package
-                    GetAttachmentsForEntityInput input = new GetAttachmentsForEntityInput()
+                    bool success = await _manifestsDownloaderHandler.Handle(customerEnvironmentApplicationPackage, outputPath);
+                    if (success)
                     {
-                        Entity = customerEnvironmentApplicationPackage
-                    };
-
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                    GetAttachmentsForEntityOutput output = await input.GetAttachmentsForEntityAsync(true);
-                    EntityDocumentation attachmentToDownload = null;
-                    if (output?.Attachments.Count > 0)
-                    {
-                        output.Attachments.Sort((a, b) => DateTime.Compare(b.CreatedOn, a.CreatedOn));
-                        attachmentToDownload = output.Attachments.Where(x => x.Filename.StartsWith($"App_{appName}")).FirstOrDefault();
+                        _session.LogInformation($"App created at {outputPath.FullName}");
                     }
-
-                    await Utilities.DownloadAttachment(_session, attachmentToDownload, outputPath);
-
-                    _session.LogInformation($"App created at {outputPath.FullName}");
                     break;
                 default:
                     break;

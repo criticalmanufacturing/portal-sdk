@@ -2,9 +2,10 @@
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.OutputObjects;
-using Cmf.LightBusinessObjects.Infrastructure.Errors;
+using Cmf.Services.GenericServiceManagement;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,38 +15,19 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         private readonly ISession _session;
 
-        private readonly ICustomerPortalClient _customerPortalClient;
-
         public ManifestsDownloaderHandler(ISession session, ICustomerPortalClient customerPortalClient)
         {
             _session = session;
-            _customerPortalClient = customerPortalClient;
         }
 
-        public async Task Handle(string name, DirectoryInfo outputDir)
+        public async Task<bool> Handle(EntityBase deployEntity, DirectoryInfo outputDir)
         {
-            _session.LogInformation($"Checking if customer environment {name} exists...");
-            // let's see if the environment already exists
-            CustomerEnvironment environment = null;
-            try
-            {
-                environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
+            string entityType = deployEntity.GetType() == typeof(CustomerEnvironment) ? "Customer Environment" : "App";
 
-                _session.LogInformation($"Customer environment {name} actually exists...");
-            }
-            catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
-            {
-                // when was not found
-                string errorMessage = $"Customer environment {name} doesn't exist...";
-                _session.LogInformation(errorMessage);
-
-                throw new NotFoundException(errorMessage);
-            }
-
-            // get the attachments of the current customer environment
+            // get the attachments of the current customer environment or app
             GetAttachmentsForEntityInput input = new GetAttachmentsForEntityInput()
             {
-                Entity = environment
+                Entity = deployEntity
             };
 
             await Task.Delay(TimeSpan.FromSeconds(1));
@@ -53,13 +35,84 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             EntityDocumentation attachmentToDownload = null;
             if (output?.Attachments.Count > 0)
             {
+                string prefix = entityType.Replace(" ", "");
                 output.Attachments.Sort((a, b) => DateTime.Compare(b.CreatedOn, a.CreatedOn));
-                attachmentToDownload = output.Attachments.Where(x => x.Filename.Contains(environment.Name)).FirstOrDefault();
+                attachmentToDownload = output.Attachments.Where(x => x.Filename.StartsWith($"{prefix}_{deployEntity.Name}")).FirstOrDefault();
             }
+            
+            if (attachmentToDownload == null)
+            {
+                _session.LogError("No attachment was found to download.");
+                return false;
+            }
+            else
+            {
+                // Download the attachment
+                _session.LogDebug($"Downloading attachment {attachmentToDownload.Filename}");
 
-            await Utilities.DownloadAttachment(_session, attachmentToDownload, outputDir);
+                string outputFile = "";
+                using (DownloadAttachmentStreamingOutput downloadAttachmentOutput = await new DownloadAttachmentStreamingInput() { attachmentId = attachmentToDownload.Id }.DownloadAttachmentAsync(true))
+                {
+                    int bytesToRead = 10000;
+                    byte[] buffer = new byte[bytesToRead];
 
-            _session.LogInformation($"Customer environment created at {outputDir.FullName}");
+                    outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
+                    outputFile = outputFile.Replace(" ", "").Replace("\"", "");
+                    _session.LogDebug($"Downloading to {outputFile}");
+
+                    using (BinaryWriter streamWriter = new BinaryWriter(File.Open(outputFile, FileMode.Create, FileAccess.Write)))
+                    {
+                        int length;
+                        do
+                        {
+                            length = downloadAttachmentOutput.Stream.Read(buffer, 0, bytesToRead);
+                            streamWriter.Write(buffer, 0, length);
+                            buffer = new byte[bytesToRead];
+
+                        } while (length > 0);
+                    }
+                }
+
+                // create the dir to extract to
+                string extractionTarget = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+                Directory.CreateDirectory(extractionTarget);
+
+                _session.LogDebug($"Extracting attachment contents to {extractionTarget}");
+
+                // extract the zip to the previously created dir
+                ZipFile.ExtractToDirectory(outputFile, extractionTarget);
+
+                // get target full dir
+                string outputPathFullName = outputDir?.FullName;
+                if (string.IsNullOrEmpty(outputPathFullName))
+                {
+                    outputPathFullName = Path.Combine(Directory.GetCurrentDirectory(), "out", outputFile.Replace(".zip", ""));
+                }
+                else
+                {
+                    outputPathFullName = Path.GetFullPath(outputPathFullName);
+                }
+
+                // ensure the output path exists
+                Directory.CreateDirectory(outputPathFullName);
+
+                _session.LogDebug($"Moving attachment contents from {extractionTarget} to {outputPathFullName}");
+
+                // create all of the directories
+                foreach (string dirPath in Directory.GetDirectories(extractionTarget, "*", SearchOption.AllDirectories))
+                {
+                    Directory.CreateDirectory(dirPath.Replace(extractionTarget, outputPathFullName));
+                }
+
+                // copy all the files & Replaces any files with the same name
+                foreach (string newPath in Directory.GetFiles(extractionTarget, "*.*", SearchOption.AllDirectories))
+                {
+                    File.Copy(newPath, newPath.Replace(extractionTarget, outputPathFullName), true);
+                }
+
+                _session.LogDebug($"Attachment successfully downloaded to {outputPathFullName}");
+            }
+            return true;
         }
     }
 }

@@ -42,17 +42,17 @@ jobs:
           expression: '/Project/PropertyGroup/Version/text()'
       # Archive
       - name: Archive Console Win64
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64
           path: src/Console/bin/Release/net8.0/win-x64/publish/
       - name: Archive Console Linux64
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64
           path: src/Console/bin/Release/net8.0/linux-x64/publish/
       - name: Archive PowerShell
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}
           path: src/Powershell/bin/Release/net8.0/linux-x64/publish/

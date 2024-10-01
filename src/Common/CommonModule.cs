@@ -22,7 +22,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<Handlers.AddManifestsHandler>();
             serviceCollection.AddTransient<Handlers.PublishPackageHandler>();
             serviceCollection.AddTransient<Handlers.InstallAppHandler>();
-            serviceCollection.AddTransient<Handlers.ManifestsDownloaderHandler>();
+            serviceCollection.AddTransient<Handlers.DownloadManifestsHandler>();
         }
     }
 }

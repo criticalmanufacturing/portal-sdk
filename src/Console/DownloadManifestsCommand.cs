@@ -23,14 +23,14 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
             Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));
 
-            Handler = CommandHandler.Create(typeof(DownloadManifestsCommand).GetMethod(nameof(DownloadManifestsCommand.ManifestsDownloaderHandler)), this);
+            Handler = CommandHandler.Create(typeof(DownloadManifestsCommand).GetMethod(nameof(DownloadManifestsCommand.DownloadHandler)), this);
         }
 
-        public async Task ManifestsDownloaderHandler(bool verbose, string name, DirectoryInfo output)
+        public async Task DownloadHandler(bool verbose, string name, DirectoryInfo output)
         {
             // get manifests downloader handler and run it
             CreateSession(verbose);
-            ManifestsDownloaderHandler handler = ServiceLocator.Get<ManifestsDownloaderHandler>();
+            DownloadManifestsHandler handler = ServiceLocator.Get<DownloadManifestsHandler>();
             await handler.Run(name, output);
         }
     }

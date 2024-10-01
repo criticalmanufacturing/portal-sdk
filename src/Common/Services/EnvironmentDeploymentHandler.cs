@@ -59,17 +59,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputPath)
+        private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputDir)
         {
             switch (target)
             {
                 case DeploymentTarget.dockerswarm:
                 case DeploymentTarget.KubernetesOnPremisesTarget:
                 case DeploymentTarget.OpenShiftOnPremisesTarget:
+                    string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
                     bool success = await _manifestsDownloaderHandler.Handle(environment, outputPath);
                     if (success)
                     {
-                        _session.LogInformation($"Customer Environment created at {outputPath.FullName}");
+                        _session.LogInformation($"Customer Environment created at {outputPath}");
                     }
                     break;
                 default:

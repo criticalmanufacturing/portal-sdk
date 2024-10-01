@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class ManifestsDownloaderHandler : AbstractHandler
+    public class DownloadManifestsHandler : AbstractHandler
     {
         private readonly ISession _session;
         
@@ -14,7 +14,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
         private readonly IManifestsDownloaderHandler _manifestsDownloaderHandler;
 
-        public ManifestsDownloaderHandler(ICustomerPortalClient customerPortalClient, ISession session,
+        public DownloadManifestsHandler(ISession session, ICustomerPortalClient customerPortalClient,
             IManifestsDownloaderHandler manifestsDownloaderHandler) : base(session, true)
         {
             _session = session;
@@ -44,10 +44,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 throw new NotFoundException(errorMessage);
             }
 
+            string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
+
             // start download
             _session.LogInformation($"Downloading manifests for Customer environment {customerEnvironmentName}...");
-            await _manifestsDownloaderHandler.Handle(environment, outputDir);
-            _session.LogInformation($"Manifests successfully download to {outputDir.FullName}.");
+            await _manifestsDownloaderHandler.Handle(environment, outputPath);
+            _session.LogInformation($"Manifests successfully download to {outputPath}.");
         }
     }
 }

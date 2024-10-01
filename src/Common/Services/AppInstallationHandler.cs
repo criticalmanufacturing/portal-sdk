@@ -60,7 +60,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async Task ProcessAppInstallation(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputPath)
+        private async Task ProcessAppInstallation(CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir)
         {
             switch (target)
             {
@@ -68,10 +68,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 case "PortainerV2Target":
                 case "KubernetesOnPremisesTarget":
                 case "OpenShiftOnPremisesTarget":
+                    string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
                     bool success = await _manifestsDownloaderHandler.Handle(customerEnvironmentApplicationPackage, outputPath);
                     if (success)
                     {
-                        _session.LogInformation($"App created at {outputPath.FullName}");
+                        _session.LogInformation($"App created at {outputPath}");
                     }
                     break;
                 default:
@@ -163,7 +164,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 throw new Exception("Installation Failed! Check the logs for more information.");
             }
 
-            await ProcessAppInstallation(appName, customerEnvironmentApplicationPackage, target, outputDir);
+            await ProcessAppInstallation(customerEnvironmentApplicationPackage, target, outputDir);
         }
     }
 }

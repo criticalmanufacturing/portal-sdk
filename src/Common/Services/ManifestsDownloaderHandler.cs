@@ -15,12 +15,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         private readonly ISession _session;
 
-        public ManifestsDownloaderHandler(ISession session, ICustomerPortalClient customerPortalClient)
+        public ManifestsDownloaderHandler(ISession session)
         {
             _session = session;
         }
 
-        public async Task<bool> Handle(EntityBase deployEntity, DirectoryInfo outputDir)
+        public async Task<bool> Handle(EntityBase deployEntity, string outputPath)
         {
             string entityType = deployEntity.GetType() == typeof(CustomerEnvironment) ? "Customer Environment" : "App";
 
@@ -83,34 +83,31 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 ZipFile.ExtractToDirectory(outputFile, extractionTarget);
 
                 // get target full dir
-                string outputPathFullName = outputDir?.FullName;
-                if (string.IsNullOrEmpty(outputPathFullName))
+                if (string.IsNullOrEmpty(outputPath))
                 {
-                    outputPathFullName = Path.Combine(Directory.GetCurrentDirectory(), "out", outputFile.Replace(".zip", ""));
+                    outputPath = Path.Combine(Directory.GetCurrentDirectory(), "out");
                 }
-                else
-                {
-                    outputPathFullName = Path.GetFullPath(outputPathFullName);
-                }
+
+                outputPath = Path.Combine(outputPath, deployEntity.Name);
 
                 // ensure the output path exists
-                Directory.CreateDirectory(outputPathFullName);
+                Directory.CreateDirectory(outputPath);
 
-                _session.LogDebug($"Moving attachment contents from {extractionTarget} to {outputPathFullName}");
+                _session.LogDebug($"Moving attachment contents from {extractionTarget} to {outputPath}");
 
                 // create all of the directories
                 foreach (string dirPath in Directory.GetDirectories(extractionTarget, "*", SearchOption.AllDirectories))
                 {
-                    Directory.CreateDirectory(dirPath.Replace(extractionTarget, outputPathFullName));
+                    Directory.CreateDirectory(dirPath.Replace(extractionTarget, outputPath));
                 }
 
                 // copy all the files & Replaces any files with the same name
                 foreach (string newPath in Directory.GetFiles(extractionTarget, "*.*", SearchOption.AllDirectories))
                 {
-                    File.Copy(newPath, newPath.Replace(extractionTarget, outputPathFullName), true);
+                    File.Copy(newPath, newPath.Replace(extractionTarget, outputPath), true);
                 }
 
-                _session.LogDebug($"Attachment successfully downloaded to {outputPathFullName}");
+                _session.LogDebug($"Attachment successfully downloaded to {outputPath}");
             }
             return true;
         }

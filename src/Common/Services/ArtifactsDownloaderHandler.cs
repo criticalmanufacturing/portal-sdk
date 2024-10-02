@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
-    public class ManifestsDownloaderHandler : IManifestsDownloaderHandler
+    public class ArtifactsDownloaderHandler : IArtifactsDownloaderHandler
     {
         private readonly ISession _session;
 
-        public ManifestsDownloaderHandler(ISession session)
+        public ArtifactsDownloaderHandler(ISession session)
         {
             _session = session;
         }

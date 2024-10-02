@@ -15,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private readonly ICustomerPortalClient _customerPortalClient;
         
-        private readonly IManifestsDownloaderHandler _manifestsDownloaderHandler;
+        private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
 
         private bool _isInstallationFinished = false;
 
@@ -24,11 +24,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private static DateTime? utcOfLastMessageReceived = null;
 
         public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                            IManifestsDownloaderHandler manifestsDownloaderHandler)
+                                      IArtifactsDownloaderHandler artifactsDownloaderHandler)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
-            _manifestsDownloaderHandler = manifestsDownloaderHandler;
+            _artifactsDownloaderHandler = artifactsDownloaderHandler;
         }
 
         #region Private Methods
@@ -69,7 +69,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 case "KubernetesOnPremisesTarget":
                 case "OpenShiftOnPremisesTarget":
                     string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
-                    bool success = await _manifestsDownloaderHandler.Handle(customerEnvironmentApplicationPackage, outputPath);
+                    bool success = await _artifactsDownloaderHandler.Handle(customerEnvironmentApplicationPackage, outputPath);
                     if (success)
                     {
                         _session.LogInformation($"App created at {outputPath}");

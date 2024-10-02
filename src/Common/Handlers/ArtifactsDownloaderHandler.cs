@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class DownloadManifestsHandler : AbstractHandler
+    public class DownloadArtifactsHandler : AbstractHandler
     {
         private readonly ISession _session;
         
         private readonly ICustomerPortalClient _customerPortalClient;
 
-        private readonly IManifestsDownloaderHandler _manifestsDownloaderHandler;
+        private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
 
-        public DownloadManifestsHandler(ISession session, ICustomerPortalClient customerPortalClient,
-            IManifestsDownloaderHandler manifestsDownloaderHandler) : base(session, true)
+        public DownloadArtifactsHandler(ISession session, ICustomerPortalClient customerPortalClient,
+            IArtifactsDownloaderHandler artifactsDownloaderHandler) : base(session, true)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
-            _manifestsDownloaderHandler = manifestsDownloaderHandler;
+            _artifactsDownloaderHandler = artifactsDownloaderHandler;
         }
 
         public async Task Run(string customerEnvironmentName, DirectoryInfo outputDir)
@@ -47,9 +47,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
 
             // start download
-            _session.LogInformation($"Downloading manifests for Customer environment {customerEnvironmentName}...");
-            await _manifestsDownloaderHandler.Handle(environment, outputPath);
-            _session.LogInformation($"Manifests successfully download to {outputPath}.");
+            _session.LogInformation($"Downloading artifacts for Customer environment {customerEnvironmentName}...");
+            await _artifactsDownloaderHandler.Handle(environment, outputPath);
+            _session.LogInformation($"Artifacts successfully download to {outputPath}.");
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddSingleton<INewEnvironmentUtilities, NewEnvironmentUtilities>();
             serviceCollection.AddTransient<IEnvironmentDeploymentHandler, EnvironmentDeploymentHandler>();
             serviceCollection.AddTransient<IAppInstallationHandler, AppInstallationHandler>();
-            serviceCollection.AddTransient<IManifestsDownloaderHandler, ManifestsDownloaderHandler>();
+            serviceCollection.AddTransient<IArtifactsDownloaderHandler, ArtifactsDownloaderHandler>();
 
             // Add Handlers
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();
@@ -22,7 +22,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<Handlers.AddManifestsHandler>();
             serviceCollection.AddTransient<Handlers.PublishPackageHandler>();
             serviceCollection.AddTransient<Handlers.InstallAppHandler>();
-            serviceCollection.AddTransient<Handlers.DownloadManifestsHandler>();
+            serviceCollection.AddTransient<Handlers.DownloadArtifactsHandler>();
         }
     }
 }

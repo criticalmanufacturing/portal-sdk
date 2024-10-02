@@ -16,18 +16,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         private readonly ISession _session;
         private readonly ICustomerPortalClient _customerPortalClient;
-        private readonly IManifestsDownloaderHandler _manifestsDownloaderHandler;
+        private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
 
         private static DateTime? utcOfLastMessageReceived = null;
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                            IManifestsDownloaderHandler manifestsDownloaderHandler)
+                                            IArtifactsDownloaderHandler artifactsDownloaderHandler)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
-            _manifestsDownloaderHandler = manifestsDownloaderHandler;
+            _artifactsDownloaderHandler = artifactsDownloaderHandler;
         }
 
         #region Private Methods
@@ -67,7 +67,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 case DeploymentTarget.KubernetesOnPremisesTarget:
                 case DeploymentTarget.OpenShiftOnPremisesTarget:
                     string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
-                    bool success = await _manifestsDownloaderHandler.Handle(environment, outputPath);
+                    bool success = await _artifactsDownloaderHandler.Handle(environment, outputPath);
                     if (success)
                     {
                         _session.LogInformation($"Customer Environment created at {outputPath}");

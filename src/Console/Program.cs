@@ -13,7 +13,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.AddCommand(new CreateInfrastructureCommand());
             rootCommand.AddCommand(new DeployAgentCommand());
             rootCommand.AddCommand(new DeployCommand());
-            rootCommand.AddCommand(new DownloadManifestsCommand());
+            rootCommand.AddCommand(new DownloadArtifactsCommand());
             rootCommand.AddCommand(new InstallAppCommand());
             rootCommand.AddCommand(new LoginCommand());
             rootCommand.AddCommand(new PublishCommand());

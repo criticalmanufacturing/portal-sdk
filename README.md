@@ -43,7 +43,7 @@ Commands:
   - <a href="#createinfrastructure">```createinfrastructure```</a> - Creates a customer Infrastructure
   - <a href="#deployagent">```deployagent```</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#deploy">```deploy```</a> - Creates and deploys a new Customer Environment
-  - <a href="#download-manifests">```download-manifests```</a> - Downloads all Deployment Manifests of a specific Customer Environment from the Customer Portal
+  - <a href="#download-artifacts">```download-artifacts```</a> - Downloads all Deployment Artifacts of a specific Customer Environment from the Customer Portal
   - <a href="#install-app">```install-app```</a> - Installs an App in a previous deployed Convergence Customer Environment
   - <a href="#login">```login```</a> - Log in to the CM Portal
   - <a href="#publish">```publish```</a> - Publishes one or more Deployment Manifests into Customer Portal
@@ -144,16 +144,16 @@ Options:
   - ```-tovrv, --terminateOtherVersionsRemoveVolumes``` - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.
   - ```-?, -h, --help``` - Show help and usage information
 
-### download-manifests
+### download-artifacts
 
-Downloads all Deployment Manifests of a specific Customer Environment from the Customer Portal.
+Downloads all Deployment Artifacts of a specific Customer Environment from the Customer Portal.
 
-Usage: ```cmf-portal download-manifests [options]```
+Usage: ```cmf-portal download-artifacts [options]```
 
 Options:
   - ```-v, --verbose``` - Show detailed logging
   - ```-n, --name <name>``` - Name of the new Customer Environment. --name is also supported
-  - ```-o, --output <output>``` - Directory to place all manifests downloaded from the Customer Portal.
+  - ```-o, --output <output>``` - Directory to place all artifacts downloaded from the Customer Portal.
   - ```-?, -h, --help``` - Show help and usage information
 
 ### install-app

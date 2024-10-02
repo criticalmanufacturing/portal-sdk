@@ -1,16 +1,11 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
-using Cmf.Foundation.BusinessObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.OutputObjects;
 using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Messages;
-using Cmf.Services.GenericServiceManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,15 +16,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         private readonly ISession _session;
         private readonly ICustomerPortalClient _customerPortalClient;
+        private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
 
         private static DateTime? utcOfLastMessageReceived = null;
 
-        public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient)
+        public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient,
+                                            IArtifactsDownloaderHandler artifactsDownloaderHandler)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
+            _artifactsDownloaderHandler = artifactsDownloaderHandler;
         }
 
         #region Private Methods
@@ -61,101 +59,19 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputPath)
+        private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputDir)
         {
             switch (target)
             {
                 case DeploymentTarget.dockerswarm:
                 case DeploymentTarget.KubernetesOnPremisesTarget:
                 case DeploymentTarget.OpenShiftOnPremisesTarget:
-
-                    // get the attachments of the current customer environment
-                    GetAttachmentsForEntityInput input = new GetAttachmentsForEntityInput()
+                    string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
+                    bool success = await _artifactsDownloaderHandler.Handle(environment, outputPath);
+                    if (success)
                     {
-                        Entity = environment
-                    };
-
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                    GetAttachmentsForEntityOutput output = await input.GetAttachmentsForEntityAsync(true);
-                    EntityDocumentation attachmentToDownload = null;
-                    if (output?.Attachments.Count > 0)
-                    {
-                        output.Attachments.Sort((a, b) => DateTime.Compare(b.CreatedOn, a.CreatedOn));
-                        attachmentToDownload = output.Attachments.Where(x => x.Filename.Contains(environment.Name)).FirstOrDefault();
+                        _session.LogInformation($"Customer Environment created at {outputPath}");
                     }
-
-                    if (attachmentToDownload == null)
-                    {
-                        _session.LogError("No attachment was found to download.");
-                    }
-                    else
-                    {
-                        // Download the attachment
-                        _session.LogDebug($"Downloading attachment {attachmentToDownload.Filename}");
-
-                        string outputFile = "";
-                        using (DownloadAttachmentStreamingOutput downloadAttachmentOutput = await new DownloadAttachmentStreamingInput() { attachmentId = attachmentToDownload.Id }.DownloadAttachmentAsync(true))
-                        {
-                            int bytesToRead = 10000;
-                            byte[] buffer = new byte[bytesToRead];
-
-                            outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
-                            outputFile = outputFile.Replace(" ", "").Replace("\"", "");
-                            _session.LogDebug($"Downloading to {outputFile}");
-
-                            using (BinaryWriter streamWriter = new BinaryWriter(File.Open(outputFile, FileMode.Create, FileAccess.Write)))
-                            {
-                                int length;
-                                do
-                                {
-                                    length = downloadAttachmentOutput.Stream.Read(buffer, 0, bytesToRead);
-                                    streamWriter.Write(buffer, 0, length);
-                                    buffer = new byte[bytesToRead];
-
-                                } while (length > 0);
-                            }
-                        }
-
-                        // create the dir to extract to
-                        string extractionTarget = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-                        Directory.CreateDirectory(extractionTarget);
-
-                        _session.LogDebug($"Extracting environment contents to {extractionTarget}");
-
-                        // extract the zip to the previously created dir
-                        ZipFile.ExtractToDirectory(outputFile, extractionTarget);
-
-                        // get target full dir
-                        string outputPathFullName = outputPath?.FullName;
-                        if (string.IsNullOrEmpty(outputPathFullName))
-                        {
-                            outputPathFullName = Path.Combine(Directory.GetCurrentDirectory(), "out", environment.Name);
-                        }
-                        else
-                        {
-                            outputPathFullName = Path.GetFullPath(outputPathFullName);
-                        }
-
-                        // ensure the output path exists
-                        Directory.CreateDirectory(outputPathFullName);
-
-                        _session.LogDebug($"Moving environment contents from {extractionTarget} to {outputPathFullName}");
-
-                        // create all of the directories
-                        foreach (string dirPath in Directory.GetDirectories(extractionTarget, "*", SearchOption.AllDirectories))
-                        {
-                            Directory.CreateDirectory(dirPath.Replace(extractionTarget, outputPathFullName));
-                        }
-
-                        // copy all the files & Replaces any files with the same name
-                        foreach (string newPath in Directory.GetFiles(extractionTarget, "*.*", SearchOption.AllDirectories))
-                        {
-                            File.Copy(newPath, newPath.Replace(extractionTarget, outputPathFullName), true);
-                        }
-
-                        _session.LogInformation($"Customer environment created at {outputPathFullName}");
-                    }
-
                     break;
                 default:
                     break;

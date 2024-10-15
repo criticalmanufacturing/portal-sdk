@@ -47,14 +47,14 @@ async function downloadAndExtract(pkgUrl, installScriptLocation) {
         console.info(`Fetching release archive from ${pkgUrl}`);
         const response = await axios.get(pkgUrl, { responseType: 'arraybuffer' });
         
-        const zipFile = tmp.tmpNameSync();
-        console.log(`Writing temporary zip file to ${zipFile}`);
-        fs.writeFileSync(zipFile, response.data);
+        const zip = tmp.tmpNameSync();
+        console.log(`Writing temporary zip file to ${zip}`);
+        fs.writeFileSync(zip, response.data);
 
-        console.log(`Extracting zip file ${zipFile} to ${installScriptLocation}`);
-        (new AdmZip(zipFile)).extractAllTo(installScriptLocation, true);
+        console.log(`Extracting zip file ${zip} to ${installScriptLocation}`);
+        (new AdmZip(zip)).extractAllTo(installScriptLocation, undefined, true);
         
-        rimraf.sync(zipFile);  // Clean up temporary zip file
+        rimraf.sync(zip); 
     } catch (error) {
         throw new Error(`Failed to download or extract archive from ${pkgUrl}: ${error.message}`);
     }
@@ -72,7 +72,7 @@ async function installPackage() {
     const fallbackUrls = [
         'https://criticalmanufacturing.io',
         'https://criticalmanufacturing.cn'
-    ].map(constructUrl);  // Construct fallback URLs dynamically
+    ].map(constructUrl);
 
     // Try downloading from primary URL and fallbacks
     const allUrls = [primaryUrl, ...fallbackUrls];
@@ -87,7 +87,7 @@ async function installPackage() {
         }
     }
 
-    console.error('Failed to install package from all available sources.');
+    console.error(error(`Could not install version ${process.env.npm_package_version} on your platform ${process.platform}/${process.arch}: ${error.message}`));
     process.exit(1);  // Exit the process after all attempts fail
 }
 

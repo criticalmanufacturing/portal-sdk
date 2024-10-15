@@ -36,11 +36,6 @@ fs.unlink(path.join(installScriptLocation, 'cmf-portal'), (err) => {
     }
 });
 
-// Function to construct the package URL
-const constructUrl = (baseUrl, version) => {
-    return `${baseUrl}/releases/download/${version}/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`;
-};
-
 // Function to download and extract the zip file
 async function downloadAndExtract(pkgUrl, installScriptLocation) {
     try {
@@ -66,13 +61,13 @@ async function installPackage() {
     const installScriptLocation = path.resolve(__dirname);  // Adjust as necessary
 
     // Primary URL
-    const primaryUrl = `https://github.com/criticalmanufacturing/portal-sdk/releases/download`;
+    const primaryUrl = `https://github.com/criticalmanufacturing/portal-sdk/releases/download/#{Version}#/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`;
     
     // Fallback URLs
     const fallbackUrls = [
-        'https://criticalmanufacturing.io',
-        'https://criticalmanufacturing.cn'
-    ].map(constructUrl);
+        `https://criticalmanufacturing.io/repository/tools/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`,
+        `https://repository.criticalmanufacturing.com.cn/repository/tools/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`
+    ];
 
     // Try downloading from primary URL and fallbacks
     const allUrls = [primaryUrl, ...fallbackUrls];

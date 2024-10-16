@@ -284,6 +284,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 transportConfig.TenantName = new JwtSecurityTokenHandler().ReadJwtToken(applicationBootInformation.MessageBusToken).Payload[jwtTenantNameKey].ToString();
                 transportConfig.SecurityToken = applicationBootInformation.MessageBusToken;
                 Transport messageBus = new Transport(transportConfig);
+                messageBus.SetDataGroupToken(applicationBootInformation.MessageBusDataGroupsToken);
 
                 // Register events
                 messageBus.Connected += () =>
@@ -391,7 +392,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         }
 
         /// <inheritdoc/>
-        public async Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string appVersion, string parameters, string customerLicenseName)
+        public async Task<CustomerEnvironmentApplicationPackage> CreateOrUpdateAppInstallation(long customerEnvironmentId, string appName, string appVersion, string parameters, string softwareLicenseName)
         {
             return (await new CreateOrUpdateAppInstallationInput()
             {
@@ -399,7 +400,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 ApplicationPackageName = appName,
                 AppVersion = appVersion,
                 Parameters = parameters,
-                CustomerLicenseName = customerLicenseName
+                SoftwareLicenseName = softwareLicenseName
             }.CreateOrUpdateAppInstallationAsync(true)).CustomerEnvironmentApplicationPackage;
         }
 

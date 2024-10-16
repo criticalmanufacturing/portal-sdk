@@ -53,11 +53,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     // publish
                     Session.LogDebug("Uploading package...");
-                    var publishNewNewStreamingOutput = await new PackageManagement.PublishApplicationPackageStreamingInput
+                    var publishNewNewStreamingOutput = await new PackageManagement.PublishApplicationPackageBaseStreamingInput
                     {
                         FilePath = filePath,
                         DatagroupName = datagroup,
-                    }.PublishApplicationPackageAsync(true);
+                    }.PublishApplicationPackageBaseAsync(true);
 
                     Session.LogInformation($"Package {fileName} successfully uploaded");
                 }
@@ -82,7 +82,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 var zipFile = System.IO.Compression.ZipFile.OpenRead(filePath);
                 if (zipFile.Entries.Count == 0)
                 {
-                    throw Exception("No files in package zip");
+                    throw new Exception("No files in package zip");
                 }
                 zipFile.Dispose();
             }
@@ -93,11 +93,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 return false;
             }
             return true;
-        }
-
-        private Exception Exception(string v)
-        {
-            throw new NotImplementedException();
         }
 
         private async Task<bool> PackageExists(string fileName)

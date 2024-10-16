@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Common.Deployment;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects;
@@ -10,8 +12,6 @@ using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
-using System.Linq;
-using Cmf.CustomerPortal.Common.Deployment;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -75,7 +75,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             CustomerEnvironment environment = null;
             try
             {
-                environment = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
+                environment = (await (new GetCustomerEnvironmentByNameInput() { CustomerEnvironmentName = name }.GetCustomerEnvironmentByNameAsync(true))).CustomerEnvironment;
 
                 Session.LogInformation($"Customer environment {name} actually exists...");
             }
@@ -93,7 +93,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 }
 
                 environment.DeploymentPackage = isInfrastructureAgent || string.IsNullOrWhiteSpace(deploymentPackageName) ? environment.DeploymentPackage : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
-                environment.CustomerLicense = isInfrastructureAgent || string.IsNullOrWhiteSpace(licenseName) ? environment.CustomerLicense : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName);
+                environment.SoftwareLicense = isInfrastructureAgent || string.IsNullOrWhiteSpace(licenseName) ? environment.SoftwareLicense : await Utils.GetLicenseByUniqueName(licenseName);
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
                 environment.ChangeSet = null;
 
@@ -193,7 +193,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     DeploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
                     DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
                     Site = environmentSite,
-                    CustomerLicense = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName)
+                    SoftwareLicense = isInfrastructureAgent ? null : await Utils.GetLicenseByUniqueName(licenseName)
                 };
 
                 // check environment connection
@@ -219,7 +219,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Site = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<ProductSite>(siteName),
                     Name = name,
                     DeploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                    CustomerLicense = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<CustomerLicense>(licenseName),
+                    SoftwareLicense = isInfrastructureAgent ? null : await Utils.GetLicenseByUniqueName(licenseName),
                     DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
                     Parameters = rawParameters
                 };

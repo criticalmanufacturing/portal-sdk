@@ -61,12 +61,13 @@ async function installPackage() {
     const installScriptLocation = path.resolve(__dirname);  // Adjust as necessary
 
     // Primary URL
-    const primaryUrl = `https://github.com/criticalmanufacturing/portal-sdk/releases/download/#{Version}#/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`;
+    
+    const primaryUrl = new URL(`https://github.com/criticalmanufacturing/portal-sdk/releases/download/#{Version}#/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`);
     
     // Fallback URLs
     const fallbackUrls = [
-        `https://criticalmanufacturing.io/repository/tools/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`,
-        `https://repository.criticalmanufacturing.com.cn/repository/tools/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`
+        new URL(`https://criticalmanufacturing.io/repository/tools/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`),
+        new URL(`https://repository.criticalmanufacturing.com.cn/repository/tools/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`)
     ];
 
     // Try downloading from primary URL and fallbacks
@@ -74,15 +75,15 @@ async function installPackage() {
 
     for (const pkgUrl of allUrls) {
         try {
-            await downloadAndExtract(pkgUrl, installScriptLocation);
-            console.info(`Package installed successfully from ${pkgUrl}`);
+            await downloadAndExtract(pkgUrl.toString(), installScriptLocation);
+            console.info(`Package installed successfully from ${pkgUrl.toString()}`);
             return;
         } catch (error) {
             console.error(error.message);
         }
     }
 
-    console.error(error(`Could not install version ${process.env.npm_package_version} on your platform ${process.platform}/${process.arch}: ${error.message}`));
+    console.error(`Could not install version ${process.env.npm_package_version} on your platform ${process.platform}/${process.arch}: ${error.message}`);
     process.exit(1);  // Exit the process after all attempts fail
 }
 

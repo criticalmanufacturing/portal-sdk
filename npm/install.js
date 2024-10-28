@@ -62,12 +62,12 @@ async function installPackage() {
 
     // Primary URL
     
-    const primaryUrl = new URL(`https://github.com/criticalmanufacturing/portal-sdk/releases/download/#{Version}#/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`);
+    const primaryUrl = new URL(`https://github.com/criticalmanufacturing/portal-sdk/releases/download/#{Version}#/Cmf.CustomerPortal.Sdk.Console-${process.env.npm_package_version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`);
     
     // Fallback URLs
     const fallbackUrls = [
-        new URL(`https://criticalmanufacturing.io/repository/tools/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`),
-        new URL(`https://repository.criticalmanufacturing.com.cn/repository/tools/Cmf.CustomerPortal.Sdk.Console-${version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`)
+        new URL(`https://criticalmanufacturing.io/repository/tools/Cmf.CustomerPortal.Sdk.Console-${process.env.npm_package_version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`),
+        new URL(`https://repository.criticalmanufacturing.com.cn/repository/tools/Cmf.CustomerPortal.Sdk.Console-${process.env.npm_package_version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`)
     ];
 
     // Try downloading from primary URL and fallbacks

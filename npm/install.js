@@ -83,7 +83,7 @@ async function installPackage() {
         }
     }
 
-    console.error(`Could not install version ${process.env.npm_package_version} on your platform ${process.platform}/${process.arch}: ${error.message}`);
+    console.error(`Could not install version ${process.env.npm_package_version} on your platform ${process.platform}/${process.arch}.`);
     process.exit(1);  // Exit the process after all attempts fail
 }
 

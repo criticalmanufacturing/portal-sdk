@@ -37,7 +37,7 @@ fs.unlink(path.join(installScriptLocation, 'cmf-portal'), (err) => {
 });
 
 // Function to download and extract the zip file
-async function downloadAndExtract(pkgUrl, installScriptLocation) {
+async function downloadAndExtract(pkgUrl) {
     try {
         console.info(`Fetching release archive from ${pkgUrl}`);
         const response = await axios.get(pkgUrl, { responseType: 'arraybuffer' });
@@ -58,10 +58,8 @@ async function downloadAndExtract(pkgUrl, installScriptLocation) {
 // Main function to attempt downloading from multiple sources
 async function installPackage() {
     console.info(`Current platform / arch: ${process.platform} / ${process.arch}`);
-    const installScriptLocation = path.resolve(__dirname);  // Adjust as necessary
 
     // Primary URL
-    
     const primaryUrl = new URL(`https://github.com/criticalmanufacturing/portal-sdk/releases/download/#{Version}#/Cmf.CustomerPortal.Sdk.Console-${process.env.npm_package_version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`);
     
     // Fallback URLs
@@ -75,7 +73,7 @@ async function installPackage() {
 
     for (const pkgUrl of allUrls) {
         try {
-            await downloadAndExtract(pkgUrl.toString(), installScriptLocation);
+            await downloadAndExtract(pkgUrl.toString());
             console.info(`Package installed successfully from ${pkgUrl.toString()}`);
             return;
         } catch (error) {

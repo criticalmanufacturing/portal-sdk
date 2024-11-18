@@ -1,5 +1,4 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.Common.Base;
@@ -103,5 +102,19 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="customerInfrastructure">customer infrastructure</param>
         /// <returns></returns>
         Task<bool> CheckStartDeploymentConnection(CustomerEnvironment customerEnvironment, CustomerInfrastructure customerInfrastructure);
+
+        /// <summary>
+        /// Loads the attachments that a certain entity has.
+        /// </summary>
+        /// <param name="entityBase">Entity instance.</param>
+        /// <returns>A collection of entity documentation instances.</returns>
+        Task<EntityDocumentationCollection> GetAttachmentsForEntity(EntityBase entityBase);
+
+        /// <summary>
+        /// Downloads a certain attachment, by id.
+        /// </summary>
+        /// <param name="attachmentId">Id of an EntityDocumentation to download.</param>
+        /// <returns>The attachment file path.</returns>
+        Task<string> DownloadAttachmentStreaming(long attachmentId);
     }
 }

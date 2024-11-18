@@ -17,11 +17,13 @@ using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjec
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects;
+using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
 using Cmf.Foundation.Common.Base;
 using Cmf.Foundation.Security;
 using Cmf.MessageBus.Client;
+using Cmf.Services.GenericServiceManagement;
 using Newtonsoft.Json;
 
 namespace Cmf.CustomerPortal.Sdk.Common
@@ -404,7 +406,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }.CreateOrUpdateAppInstallationAsync(true)).CustomerEnvironmentApplicationPackage;
         }
 
-
+        /// <inheritdoc/>
         public async Task<bool> CheckStartDeploymentConnection(CustomerEnvironment customerEnvironment, CustomerInfrastructure customerInfrastructure)
         {
             return (await new CheckStartDeploymentConnectionInput()
@@ -412,6 +414,42 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 CustomerEnvironment = customerEnvironment,
                 CustomerInfrastructure = customerInfrastructure
             }.CheckStartDeploymentConnectionAsync(true)).CanStartDeploymentConnection;
+        }
+
+        /// <inheritdoc/>
+        public async Task<EntityDocumentationCollection> GetAttachmentsForEntity(EntityBase entityBase)
+        {
+            return (await new GetAttachmentsForEntityInput()
+            {
+                Entity = entityBase
+            }.GetAttachmentsForEntityAsync(true)).Attachments;
+        }
+
+        /// <inheritdoc/>
+        public async Task<string> DownloadAttachmentStreaming(long attachmentId)
+        {
+            using DownloadAttachmentStreamingOutput downloadAttachmentOutput = await new DownloadAttachmentStreamingInput()
+            {
+                attachmentId = attachmentId
+            }.DownloadAttachmentAsync(true);
+
+            int bytesToRead = 10000;
+            byte[] buffer = new byte[bytesToRead];
+
+            string outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName).Replace(" ", "").Replace("\"", "");
+            _session.LogDebug($"Downloading to {outputFile}");
+
+            using BinaryWriter streamWriter = new(File.Open(outputFile, FileMode.Create, FileAccess.Write));
+            int length;
+            do
+            {
+                length = downloadAttachmentOutput.Stream.Read(buffer, 0, bytesToRead);
+                streamWriter.Write(buffer, 0, length);
+                buffer = new byte[bytesToRead];
+
+            } while (length > 0);
+
+            return outputFile;
         }
     }
 }

@@ -1,8 +1,5 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.Foundation.BusinessObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.OutputObjects;
-using Cmf.Services.GenericServiceManagement;
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -11,33 +8,24 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
-    public class ArtifactsDownloaderHandler : IArtifactsDownloaderHandler
+    public class ArtifactsDownloaderHandler(ISession session, ICustomerPortalClient customerPortalClient) : IArtifactsDownloaderHandler
     {
-        private readonly ISession _session;
-
-        public ArtifactsDownloaderHandler(ISession session)
-        {
-            _session = session;
-        }
+        private readonly ISession _session = session;
+        private readonly ICustomerPortalClient _customerPortalClient = customerPortalClient;
 
         public async Task<bool> Handle(EntityBase deployEntity, string outputPath)
         {
             string entityType = deployEntity.GetType() == typeof(CustomerEnvironment) ? "Customer Environment" : "App";
 
             // get the attachments of the current customer environment or app
-            GetAttachmentsForEntityInput input = new GetAttachmentsForEntityInput()
-            {
-                Entity = deployEntity
-            };
-
             await Task.Delay(TimeSpan.FromSeconds(1));
-            GetAttachmentsForEntityOutput output = await input.GetAttachmentsForEntityAsync(true);
+            var output = await _customerPortalClient.GetAttachmentsForEntity(deployEntity);
             EntityDocumentation attachmentToDownload = null;
-            if (output?.Attachments.Count > 0)
+            if (output?.Count > 0)
             {
                 string prefix = entityType.Replace(" ", "");
-                output.Attachments.Sort((a, b) => DateTime.Compare(b.CreatedOn, a.CreatedOn));
-                attachmentToDownload = output.Attachments.Where(x => x.Filename.StartsWith($"{prefix}_{deployEntity.Name}")).FirstOrDefault();
+                output.Sort((a, b) => DateTime.Compare(b.CreatedOn, a.CreatedOn));
+                attachmentToDownload = output.Where(x => x.Filename.StartsWith($"{prefix}_{deployEntity.Name}")).FirstOrDefault();
             }
             
             if (attachmentToDownload == null)
@@ -50,28 +38,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 // Download the attachment
                 _session.LogDebug($"Downloading attachment {attachmentToDownload.Filename}");
 
-                string outputFile = "";
-                using (DownloadAttachmentStreamingOutput downloadAttachmentOutput = await new DownloadAttachmentStreamingInput() { attachmentId = attachmentToDownload.Id }.DownloadAttachmentAsync(true))
-                {
-                    int bytesToRead = 10000;
-                    byte[] buffer = new byte[bytesToRead];
-
-                    outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName);
-                    outputFile = outputFile.Replace(" ", "").Replace("\"", "");
-                    _session.LogDebug($"Downloading to {outputFile}");
-
-                    using (BinaryWriter streamWriter = new BinaryWriter(File.Open(outputFile, FileMode.Create, FileAccess.Write)))
-                    {
-                        int length;
-                        do
-                        {
-                            length = downloadAttachmentOutput.Stream.Read(buffer, 0, bytesToRead);
-                            streamWriter.Write(buffer, 0, length);
-                            buffer = new byte[bytesToRead];
-
-                        } while (length > 0);
-                    }
-                }
+                string outputFile = await _customerPortalClient.DownloadAttachmentStreaming(attachmentToDownload.Id);
 
                 // create the dir to extract to
                 string extractionTarget = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -87,8 +54,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 {
                     outputPath = Path.Combine(Directory.GetCurrentDirectory(), "out");
                 }
-
-                outputPath = Path.Combine(outputPath, deployEntity.Name);
 
                 // ensure the output path exists
                 Directory.CreateDirectory(outputPath);

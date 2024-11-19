@@ -87,7 +87,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       # Publish NPM package (if regular release)
       - name: Publish NPM package
-        run: cd npm && npm publish --tag latest && npm dist-tag add @criticalmanufacturing/portal next
+        run: cd npm && npm publish --tag latest && npm dist-tag add @criticalmanufacturing/portal@${{ steps.getver.outputs.result }} next
         if: "!github.event.release.prerelease"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

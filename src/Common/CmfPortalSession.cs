@@ -12,7 +12,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         private const string _cmfPortalDirName = "cmfportal";
         private const string _loginTokenFileName = "cmfportaltoken";
         private const string _tokenEnvVar = "CM_PORTAL_TOKEN";
-        private static readonly string _loginCredentialsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _cmfPortalDirName);
+        private static readonly string _loginCredentialsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), _cmfPortalDirName);
         private static readonly string _loginCredentialsFilePath = Path.Combine(_loginCredentialsDir, _loginTokenFileName);
         
         private string token = null;

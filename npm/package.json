@@ -31,7 +31,8 @@
     ],
     "dependencies": {
         "adm-zip": "^0.5.5",
-        "axios": "^0.21.1",
+        "proxy-agent": "^6.5.0",
+        "axios": "^1.7.9",
         "node_modules-path": "^2.0.5",
         "rimraf": "^3.0.2",
         "tmp": "0.2.1"

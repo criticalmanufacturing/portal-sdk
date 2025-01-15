@@ -5,6 +5,7 @@
 const path = require('path'),
       fs = require('fs'),
       axios = require('axios'),
+      proxyAgent = require('proxy-agent'),
       AdmZip = require("adm-zip"),
       tmp = require('tmp'),
       rimraf = require('rimraf'),
@@ -40,7 +41,11 @@ fs.unlink(path.join(installScriptLocation, 'cmf-portal'), (err) => {
 async function downloadAndExtract(pkgUrl) {
     try {
         console.info(`Fetching release archive from ${pkgUrl}`);
-        const response = await axios.get(pkgUrl, { responseType: 'arraybuffer' });
+
+        // support for http proxies through env vars
+        const agent = new proxyAgent.ProxyAgent();
+
+        const response = await axios.get(pkgUrl, { httpAgent: agent.httpAgent, httpsAgent: agent.httpsAgent, proxy: false, responseType: 'arraybuffer' });
         
         const zip = tmp.tmpNameSync();
         console.log(`Writing temporary zip file to ${zip}`);

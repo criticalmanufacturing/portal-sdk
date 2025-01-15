@@ -5,7 +5,9 @@
 const path = require('path'),
       fs = require('fs'),
       axios = require('axios'),
-      proxyAgent = require('proxy-agent'),
+      httpsProxyAgent = require('https-proxy-agent'),
+      httpProxyAgent = require('http-proxy-agent'),
+      proxyFromEnv = require('proxy-from-env'),
       AdmZip = require("adm-zip"),
       tmp = require('tmp'),
       rimraf = require('rimraf'),
@@ -42,10 +44,16 @@ async function downloadAndExtract(pkgUrl) {
     try {
         console.info(`Fetching release archive from ${pkgUrl}`);
 
-        // support for http proxies through env vars
-        const agent = new proxyAgent.ProxyAgent();
+        // support for http/s proxies through env vars
+        const proxy = proxyFromEnv.getProxyForUrl(pkgUrl);
+        let httpAgent, httpsAgent;
+        if (proxy) {
+            httpAgent = new httpProxyAgent.HttpProxyAgent(proxy);
+            httpsAgent = new httpsProxyAgent.HttpsProxyAgent(proxy);
+        }
 
-        const response = await axios.get(pkgUrl, { httpAgent: agent.httpAgent, httpsAgent: agent.httpsAgent, proxy: false, responseType: 'arraybuffer' });
+        // make req (override axios automatic proxy since it is not working properly)
+        const response = await axios.get(pkgUrl, { httpAgent: httpAgent, httpsAgent: httpsAgent, proxy: false, responseType: 'arraybuffer' });
         
         const zip = tmp.tmpNameSync();
         console.log(`Writing temporary zip file to ${zip}`);

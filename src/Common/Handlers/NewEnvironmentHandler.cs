@@ -98,8 +98,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 var cedpCollection = new CustomerEnvironmentDeploymentPackageCollection();
                 if (isInfrastructureAgent || string.IsNullOrWhiteSpace(deploymentPackageName))
                 {
-                    cedpCollection.AddRange(environment.RelationCollection.FirstOrDefault(x => x.Key == nameof(CustomerEnvironmentDeploymentPackage)).Value
-                                                                            .Cast<CustomerEnvironmentDeploymentPackage>());
+                    var currentRelations = environment.RelationCollection.FirstOrDefault(x => x.Key == nameof(CustomerEnvironmentDeploymentPackage)).Value?.Cast<CustomerEnvironmentDeploymentPackage>();
+                    if(currentRelations is not null && currentRelations.Count() > 0)
+                    {
+                        cedpCollection.AddRange(currentRelations);
+                    }                    
                 }
                 else
                 {

@@ -12,9 +12,9 @@ namespace Cmf.CustomerPortal.Sdk.Common
         private const string _cmfPortalDirName = "cmfportal";
         private const string _loginTokenFileName = "cmfportaltoken";
         private const string _tokenEnvVar = "CM_PORTAL_TOKEN";
-        private static readonly string _loginCredentialsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), _cmfPortalDirName);
+        private static readonly string _loginCredentialsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), _cmfPortalDirName);
         private static readonly string _loginCredentialsFilePath = Path.Combine(_loginCredentialsDir, _loginTokenFileName);
-        
+
         private string token = null;
 
         public LogLevel LogLevel { get; protected set; } = LogLevel.Information;
@@ -30,7 +30,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     // read token from:
                     //  1. Env var
                     //  2. File
-                    
+
                     // see if env var exists
                     string value = Environment.GetEnvironmentVariable(_tokenEnvVar);
                     if (!string.IsNullOrWhiteSpace(value))
@@ -79,14 +79,36 @@ namespace Cmf.CustomerPortal.Sdk.Common
             {
                 ClientConfiguration clientConfiguration = new ClientConfiguration()
                 {
-                    HostAddress = Configuration["ClientConfiguration:HostAddress"],
-                    ClientTenantName = Configuration["ClientConfiguration:ClientTenantName"],
-                    IsUsingLoadBalancer = bool.Parse(Configuration["ClientConfiguration:IsUsingLoadBalancer"]),
-                    ClientId = Configuration["ClientConfiguration:ClientId"],
-                    UseSsl = bool.Parse(Configuration["ClientConfiguration:UseSsl"]),
-                    SecurityAccessToken = token,
-                    SecurityPortalBaseAddress = new Uri(Configuration["ClientConfiguration:SecurityPortalBaseAddress"])
+                    HostAddress = "localhost:8080", // Configuration["ClientConfiguration:HostAddress"],
+                    ClientTenantName = "CustomerPortalDEV", // Configuration["ClientConfiguration:ClientTenantName"],
+                    IsUsingLoadBalancer = false, // bool.Parse(Configuration["ClientConfiguration:IsUsingLoadBalancer"]),
+                    ClientId = "MES", // Configuration["ClientConfiguration:ClientId"],
+                    UseSsl = false, // bool.Parse(Configuration["ClientConfiguration:UseSsl"]),
+                    SecurityAccessToken = null, // token,
+                    SecurityPortalBaseAddress = new Uri("http://localhost:8080/SecurityPortal/"), // new Uri(Configuration["ClientConfiguration:SecurityPortalBaseAddress"])
                 };
+
+                // ClientConfiguration clientConfiguration = new ClientConfiguration()
+                // {
+                //     HostAddress = "portaldev.criticalmanufacturing.dev:443", // Configuration["ClientConfiguration:HostAddress"],
+                //     ClientTenantName = "CustomerPortalDEV", // Configuration["ClientConfiguration:ClientTenantName"],
+                //     IsUsingLoadBalancer = false, // bool.Parse(Configuration["ClientConfiguration:IsUsingLoadBalancer"]),
+                //     ClientId = "MES", // Configuration["ClientConfiguration:ClientId"],
+                //     UseSsl = true, // bool.Parse(Configuration["ClientConfiguration:UseSsl"]),
+                //     SecurityAccessToken = null, // token,
+                //     SecurityPortalBaseAddress = new Uri("https://portaldev.criticalmanufacturing.dev:443/SecurityPortal/"), // new Uri(Configuration["ClientConfiguration:SecurityPortalBaseAddress"])
+                // };
+
+                // ClientConfiguration clientConfiguration = new ClientConfiguration()
+                // {
+                //     HostAddress = Configuration["ClientConfiguration:HostAddress"],
+                //     ClientTenantName = Configuration["ClientConfiguration:ClientTenantName"],
+                //     IsUsingLoadBalancer = bool.Parse(Configuration["ClientConfiguration:IsUsingLoadBalancer"]),
+                //     ClientId = Configuration["ClientConfiguration:ClientId"],
+                //     UseSsl = bool.Parse(Configuration["ClientConfiguration:UseSsl"]),
+                //     SecurityAccessToken = token,
+                //     SecurityPortalBaseAddress = new Uri(Configuration["ClientConfiguration:SecurityPortalBaseAddress"])
+                // };
 
                 clientConfiguration.TokenProviderUpdated += (object sender, IAuthProvider authProvider) =>
                 {

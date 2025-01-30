@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -95,14 +95,20 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
                 environment.ChangeSet = null;
 
+                // check environment connection
+                await _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
+
+                Session.LogInformation($"Creating a new version of the Customer environment {name}...");
+                environment = await CreateEnvironment(_customerPortalClient, environment);
+
                 var cedpCollection = new CustomerEnvironmentDeploymentPackageCollection();
                 if (isInfrastructureAgent || string.IsNullOrWhiteSpace(deploymentPackageName))
                 {
                     var currentRelations = environment.RelationCollection.FirstOrDefault(x => x.Key == nameof(CustomerEnvironmentDeploymentPackage)).Value?.Cast<CustomerEnvironmentDeploymentPackage>();
-                    if(currentRelations is not null && currentRelations.Count() > 0)
+                    if (currentRelations is not null && currentRelations.Count() > 0)
                     {
                         cedpCollection.AddRange(currentRelations);
-                    }                    
+                    }
                 }
                 else
                 {
@@ -113,12 +119,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                         TargetEntity = await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName)
                     });
                 }
-
-                // check environment connection
-                await _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
-
-                Session.LogInformation($"Creating a new version of the Customer environment {name}...");
-                environment = await CreateEnvironment(_customerPortalClient, environment);
 
                 // Update environment with the parameters to be merged instead of overwriting
                 environment.Parameters = rawParameters;
@@ -211,6 +211,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Site = environmentSite,
                 };
 
+                // check environment connection
+                await CheckConnectionNewEnvironmentCreation(environment, customerInfrastructureName);
+
+                Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
+
                 var deploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
                 var softwareLicense = isInfrastructureAgent ? null : await Utils.GetLicenseByUniqueName(licenseName);
                 var cedpCollection = new CustomerEnvironmentDeploymentPackageCollection
@@ -222,11 +227,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                                             SoftwareLicense = softwareLicense
                                         }
                                     };
-
-                // check environment connection
-                await CheckConnectionNewEnvironmentCreation(environment, customerInfrastructureName);
-
-                Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
 
                 environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
                 {
@@ -250,6 +250,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Parameters = rawParameters
                 };
 
+                environment = await CreateEnvironment(_customerPortalClient, environment);
+                
                 var deploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
                 var softwareLicense = isInfrastructureAgent ? null : await Utils.GetLicenseByUniqueName(licenseName);
                 var cedpCollection = new CustomerEnvironmentDeploymentPackageCollection
@@ -262,7 +264,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                                         }
                                     };
 
-                environment = await CreateEnvironment(_customerPortalClient, environment);
                 environment = await UpdateEnvironment(environment, cedpCollection);
             }
 

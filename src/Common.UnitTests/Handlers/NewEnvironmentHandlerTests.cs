@@ -13,27 +13,27 @@ namespace Common.UnitTests.Handlers;
 
 public class NewEnvironmentHandlerTests
 {
-    private static string name = "name";
-    private static FileInfo parameters = new(Path.Combine(
+    private static readonly string name = "name";
+    private static readonly FileInfo parameters = new(Path.Combine(
             Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
             "assets",
             "parameters.json"));
-    private static EnvironmentType environmentType = EnvironmentType.Development;
-    private static string siteName = "siteName";
-    private static string licenseName = "licenseName";
-    private static string deploymentPackageName = "deploymentPackageName";
-    private static DeploymentTarget target = DeploymentTarget.KubernetesOnPremisesTarget;
-    private static DirectoryInfo outputDir = new DirectoryInfo("path");
-    private static string[] replaceTokens = [];
-    private static bool interactive = false;
-    private static string customerInfrastructureName = string.Empty;
-    private static string description = "description";
-    private static bool terminateOtherVersions = false;
-    private static bool isInfrastructureAgent = false;
-    private static double? minutesTimeoutMainTask = null;
-    private static double? minutesTimeoutToGetSomeMBMsg = null;
-    private static bool terminateOtherVersionsRemove = false;
-    private static bool terminateOtherVersionsRemoveVolumes = false;
+    private static readonly EnvironmentType environmentType = EnvironmentType.Development;
+    private static readonly string siteName = "siteName";
+    private static readonly string licenseName = "licenseName";
+    private static readonly string deploymentPackageName = "deploymentPackageName";
+    private static readonly DeploymentTarget target = DeploymentTarget.KubernetesOnPremisesTarget;
+    private static readonly DirectoryInfo outputDir = new DirectoryInfo("path");
+    private static readonly string[] replaceTokens = [];
+    private static readonly bool interactive = false;
+    private static readonly string customerInfrastructureName = string.Empty;
+    private static readonly string description = "description";
+    private static readonly bool terminateOtherVersions = false;
+    private static readonly bool isInfrastructureAgent = false;
+    private static readonly double? minutesTimeoutMainTask = null;
+    private static readonly double? minutesTimeoutToGetSomeMBMsg = null;
+    private static readonly bool terminateOtherVersionsRemove = false;
+    private static readonly bool terminateOtherVersionsRemoveVolumes = false;
 
     [Fact]
     public async void Run_CustomerEnvironmentDoesNotExistAndIsInfrastructureAgent_cedpCollectionHasNoTargetEntity()
@@ -90,7 +90,7 @@ public class NewEnvironmentHandlerTests
 
         // Act
         await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, licenseName, deploymentPackageName, target, outputDir, replaceTokens, interactive,
-            customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent: false, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
+            customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert
@@ -119,7 +119,7 @@ public class NewEnvironmentHandlerTests
 
         // Act
         await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, licenseName, deploymentPackageName, target, outputDir, replaceTokens, interactive,
-            customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent: false, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
+            customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert
@@ -149,7 +149,7 @@ public class NewEnvironmentHandlerTests
 
         // Act
         await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, licenseName, deploymentPackageName: string.Empty, target, outputDir, replaceTokens, interactive,
-            customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent: false, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
+            customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert
@@ -178,7 +178,7 @@ public class NewEnvironmentHandlerTests
 
         // Act
         await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, licenseName, deploymentPackageName, target, outputDir, replaceTokens, interactive,
-            customerInfrastructureName: "infrastructureName", description, terminateOtherVersions, isInfrastructureAgent: false, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
+            customerInfrastructureName: "infrastructureName", description, terminateOtherVersions, isInfrastructureAgent, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert
@@ -206,7 +206,7 @@ public class NewEnvironmentHandlerTests
 
         // Act
         await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, licenseName, deploymentPackageName, target, outputDir, replaceTokens, interactive,
-            customerInfrastructureName: "infrastructureName", description, terminateOtherVersions, isInfrastructureAgent: false, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
+            customerInfrastructureName: "infrastructureName", description, terminateOtherVersions, isInfrastructureAgent, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert

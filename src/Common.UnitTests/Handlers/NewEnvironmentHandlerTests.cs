@@ -41,7 +41,7 @@ public class NewEnvironmentHandlerTests
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment();
+        var customerEnvironment = new CustomerEnvironment() { Name = "UnitTest Customer Environment" };
 
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
         customerEnvironmentServicesMock.Setup(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()))
@@ -82,7 +82,7 @@ public class NewEnvironmentHandlerTests
         var customerPortalClientMock = mock.Mock<ICustomerPortalClient>();
         customerPortalClientMock.Setup(x => x.GetObjectByName<DeploymentPackage>(It.IsAny<string>(), It.IsAny<int>())).Returns(Task.FromResult(deploymentPackage));
 
-        var cPSoftwareLicense = new CPSoftwareLicense();
+        var cPSoftwareLicense = new CPSoftwareLicense() { Name = "UnitTest CP Software License" };
         var licenseServiceMock = mock.Mock<ILicenseServices>();
         licenseServiceMock.Setup(x => x.GetLicenseByUniqueName(It.IsAny<string>())).Returns(Task.FromResult(cPSoftwareLicense));
 
@@ -106,7 +106,7 @@ public class NewEnvironmentHandlerTests
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment();
+        var customerEnvironment = new CustomerEnvironment() { Name = "UnitTest Customer Environment" };
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
         customerEnvironmentServicesMock.Setup(x => x.GetCustomerEnvironment(It.IsAny<ISession>(), It.IsAny<string>())).Returns(Task.FromResult(customerEnvironment));
         customerEnvironmentServicesMock.Setup(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()))
@@ -134,7 +134,7 @@ public class NewEnvironmentHandlerTests
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment();
+        var customerEnvironment = new CustomerEnvironment() { Name = "UnitTest Customer Environment" };
         customerEnvironment.RelationCollection = new CmfEntityRelationCollection();
 
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
@@ -164,7 +164,7 @@ public class NewEnvironmentHandlerTests
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment();
+        var customerEnvironment = new CustomerEnvironment() { Name = "UnitTest Customer Environment" };
         customerEnvironment.RelationCollection = new CmfEntityRelationCollection();
 
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
@@ -194,12 +194,10 @@ public class NewEnvironmentHandlerTests
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment();
+        var customerEnvironment = new CustomerEnvironment() { Name = "UnitTest Customer Environment" };
         customerEnvironment.RelationCollection = new CmfEntityRelationCollection();
 
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
-        // customerEnvironmentServicesMock.Setup(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()))
-        //                         .Returns(Task.FromResult(customerEnvironment));
 
         var customerPortalClientMock = mock.Mock<ICustomerPortalClient>();
         var licenseServiceMock = mock.Mock<ILicenseServices>();

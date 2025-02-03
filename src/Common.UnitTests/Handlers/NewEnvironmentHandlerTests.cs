@@ -159,7 +159,37 @@ public class NewEnvironmentHandlerTests
     }
 
     [Fact]
-    public async void Run_InAnInfrastructure_LicenseDeploymentPackageAndCreationMethodCalled()
+    public async void Run_CustomerEnvironmentDoesNotExistInAnInfrastructure_LicenseDeploymentPackageAndCreationMethodCalled()
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+
+        var customerEnvironment = new CustomerEnvironment();
+        customerEnvironment.RelationCollection = new CmfEntityRelationCollection();
+
+        var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
+        customerEnvironmentServicesMock.Setup(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()))
+                                .Returns(Task.FromResult(customerEnvironment));
+
+        var customerPortalClientMock = mock.Mock<ICustomerPortalClient>();
+        var licenseServiceMock = mock.Mock<ILicenseServices>();
+
+        var newEnvironmentHandler = mock.Create<NewEnvironmentHandler>();
+
+        // Act
+        await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, licenseName, deploymentPackageName, target, outputDir, replaceTokens, interactive,
+            customerInfrastructureName: "infrastructureName", description, terminateOtherVersions, isInfrastructureAgent: false, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
+            terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
+
+        // Assert
+        customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
+        licenseServiceMock.Verify(x => x.GetLicenseByUniqueName(It.IsAny<string>()), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.CreateCustomerEnvironmentForCustomerInfrastructure(It.IsAny<CustomerEnvironment>(), It.IsAny<string>(), 
+                                                                                It.IsAny<bool>(), It.IsAny<CustomerEnvironmentDeploymentPackageCollection>()), Times.Once);
+    }
+
+    [Fact]
+    public async void Run_CustomerEnvironmentExistsInAnInfrastructure_LicenseDeploymentPackageAndCreationMethodCalled()
     {
         // Arrange
         using var mock = AutoMock.GetLoose();
@@ -184,7 +214,7 @@ public class NewEnvironmentHandlerTests
         // Assert
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
         licenseServiceMock.Verify(x => x.GetLicenseByUniqueName(It.IsAny<string>()), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.CreateCustomerEnvironmentForCustomerInfrastructure(It.IsAny<CustomerEnvironment>(), It.IsAny<string>(), 
+        customerEnvironmentServicesMock.Verify(x => x.CreateCustomerEnvironmentForCustomerInfrastructure(It.IsAny<CustomerEnvironment>(), It.IsAny<string>(),
                                                                                 It.IsAny<bool>(), It.IsAny<CustomerEnvironmentDeploymentPackageCollection>()), Times.Once);
     }
 }

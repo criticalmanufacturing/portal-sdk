@@ -224,13 +224,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                                         }
                                     };
 
-                environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
-                {
-                    CustomerInfrastructureName = customerInfrastructureName,
-                    CustomerEnvironment = environment,
-                    IsInfrastructureAgent = isInfrastructureAgent,
-                    CustomerEnvironmentDeploymentPackageRelations = cedpCollection
-                }.CreateCustomerEnvironmentForCustomerInfrastructureAsync(true)).CustomerEnvironment;
+                environment = await _customerEnvironmentServices.CreateCustomerEnvironmentForCustomerInfrastructure(environment, customerInfrastructureName, isInfrastructureAgent, cedpCollection);
             }
             // if not, just create a new environment
             else

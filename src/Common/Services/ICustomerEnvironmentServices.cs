@@ -41,4 +41,14 @@ public interface ICustomerEnvironmentServices
     /// <param name="customerEnvironment">customer environment</param>
     /// <returns></returns>
     Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment, CustomerEnvironmentDeploymentPackageCollection cedpCollection);
+
+    /// <summary>
+    /// Creates the customer environment for customer infrastructure.
+    /// </summary>
+    /// <param name="environment">The environment.</param>
+    /// <param name="customerInfrastructureName">Name of the customer infrastructure.</param>
+    /// <param name="isInfrastructureAgent">if set to <c>true</c> [is infrastructure agent].</param>
+    /// <param name="cedpCollection">The cedp collection.</param>
+    /// <returns></returns>
+    Task<CustomerEnvironment> CreateCustomerEnvironmentForCustomerInfrastructure(CustomerEnvironment environment, string customerInfrastructureName, bool isInfrastructureAgent, CustomerEnvironmentDeploymentPackageCollection cedpCollection);
 }

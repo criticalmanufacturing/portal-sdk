@@ -69,4 +69,14 @@ internal class CustomerEnvironmentServices : ICustomerEnvironmentServices
             CustomerEnvironmentDeploymentPackageRelations = cedpCollection
         }.UpdateCustomerEnvironmentAsync(true)).CustomerEnvironment;
     }
+
+    public async Task<CustomerEnvironment> CreateCustomerEnvironmentForCustomerInfrastructure(CustomerEnvironment environment, string customerInfrastructureName, 
+        bool isInfrastructureAgent, CustomerEnvironmentDeploymentPackageCollection cedpCollection)
+            => (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
+            {
+                CustomerInfrastructureName = customerInfrastructureName,
+                CustomerEnvironment = environment,
+                IsInfrastructureAgent = isInfrastructureAgent,
+                CustomerEnvironmentDeploymentPackageRelations = cedpCollection
+            }.CreateCustomerEnvironmentForCustomerInfrastructureAsync(true)).CustomerEnvironment;
 }

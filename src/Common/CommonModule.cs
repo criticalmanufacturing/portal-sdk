@@ -13,6 +13,8 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<IEnvironmentDeploymentHandler, EnvironmentDeploymentHandler>();
             serviceCollection.AddTransient<IAppInstallationHandler, AppInstallationHandler>();
             serviceCollection.AddTransient<IArtifactsDownloaderHandler, ArtifactsDownloaderHandler>();
+            serviceCollection.AddTransient<ICustomerEnvironmentServices, CustomerEnvironmentServices>();
+            serviceCollection.AddTransient<ILicenseServices, LicenseServices>();
 
             // Add Handlers
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();

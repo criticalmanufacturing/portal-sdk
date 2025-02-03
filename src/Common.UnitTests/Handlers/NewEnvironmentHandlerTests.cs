@@ -14,10 +14,7 @@ namespace Common.UnitTests.Handlers;
 public class NewEnvironmentHandlerTests
 {
     private static readonly string name = "name";
-    private static readonly FileInfo parameters = new(Path.Combine(
-            Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
-            "assets",
-            "parameters.json"));
+    private static readonly FileInfo? parameters = null;
     private static readonly EnvironmentType environmentType = EnvironmentType.Development;
     private static readonly string siteName = "siteName";
     private static readonly string licenseName = "licenseName";

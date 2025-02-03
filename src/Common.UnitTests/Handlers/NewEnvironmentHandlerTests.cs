@@ -114,6 +114,7 @@ public class NewEnvironmentHandlerTests
 
         var customerPortalClientMock = mock.Mock<ICustomerPortalClient>();
         var licenseServiceMock = mock.Mock<ILicenseServices>();
+        var newEnvironmentUtilitiesMock = mock.Mock<INewEnvironmentUtilities>();
 
         var newEnvironmentHandler = mock.Create<NewEnvironmentHandler>();
 
@@ -123,6 +124,7 @@ public class NewEnvironmentHandlerTests
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert
+        newEnvironmentUtilitiesMock.Verify(x => x.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Once);
         customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(It.IsAny<CustomerEnvironment>(), It.IsAny<CustomerEnvironmentDeploymentPackageCollection>()), Times.Once);
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(It.IsAny<string>(), It.IsAny<int>()), Times.Once);
         licenseServiceMock.Verify(x => x.GetLicenseByUniqueName(It.IsAny<string>()), Times.Once);

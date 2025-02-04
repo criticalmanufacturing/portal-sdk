@@ -20,13 +20,18 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         private readonly ICustomerPortalClient _customerPortalClient;
         private readonly INewEnvironmentUtilities _newEnvironmentUtilities;
         private readonly IEnvironmentDeploymentHandler _environmentDeploymentHandler;
+        private readonly ICustomerEnvironmentServices _customerEnvironmentServices;
+        private readonly ILicenseServices _licenseService;
 
         public NewEnvironmentHandler(ICustomerPortalClient customerPortalClient, ISession session,
-            INewEnvironmentUtilities newEnvironmentUtilities, IEnvironmentDeploymentHandler environmentDeploymentHandler) : base(session, true)
+            INewEnvironmentUtilities newEnvironmentUtilities, IEnvironmentDeploymentHandler environmentDeploymentHandler,
+            ICustomerEnvironmentServices customerEnvironmentServices, ILicenseServices licenseService) : base(session, true)
         {
             _customerPortalClient = customerPortalClient;
             _newEnvironmentUtilities = newEnvironmentUtilities;
             _environmentDeploymentHandler = environmentDeploymentHandler;
+            _customerEnvironmentServices = customerEnvironmentServices;
+            _licenseService = licenseService;
         }
 
         public async Task Run(
@@ -71,18 +76,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
 
             Session.LogInformation($"Checking if customer environment {name} exists...");
-            // let's see if the environment already exists
-            CustomerEnvironment environment = null;
-            try
-            {
-                environment = (await (new GetCustomerEnvironmentByNameInput() { CustomerEnvironmentName = name }.GetCustomerEnvironmentByNameAsync(true))).CustomerEnvironment;
 
-                Session.LogInformation($"Customer environment {name} actually exists...");
-            }
-            catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
-            {
-                Session.LogInformation($"Customer environment {name} doesn't exist...");
-            }
+            // let's see if the environment already exists
+            CustomerEnvironment environment = await _customerEnvironmentServices.GetCustomerEnvironment(Session, name);
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
             if (environment != null)
@@ -99,7 +95,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 await _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
 
                 Session.LogInformation($"Creating a new version of the Customer environment {name}...");
-                environment = await CreateEnvironment(_customerPortalClient, environment);
+                environment = await _customerEnvironmentServices.CreateEnvironment(_customerPortalClient, environment);
 
                 var cedpCollection = new CustomerEnvironmentDeploymentPackageCollection();
                 if (isInfrastructureAgent || string.IsNullOrWhiteSpace(deploymentPackageName))
@@ -115,14 +111,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     cedpCollection.Add(new CustomerEnvironmentDeploymentPackage()
                     {
                         SourceEntity = environment,
-                        SoftwareLicense = await Utils.GetLicenseByUniqueName(licenseName),
+                        SoftwareLicense = await _licenseService.GetLicenseByUniqueName(licenseName),
                         TargetEntity = await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName)
                     });
                 }
 
                 // Update environment with the parameters to be merged instead of overwriting
                 environment.Parameters = rawParameters;
-                environment = await UpdateEnvironment(environment, cedpCollection);
+                environment = await _customerEnvironmentServices.UpdateEnvironment(environment, cedpCollection);
 
                 // terminate other versions
                 if (terminateOtherVersions)
@@ -217,7 +213,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
 
                 var deploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
-                var softwareLicense = isInfrastructureAgent ? null : await Utils.GetLicenseByUniqueName(licenseName);
+                var softwareLicense = isInfrastructureAgent ? null : await _licenseService.GetLicenseByUniqueName(licenseName);
                 var cedpCollection = new CustomerEnvironmentDeploymentPackageCollection
                                      {
                                         new CustomerEnvironmentDeploymentPackage()
@@ -228,13 +224,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                                         }
                                     };
 
-                environment = (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
-                {
-                    CustomerInfrastructureName = customerInfrastructureName,
-                    CustomerEnvironment = environment,
-                    IsInfrastructureAgent = isInfrastructureAgent,
-                    CustomerEnvironmentDeploymentPackageRelations = cedpCollection
-                }.CreateCustomerEnvironmentForCustomerInfrastructureAsync(true)).CustomerEnvironment;
+                environment = await _customerEnvironmentServices.CreateCustomerEnvironmentForCustomerInfrastructure(environment, customerInfrastructureName, isInfrastructureAgent, cedpCollection);
             }
             // if not, just create a new environment
             else
@@ -250,10 +240,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Parameters = rawParameters
                 };
 
-                environment = await CreateEnvironment(_customerPortalClient, environment);
-                
+                environment = await _customerEnvironmentServices.CreateEnvironment(_customerPortalClient, environment);
+
                 var deploymentPackage = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
-                var softwareLicense = isInfrastructureAgent ? null : await Utils.GetLicenseByUniqueName(licenseName);
+                var softwareLicense = isInfrastructureAgent ? null : await _licenseService.GetLicenseByUniqueName(licenseName);
                 var cedpCollection = new CustomerEnvironmentDeploymentPackageCollection
                                      {
                                         new CustomerEnvironmentDeploymentPackage()
@@ -264,11 +254,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                                         }
                                     };
 
-                environment = await UpdateEnvironment(environment, cedpCollection);
+                environment = await _customerEnvironmentServices.UpdateEnvironment(environment, cedpCollection);
             }
 
             Session.LogInformation($"Customer environment {name} created...");
-
 
             // handle installation
             await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg);
@@ -286,62 +275,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             // check environment connection
             await _newEnvironmentUtilities.CheckEnvironmentConnection(newEnvironment);
-        }
-
-        /// <summary>
-        /// Creates the environment or a new version if it already exists.
-        /// </summary>
-        /// <param name="customerEnvironment">The customer environment.</param>
-        /// <returns>The created environment.</returns>
-        public static async Task<CustomerEnvironment> CreateEnvironment(ICustomerPortalClient client, CustomerEnvironment customerEnvironment)
-        {
-            try
-            {
-                CustomerEnvironment ceFound = await client.GetObjectByName<CustomerEnvironment>(customerEnvironment.Name);
-
-                // was found on GetObjectByName, so let's create a new version
-                return await CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Version);
-            }
-            catch (CmfFaultException exception) when (exception.Code?.Name == "Db20001")
-            {
-                // was not found on GetObjectByName, so let's create a new Entity
-                return await CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Entity);
-            }
-        }
-
-        /// <summary>
-        /// Creates new customer environment entity or a new customer environment version.
-        /// A new entity (entityType = Entity) of a customer environment makes sense when the customer environment doesn't exists and we want to create a new customer environment entity with the first version.
-        /// To create a new customer environment version (entityType = Version) makes sense when the entity (with the first version) already exists.
-        /// </summary>
-        /// <param name="customerEnvironment">customer environment to create new entity</param>
-        /// <param name="entityType">entityType for operation target (Entity -> for first version and entity creation | Version -> for a new version)</param>
-        /// <returns>new customer environment with the first version</returns>
-        public static async Task<CustomerEnvironment> CreateNewEnvironmentEntityOrVersion(CustomerEnvironment customerEnvironment, EntityTypeSource entityType)
-        {
-            customerEnvironment.ChangeSet = null;
-            customerEnvironment = (await new CreateObjectVersionInput
-            {
-                Object = customerEnvironment,
-                OperationTarget = entityType
-            }.CreateObjectVersionAsync(true)).Object as CustomerEnvironment;
-            return customerEnvironment;
-        }
-
-        /// <summary>
-        /// Update a customer environment.
-        /// </summary>
-        /// <param name="customerEnvironment">customer environment</param>
-        /// <returns></returns>
-        public static async Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment, CustomerEnvironmentDeploymentPackageCollection cedpCollection)
-        {
-            customerEnvironment.ChangeSet = null;
-            return (await new UpdateCustomerEnvironmentInput
-            {
-                CustomerEnvironment = customerEnvironment,
-                DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge,
-                CustomerEnvironmentDeploymentPackageRelations = cedpCollection
-            }.UpdateCustomerEnvironmentAsync(true)).CustomerEnvironment;
         }
     }
 }

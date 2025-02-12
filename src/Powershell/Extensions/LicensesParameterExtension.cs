@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -14,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
         {
             LicensesParamAttr = new ParameterAttribute
             {
-                // Mandatory = false, // TODO: Enable when "LicenseName" is obsoleted
+                Mandatory = true,
                 HelpMessage = Resources.DEPLOYMENT_LICENSES_HELP
             };
         }
@@ -25,7 +26,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
             var param = new RuntimeDefinedParameter
             {
                 IsSet = false,
-                Name = "Licenses",
+                Name = "LicenseName",
                 ParameterType = typeof(string)
             };
             param.Attributes.Add(LicensesParamAttr);
@@ -40,7 +41,19 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
 
         public string[] GetTokens()
         {
-            return string.IsNullOrWhiteSpace(Licenses) ? null : [.. Licenses.Split([','], System.StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim())];
+            if (string.IsNullOrWhiteSpace(Licenses))
+            {
+                throw new ArgumentNullException("LicenseName");
+            }
+
+            var licenses = Licenses.Split([','], StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+
+            if (!licenses.Any())
+            {
+                throw new ArgumentNullException("LicenseName");
+            }
+
+            return [.. licenses];
         }
     }
 }

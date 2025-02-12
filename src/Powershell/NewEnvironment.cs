@@ -26,12 +26,6 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         public string SiteName { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.DEPLOYMENT_LICENSE_HELP,
-            DontShow = true
-        )]
-        public string LicenseName { get; set; }
-
-        [Parameter(
             HelpMessage = Resources.DEPLOYMENT_PACKAGE_HELP,
             Mandatory = true
         )]
@@ -79,7 +73,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             // get new environment handler and run it // TODO: support multiple licenses
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"), (FileInfo)CommonParametersExtension.GetValue("ParametersPath"),
-                (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicensesParameterExtension.GetTokens() ?? [LicenseName], DeploymentPackageName,
+                (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicensesParameterExtension.GetTokens(), DeploymentPackageName,
                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"),
                 ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), (string)CommonParametersExtension.GetValue("CustomerInfrastructureName"),
                 (string)CommonParametersExtension.GetValue("Description"), TerminateOtherVersions.ToBool(), false,

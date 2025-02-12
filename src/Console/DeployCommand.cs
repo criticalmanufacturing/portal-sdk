@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
+using System.CommandLine.Parsing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,23 +31,27 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
-            Add(new Option<string>(["--license", "-lic",], Resources.DEPLOYMENT_LICENSE_HELP)
-            {
-                IsHidden = true
-            });
-
             var licensesOpt = new Option<string[]>(
-                aliases: ["--licenses"],
+                aliases: ["--license", "-lic",],
                 description: Resources.DEPLOYMENT_LICENSES_HELP,
                 parseArgument: arg =>
                 {
                     return arg.Tokens.Single().Value.Split(',');
                 })
             {
-                // TODO: make it required when previous one is obsoleted
-                // IsRequired = true
+                IsRequired = true
             };
             licensesOpt.AddSuggestions("License 1,License 2");
+            licensesOpt.AddValidator(optionResult =>
+            {
+                var licenses = optionResult.GetValueOrDefault<string[]>();
+                if (licenses == null || licenses.Length == 0)
+                {
+                    optionResult.ErrorMessage = "Missing licenses.";
+                }
+
+                return optionResult.ErrorMessage;
+            });
             Add(licensesOpt);
 
             Add(new Option<bool>(new[] { "--terminateOtherVersions", "-tov" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP));
@@ -78,7 +82,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             CreateSession(parameters.Verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site,
-                parameters.Licenses ?? [parameters.License],
+                parameters.License,
                 parameters.Package,
                 (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TerminateOtherVersions, false,

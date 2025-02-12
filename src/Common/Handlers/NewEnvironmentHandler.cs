@@ -227,8 +227,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 environment = await _customerEnvironmentServices.CreateEnvironment(_customerPortalClient, environment);
 
-                environment = await _customerEnvironmentServices.UpdateEnvironment(environment);
-
                 if (!isInfrastructureAgent)
                 {
                     // update Deployment Package

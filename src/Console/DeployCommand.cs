@@ -31,10 +31,9 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
-            // TODO: deprecate
             Add(new Option<string>(["--license", "-lic",], Resources.DEPLOYMENT_LICENSE_HELP)
             {
-                IsRequired = true
+                IsHidden = true
             });
 
             var licensesOpt = new Option<string[]>(
@@ -49,6 +48,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 // IsRequired = true
             };
             licensesOpt.AddSuggestions("License 1,License 2");
+            Add(licensesOpt);
 
             Add(new Option<bool>(new[] { "--terminateOtherVersions", "-tov" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP));
 

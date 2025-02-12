@@ -53,7 +53,7 @@ public class NewEnvironmentHandlerTests
 
         // Assert
         customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Never);
         
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackageName, 0), Times.Never);
         licenseServiceMock.Verify(x => x.GetLicensesByUniqueName(It.IsAny<string[]>()), Times.Never);
@@ -96,7 +96,7 @@ public class NewEnvironmentHandlerTests
 
         // Assert
         customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Never);
         
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0), Times.Once);
         licenseServiceMock.Verify(x => x.GetLicensesByUniqueName(licenseNames), Times.Once);
@@ -145,6 +145,7 @@ public class NewEnvironmentHandlerTests
 
         // Assert
         customerEnvironmentServicesMock.Verify(x => x.CreateCustomerEnvironmentForCustomerInfrastructure(It.IsAny<CustomerEnvironment>(), ciName, false), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Never);
         
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0), Times.Once);
         licenseServiceMock.Verify(x => x.GetLicensesByUniqueName(licenseNames), Times.Once);

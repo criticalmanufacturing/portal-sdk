@@ -14,6 +14,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public string Type { get; set; }
         public string Site { get; set; }
         public string License { get; set; }
+        public string[] Licenses { get; set; }
         public string Package { get; set; }
         public string Target { get; set; }
         public DirectoryInfo Output { get; set; }

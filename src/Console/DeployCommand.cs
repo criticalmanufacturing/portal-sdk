@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Console
@@ -30,10 +31,24 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
-            Add(new Option<string>(new[] { "--license", "-lic", }, Resources.DEPLOYMENT_LICENSE_HELP)
+            // TODO: deprecate
+            Add(new Option<string>(["--license", "-lic",], Resources.DEPLOYMENT_LICENSE_HELP)
             {
                 IsRequired = true
             });
+
+            var licensesOpt = new Option<string[]>(
+                aliases: ["--licenses"],
+                description: Resources.DEPLOYMENT_LICENSES_HELP,
+                parseArgument: arg =>
+                {
+                    return arg.Tokens.Single().Value.Split(',');
+                })
+            {
+                // TODO: make it required when previous one is obsoleted
+                // IsRequired = true
+            };
+            licensesOpt.AddSuggestions("License 1,License 2");
 
             Add(new Option<bool>(new[] { "--terminateOtherVersions", "-tov" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP));
 
@@ -62,7 +77,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
-            await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, parameters.License,
+            await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site,
+                parameters.Licenses ?? [parameters.License],
                 parameters.Package,
                 (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TerminateOtherVersions, false,

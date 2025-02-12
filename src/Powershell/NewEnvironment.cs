@@ -16,6 +16,8 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         private ReplaceTokensParameterExtension ReplaceTokensExtension;
 
         private CommonParametersExtension CommonParametersExtension;
+        
+        private LicensesParameterExtension LicensesParameterExtension;
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_SITE_HELP,
@@ -25,7 +27,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_LICENSE_HELP,
-            Mandatory = true
+            DontShow = true
         )]
         public string LicenseName { get; set; }
 
@@ -64,18 +66,20 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             List<IParameterExtension> parameterExtensions = new List<IParameterExtension>();
             ReplaceTokensExtension = new ReplaceTokensParameterExtension();
             CommonParametersExtension = new CommonParametersExtension();
+            LicensesParameterExtension = new LicensesParameterExtension();
             parameterExtensions.Add(ReplaceTokensExtension);
             parameterExtensions.Add(CommonParametersExtension);
+            parameterExtensions.Add(LicensesParameterExtension);
 
             return parameterExtensions;
         }
 
         protected async override Task ProcessRecordAsync()
         {
-            // get new environment handler and run it
+            // get new environment handler and run it // TODO: support multiple licenses
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"), (FileInfo)CommonParametersExtension.GetValue("ParametersPath"),
-                (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicenseName, DeploymentPackageName,
+                (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicensesParameterExtension.GetTokens() ?? [LicenseName], DeploymentPackageName,
                (DeploymentTarget)CommonParametersExtension.GetValue("DeploymentTargetName"), (DirectoryInfo)CommonParametersExtension.GetValue("OutputDir"),
                 ReplaceTokensExtension.GetTokens(), Interactive.ToBool(), (string)CommonParametersExtension.GetValue("CustomerInfrastructureName"),
                 (string)CommonParametersExtension.GetValue("Description"), TerminateOtherVersions.ToBool(), false,

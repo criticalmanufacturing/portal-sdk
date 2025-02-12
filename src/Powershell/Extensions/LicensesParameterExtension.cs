@@ -46,7 +46,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
                 throw new ArgumentNullException("LicenseName");
             }
 
-            var licenses = Licenses.Split([','], StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+            var licenses = Licenses.Split([','], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
             if (!licenses.Any())
             {

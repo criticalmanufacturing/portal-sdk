@@ -36,7 +36,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 description: Resources.DEPLOYMENT_LICENSES_HELP,
                 parseArgument: arg =>
                 {
-                    return arg.Tokens.Single().Value.Split(',');
+                    return arg.Tokens.Single().Value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
                 })
             {
                 IsRequired = true
@@ -47,7 +47,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 var licenses = optionResult.GetValueOrDefault<string[]>();
                 if (licenses == null || licenses.Length == 0)
                 {
-                    optionResult.ErrorMessage = "Missing licenses.";
+                    optionResult.ErrorMessage = "Missing Software Licenses.";
                 }
 
                 return optionResult.ErrorMessage;

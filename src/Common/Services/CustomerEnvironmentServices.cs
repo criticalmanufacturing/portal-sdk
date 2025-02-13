@@ -59,24 +59,31 @@ internal class CustomerEnvironmentServices : ICustomerEnvironmentServices
     /// </summary>
     /// <param name="customerEnvironment">customer environment</param>
     /// <returns></returns>
-    public async Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment, CustomerEnvironmentDeploymentPackageCollection cedpCollection)
+    public async Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment)
     {
         customerEnvironment.ChangeSet = null;
         return (await new UpdateCustomerEnvironmentInput
         {
             CustomerEnvironment = customerEnvironment,
-            DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge,
-            CustomerEnvironmentDeploymentPackageRelations = cedpCollection
+            DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge
         }.UpdateCustomerEnvironmentAsync(true)).CustomerEnvironment;
     }
 
-    public async Task<CustomerEnvironment> CreateCustomerEnvironmentForCustomerInfrastructure(CustomerEnvironment environment, string customerInfrastructureName, 
-        bool isInfrastructureAgent, CustomerEnvironmentDeploymentPackageCollection cedpCollection)
-            => (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
-            {
-                CustomerInfrastructureName = customerInfrastructureName,
-                CustomerEnvironment = environment,
-                IsInfrastructureAgent = isInfrastructureAgent,
-                CustomerEnvironmentDeploymentPackageRelations = cedpCollection
-            }.CreateCustomerEnvironmentForCustomerInfrastructureAsync(true)).CustomerEnvironment;
+    /// <inheritdoc/>
+    public async Task<CustomerEnvironment> CreateCustomerEnvironmentForCustomerInfrastructure(CustomerEnvironment environment, string customerInfrastructureName, bool isInfrastructureAgent)
+        => (await new CreateCustomerEnvironmentForCustomerInfrastructureInput
+        {
+            CustomerInfrastructureName = customerInfrastructureName,
+            CustomerEnvironment = environment,
+            IsInfrastructureAgent = isInfrastructureAgent
+        }.CreateCustomerEnvironmentForCustomerInfrastructureAsync(true)).CustomerEnvironment;
+
+    /// <inheritdoc/>
+    public async Task UpdateDeploymentPackage(CustomerEnvironment customerEnvironment, DeploymentPackage deploymentPackage, long[] softwareLicensesIds)
+        => await new UpdateCustomerEnvironmentDeploymentPackageInput
+        {
+            CustomerEnvironmentId = customerEnvironment.Id,
+            DeploymentPackageId = deploymentPackage.Id,
+            SoftwareLicenseIds = softwareLicensesIds
+        }.UpdateCustomerEnvironmentDeploymentPackageAsync(true);
 }

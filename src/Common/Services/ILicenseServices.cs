@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services;
@@ -6,10 +7,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services;
 public interface ILicenseServices
 {
     /// <summary>
-    /// Name of SoftwareLicense is not unique, since it is a versioned entity
-    /// To load a license by name, we need to get it by the LicenseUniqueName
+    /// Gets a collection of Software Licenses, searching by their LicenseUniqueName propery.
     /// </summary>
-    /// <param name="licenseUniqueName"></param>
-    /// <returns></returns>
-    Task<CPSoftwareLicense> GetLicenseByUniqueName(string licenseUniqueName);
+    /// <param name="licensesUniqueNames">The LicenseUniqueName values of all Software Licenses to get.</param>
+    Task<IEnumerable<CPSoftwareLicense>> GetLicensesByUniqueName(string[] licensesUniqueNames);
 }

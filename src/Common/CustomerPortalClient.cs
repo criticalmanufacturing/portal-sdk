@@ -313,7 +313,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 messageBus.Start();
 
                 bool failedConnection = false;
-                TimeSpan timeout = TimeSpan.FromSeconds(2);
+                TimeSpan timeout = TimeSpan.FromSeconds(15);
                 using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
                 {
                     failedConnection = await Task.Run(async () =>

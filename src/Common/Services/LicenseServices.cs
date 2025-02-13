@@ -1,34 +1,27 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
-using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.OutputObjects;
 using Cmf.Foundation.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services;
 
 internal class LicenseServices : ILicenseServices
 {
-    /// <summary>
-    /// Name of SoftwareLicense is not unique, since it is a versioned entity
-    /// To load a license by name, we need to get it by the LicenseUniqueName
-    /// </summary>
-    /// <param name="licenseUniqueName"></param>
-    /// <returns></returns>
-    public async Task<CPSoftwareLicense> GetLicenseByUniqueName(string licenseUniqueName)
+    /// <inheritdoc/>
+    public async Task<IEnumerable<CPSoftwareLicense>> GetLicensesByUniqueName(string[] licensesUniqueNames)
     {
-        FilterCollection fcCollection = new FilterCollection()
-            {
+        FilterCollection fcCollection =
+            [
                 new Filter()
                 {
                     Name = "LicenseUniqueName",
                     LogicalOperator = LogicalOperator.AND,
-                    Operator = FieldOperator.IsEqualTo,
-                    Value = licenseUniqueName
+                    Operator = FieldOperator.In,
+                    Value = licensesUniqueNames
                 },
                 new Filter() // exclude Definition or Revision results
                 {
@@ -37,26 +30,27 @@ internal class LicenseServices : ILicenseServices
                     Operator= FieldOperator.GreaterThan,
                     Value = 0
                 }
-            };
+            ];
 
-        GetObjectsByFilterInput gobfiInput = new GetObjectsByFilterInput
+        GetObjectsByFilterInput gobfiInput = new()
         {
             Filter = fcCollection,
-            Type = Activator.CreateInstance<CPSoftwareLicense>()
+            Type = new CPSoftwareLicense()
         };
 
-        GetObjectsByFilterOutput gobfOutput = await gobfiInput.GetObjectsByFilterAsync(true);
-
-        if (gobfOutput.Instance.Count == 0)
+        var objects = (await gobfiInput.GetObjectsByFilterAsync(true)).Instance;
+        if (objects.Count == 0 || objects.Any(l => (l as CPSoftwareLicense) == null))
         {
-            throw new Exception($"License with name {licenseUniqueName} does not exist");
+            throw new Exception("No Licenses found");
         }
 
-        if (gobfOutput.Instance.Count > 1)
+        var licenses = objects.Cast<CPSoftwareLicense>();
+        if (licenses.Count() != licensesUniqueNames.Length)
         {
-            throw new Exception($"Too many matches for license {licenseUniqueName}");
+            string licensesNotFound = string.Join(", ", licenses.Where(x => !licensesUniqueNames.Contains(x.LicenseUniqueName)));
+            throw new Exception($"The following Licenses were not found: {licensesNotFound}");
         }
 
-        return (CPSoftwareLicense)gobfOutput.Instance[0];
+        return licenses;
     }
 }

@@ -40,7 +40,7 @@ public interface ICustomerEnvironmentServices
     /// </summary>
     /// <param name="customerEnvironment">customer environment</param>
     /// <returns></returns>
-    Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment, CustomerEnvironmentDeploymentPackageCollection cedpCollection);
+    Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment);
 
     /// <summary>
     /// Creates the customer environment for customer infrastructure.
@@ -48,7 +48,15 @@ public interface ICustomerEnvironmentServices
     /// <param name="environment">The environment.</param>
     /// <param name="customerInfrastructureName">Name of the customer infrastructure.</param>
     /// <param name="isInfrastructureAgent">if set to <c>true</c> [is infrastructure agent].</param>
-    /// <param name="cedpCollection">The cedp collection.</param>
     /// <returns></returns>
-    Task<CustomerEnvironment> CreateCustomerEnvironmentForCustomerInfrastructure(CustomerEnvironment environment, string customerInfrastructureName, bool isInfrastructureAgent, CustomerEnvironmentDeploymentPackageCollection cedpCollection);
+    Task<CustomerEnvironment> CreateCustomerEnvironmentForCustomerInfrastructure(CustomerEnvironment environment, string customerInfrastructureName, bool isInfrastructureAgent);
+
+    /// <summary>
+    /// Update a customer environment's deployment package.
+    /// </summary>
+    /// <param name="customerEnvironment">Customer Environment to update.</param>
+    /// <param name="deploymentPackage">Deployment Package to set as the Customer Environment's root Deployment Package.</param>
+    /// <param name="softwareLicensesIds">Array of license ids required by the <paramref name="deploymentPackage"/>.</param>
+    /// <returns></returns>
+    Task UpdateDeploymentPackage(CustomerEnvironment customerEnvironment, DeploymentPackage deploymentPackage, long[] softwareLicensesIds);
 }

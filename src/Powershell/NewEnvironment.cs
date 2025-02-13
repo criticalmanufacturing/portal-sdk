@@ -70,7 +70,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
 
         protected async override Task ProcessRecordAsync()
         {
-            // get new environment handler and run it // TODO: support multiple licenses
+            // get new environment handler and run it
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
             await newEnvironmentHandler.Run((string)CommonParametersExtension.GetValue("Name"), (FileInfo)CommonParametersExtension.GetValue("ParametersPath"),
                 (EnvironmentType)CommonParametersExtension.GetValue("EnvironmentType"), SiteName, LicensesParameterExtension.GetTokens(), DeploymentPackageName,

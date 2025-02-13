@@ -38,12 +38,13 @@ internal class LicenseServices : ILicenseServices
             Type = new CPSoftwareLicense()
         };
 
-        var licenses = (await gobfiInput.GetObjectsByFilterAsync(true)).Instance.Cast<CPSoftwareLicense>();
-        if (!licenses.Any())
+        var objects = (await gobfiInput.GetObjectsByFilterAsync(true)).Instance;
+        if (objects.Count == 0 || objects.Any(l => (l as CPSoftwareLicense) == null))
         {
             throw new Exception("No Licenses found");
         }
 
+        var licenses = objects.Cast<CPSoftwareLicense>();
         if (licenses.Count() != licensesUniqueNames.Length)
         {
             string licensesNotFound = string.Join(", ", licenses.Where(x => !licensesUniqueNames.Contains(x.LicenseUniqueName)));

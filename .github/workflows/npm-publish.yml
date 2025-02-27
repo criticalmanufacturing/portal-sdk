@@ -26,14 +26,15 @@ jobs:
       - name: Run Unit Tests
         run: dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release
       # Run build
+      # Run build
       - name: Build Windows
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
-        run: dotnet publish --no-build --no-restore --configuration Release --self-contained --runtime win-x64 Cmf.CustomerPortal.Sdk.sln
+        run: dotnet publish --configuration Release --self-contained --runtime win-x64 Cmf.CustomerPortal.Sdk.sln
       - name: Build Linux
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
-        run: dotnet publish --no-build --no-restore --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln
+        run: dotnet publish --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln
       # Read version
       - name: Read tool version
         uses: QwerMike/xpath-action@v1

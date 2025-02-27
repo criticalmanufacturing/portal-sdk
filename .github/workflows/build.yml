@@ -52,7 +52,7 @@ jobs:
 
       # Upload Coverage Report
       - name: Upload Coverage Report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: CodeCoverageReport
           path: CoverageReport

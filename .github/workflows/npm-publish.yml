@@ -22,6 +22,9 @@ jobs:
       # Run dotnet build
       - name: Run dotnet build
         run: dotnet build Cmf.CustomerPortal.Sdk.sln --no-restore --configuration Release
+      # Run Unit Tests
+      - name: Run Unit Tests
+        run: dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release --collect:"XPlat Code Coverage" --logger trx
       # Run build
       - name: Build Windows
         env:

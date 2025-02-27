@@ -1,5 +1,5 @@
 # Summary
-![Master](https://github.com/criticalmanufacturing/portal-sdk/actions/workflows/build.yml/badge.svg?branch=main)
+![Main](https://github.com/criticalmanufacturing/portal-sdk/actions/workflows/build.yml/badge.svg?branch=main)
 
 # portal-sdk
 Customer Portal SDK that allows the creation of automation script for integration with CM DevOps Center.

@@ -37,7 +37,7 @@ jobs:
       # Run tests with coverage
       - name: Run Unit Tests with Coverage
         run: |
-          dotnet test --no-build --no-restore Cmf.CustomerPortal.Sdk.sln --configuration Release \
+          dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release \
             --collect:"XPlat Code Coverage" \
             --logger trx \
             --results-directory ./coverage

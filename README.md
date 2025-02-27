@@ -1,12 +1,5 @@
 # Summary
-![Master](https://github.com/criticalmanufacturing/portal-sdk/actions/workflows/build.yml/badge.svg?branch=main)![Code Coverage](https://img.shields.io/badge/Code%20Coverage-8%25-success?style=flat)
-
-Package | Line Rate | Branch Rate | Health
--------- | --------- | ----------- | ------
-Cmf.CustomerPortal.Sdk.Common | 8% | 9% | ✔
-Cmf.CustomerPortal.Sdk.Common | 8% | 9% | ✔
-**Summary** | **8%** (214 / 2676) | **9%** (68 / 784) | ✔
-
+![Master](https://github.com/criticalmanufacturing/portal-sdk/actions/workflows/build.yml/badge.svg?branch=main)
 
 # portal-sdk
 Customer Portal SDK that allows the creation of automation script for integration with CM DevOps Center.

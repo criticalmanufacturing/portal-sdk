@@ -27,7 +27,7 @@ jobs:
         run: dotnet publish --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln
       # Run Unit Tests
       - name: Run Unit Tests
-        run: dotnet test Cmf.CustomerPortal.Sdk.sln --configuration Release --collect:"XPlat Code Coverage" --logger trx
+        run: dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release --collect:"XPlat Code Coverage" --logger trx
       # Read version
       - name: Read tool version
         uses: QwerMike/xpath-action@v1

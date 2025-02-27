@@ -16,6 +16,16 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
+      # Run dotnet restore
+      - name: Run dotnet restore
+        run: dotnet restore Cmf.CustomerPortal.Sdk.sln
+      # Run dotnet build
+      - name: Run dotnet build
+        run: dotnet build Cmf.CustomerPortal.Sdk.sln --no-restore --configuration Release
+      # Run Unit Tests
+      - name: Run Unit Tests
+        run: dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release
+      # Run build
       # Run build
       - name: Build Windows
         env:

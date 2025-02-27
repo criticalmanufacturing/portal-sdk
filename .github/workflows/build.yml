@@ -26,7 +26,7 @@ jobs:
           dotnet-version: 8.0.x
       # Run dotnet restore
       - name: Run dotnet restore
-        run: dotnet restore Cmf.CustomerPortal.Sdk.sln --configuration Release
+        run: dotnet restore Cmf.CustomerPortal.Sdk.sln
       # Run dotnet build
       - name: Run dotnet build
         run: dotnet build Cmf.CustomerPortal.Sdk.sln --no-restore --configuration Release

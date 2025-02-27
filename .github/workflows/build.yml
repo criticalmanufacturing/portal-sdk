@@ -40,13 +40,13 @@ jobs:
           dotnet test Cmf.CustomerPortal.Sdk.sln --no-restore --configuration Release \
             --collect:"XPlat Code Coverage" \
             --logger trx \
-            --results-directory coverage
+            --results-directory TestResults
 
       # Generate coverage report
       - name: Generate Coverage Report
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:coverage/**/*.cobertura.xml
+          reportgenerator -reports:TestResults/**/*.cobertura.xml
 
       # Upload Coverage Report
       # - name: Upload Coverage Report
@@ -58,7 +58,7 @@ jobs:
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: coverage/**/coverage.cobertura.xml
+          filename: TestResults/**/coverage.cobertura.xml
           badge: true
           fail_below_min: true
           format: markdown

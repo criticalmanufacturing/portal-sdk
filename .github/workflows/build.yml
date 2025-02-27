@@ -59,12 +59,12 @@ jobs:
         run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
       # Run build
       - name: Build Windows
-        if: github.event_name != 'pull_request'
+        if: github.event.pull_request.merged == true
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
         run: dotnet publish --no-build --no-restore --configuration Release --self-contained --runtime win-x64 Cmf.CustomerPortal.Sdk.sln
       - name: Build Linux
-        if: github.event_name != 'pull_request'
+        if: github.event.pull_request.merged == true
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
         run: dotnet publish --no-build --no-restore --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln

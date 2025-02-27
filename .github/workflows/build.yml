@@ -63,11 +63,6 @@ jobs:
           path: code-coverage-results.md
       - name: Write to Job Summary
         run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
-      - name: Log GitHub Reference
-        run: |
-          echo "GitHub ref: ${{ github.ref }}"
-          echo "GitHub head ref: ${{ github.head_ref }}"
-          echo "GitHub base ref: ${{ github.base_ref }}"
       # Run build
       - name: Build Windows
         if: github.ref == 'main'

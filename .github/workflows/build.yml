@@ -40,7 +40,7 @@ jobs:
           dotnet test Cmf.CustomerPortal.Sdk.sln --no-restore --configuration Release \
             --collect:"XPlat Code Coverage" \
             --logger trx \
-            --results-directory ./coverage
+            --results-directory coverage
 
       # Generate coverage report
       - name: Generate Coverage Report

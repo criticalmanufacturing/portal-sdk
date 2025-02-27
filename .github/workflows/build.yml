@@ -73,6 +73,7 @@ jobs:
         run: dotnet publish --no-build --no-restore --configuration Release --self-contained --runtime linux-x64 Cmf.CustomerPortal.Sdk.sln
       # Read version
       - name: Read tool version
+        if: github.event.pull_request.merged == true
         uses: QwerMike/xpath-action@v1
         id: getver
         with:
@@ -80,16 +81,19 @@ jobs:
           expression: '/Project/PropertyGroup/Version/text()'
       # Archive
       - name: Archive Console Win64
+        if: github.event.pull_request.merged == true
         uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64
           path: src/Console/bin/Release/net8.0/win-x64/publish/
       - name: Archive Console Linux64
+        if: github.event.pull_request.merged == true
         uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64
           path: src/Console/bin/Release/net8.0/linux-x64/publish/
       - name: Archive PowerShell
+        if: github.event.pull_request.merged == true
         uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}

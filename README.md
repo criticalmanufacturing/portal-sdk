@@ -1,3 +1,7 @@
+# Summary
+![Static Badge](https://img.shields.io/badge/Line_Coverage-7%-red)
+![Static Badge](https://img.shields.io/badge/Code_Coverage-8%-red)
+
 # portal-sdk
 Customer Portal SDK that allows the creation of automation script for integration with CM DevOps Center.
 

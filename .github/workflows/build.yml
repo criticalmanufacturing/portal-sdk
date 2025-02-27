@@ -40,13 +40,13 @@ jobs:
           dotnet test --no-build --no-restore Cmf.CustomerPortal.Sdk.sln --configuration Release \
             --collect:"XPlat Code Coverage" \
             --logger trx \
-            --results-directory TestResults
+            --results-directory ./coverage
 
       # Generate coverage report
       - name: Generate Coverage Report
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:TestResults/**/*.cobertura.xml
+          reportgenerator -reports:coverage/**/*.cobertura.xml
 
       # Upload Coverage Report
       # - name: Upload Coverage Report

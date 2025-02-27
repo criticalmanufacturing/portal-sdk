@@ -30,9 +30,6 @@ jobs:
       # Run dotnet build
       - name: Run dotnet build
         run: dotnet build Cmf.CustomerPortal.Sdk.sln --no-restore --configuration Release
-      # Clear previous test results
-      - name: Clear Test Results
-        run: rm -rf TestResults || true
       # Run tests with coverage
       - name: Run Unit Tests with Coverage
         run: |
@@ -40,10 +37,16 @@ jobs:
             --collect:"XPlat Code Coverage" \
             --logger trx \
             --results-directory TestResults
+      - name: Merge Coverage Reports
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          reportgenerator -reports:TestResults/**/coverage.cobertura.xml \
+                          -targetdir:TestResults/MergedCoverage \
+                          -reporttypes:Cobertura
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: TestResults/**/coverage.cobertura.xml
+          filename: TestResults/MergedCoverage/Cobertura.xml
           badge: true
           fail_below_min: true
           format: markdown

@@ -64,10 +64,13 @@ jobs:
       - name: Write to Job Summary
         run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
       - name: Log GitHub Reference
-        run: echo "GitHub ref is $GITHUB_REF"
+        run: |
+          echo "GitHub ref: ${{ github.ref }}"
+          echo "GitHub head ref: ${{ github.head_ref }}"
+          echo "GitHub base ref: ${{ github.base_ref }}"
       # Run build
       - name: Build Windows
-        if: github.ref == 'main-123694-PortalSDKUnitTestsInPipeline'
+        if: github.ref == 'refs/heads/main-123694-PortalSDKUnitTestsInPipeline'
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
         run: dotnet publish --no-build --no-restore --configuration Release --self-contained --runtime win-x64 Cmf.CustomerPortal.Sdk.sln

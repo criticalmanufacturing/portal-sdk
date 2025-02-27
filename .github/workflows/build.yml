@@ -43,10 +43,10 @@ jobs:
             --results-directory TestResults
 
       # Generate coverage report
-      - name: Generate Coverage Report
-        run: |
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:TestResults/**/*.cobertura.xml
+      # - name: Generate Coverage Report
+      #   run: |
+      #     dotnet tool install --global dotnet-reportgenerator-globaltool
+      #     reportgenerator -reports:TestResults/**/*.cobertura.xml -targetdir:CoverageReport
 
       # Upload Coverage Report
       # - name: Upload Coverage Report

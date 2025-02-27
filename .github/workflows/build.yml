@@ -30,6 +30,9 @@ jobs:
       # Run dotnet build
       - name: Run dotnet build
         run: dotnet build Cmf.CustomerPortal.Sdk.sln --no-restore --configuration Release
+      # Clear previous test results
+      - name: Clear Test Results
+        run: rm -rf TestResults || true
       # Run tests with coverage
       - name: Run Unit Tests with Coverage
         run: |

@@ -1,7 +1,6 @@
 # Summary
-![Static Badge](https://img.shields.io/badge/Line_Coverage-7%-red)
 ![Static Badge](https://img.shields.io/badge/Code_Coverage-8%-red)
-
+![example branch parameter](https://github.com/criticalmanufacturing/portal-sdk/actions/workflows/build.yml/badge.svg?branch=feature-1)
 # portal-sdk
 Customer Portal SDK that allows the creation of automation script for integration with CM DevOps Center.
 

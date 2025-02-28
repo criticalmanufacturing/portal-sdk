@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       LOW_THRESHOLD: 7
-      HIGH_THRESHOLD: 50
+      HIGH_THRESHOLD: 70
     steps:
       # Checkout
       - name: Git checkout
@@ -66,7 +66,7 @@ jobs:
           # Get only the first occurrence of line-rate attribute
           LINE_RATE=$(grep -m 1 -oP 'line-rate="\K[^"]+' TestResults/MergedCoverage/Cobertura.xml)
           echo "Top-level line coverage rate: $(echo "$LINE_RATE * 100" | bc)%"
-          if (( $(echo "$LINE_RATE < 0.1" | bc -l) )); then
+          if (( $(echo "$LINE_RATE * 100 < ${{ env.LOW_THRESHOLD }}" | bc -l) )); then
             echo "Coverage threshold not met. Top-level line coverage is $(echo "$LINE_RATE * 100" | bc)% which is below the required ${{ env.LOW_THRESHOLD }}%"
             exit 1
           fi

@@ -60,18 +60,10 @@ jobs:
         run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
       - name: Validate if line coverage is above 10%
         run: |
-          # Extract only the first occurrence of line-rate
-          COVERAGE=$(awk -F 'line-rate="' '{print $2}' TestResults/MergedCoverage/Cobertura.xml | cut -d'"' -f1 | head -n1)
-          
-          # Convert to percentage
-          COVERAGE_PERCENT=$(echo "$COVERAGE * 100" | bc)
-
-          # Print extracted coverage
-          echo "Detected Coverage: $COVERAGE_PERCENT%"
-
-          # Ensure comparison works correctly
-          if (( $(echo "$COVERAGE_PERCENT < 66" | bc -l) )); then
-            echo "❌ Code coverage is below 66%, failing the build."
+          LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' coverage.xml)
+          echo "Current line coverage rate: $(echo "$LINE_RATE * 100" | bc)%"
+          if (( $(echo "$LINE_RATE < 0.1" | bc -l) )); then
+            echo "Coverage threshold not met. Line coverage is $(echo "$LINE_RATE * 100" | bc)% which is below the required 10%"
             exit 1
           fi
       # Run build

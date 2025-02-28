@@ -33,16 +33,11 @@ jobs:
       # Run tests with coverage
       - name: Run Unit Tests with Coverage
         run: |
-          dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            --logger trx \
-            --results-directory TestResults
+          dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
       - name: Merge Coverage Reports
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:TestResults/**/coverage.cobertura.xml \
-                          -targetdir:TestResults/MergedCoverage \
-                          -reporttypes:Cobertura
+          reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:TestResults/MergedCoverage -reporttypes:Cobertura
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
@@ -63,6 +58,15 @@ jobs:
           path: code-coverage-results.md
       - name: Write to Job Summary
         run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+      - name: Fail Build if Coverage < 10%
+        run: |
+          COVERAGE=$(xmllint --xpath "string(//coverage/@line-rate)" TestResults/MergedCoverage/Cobertura.xml)
+          COVERAGE_PERCENT=$(echo "$COVERAGE * 100" | bc)
+          echo "Detected Coverage: $COVERAGE_PERCENT%"
+          if (( $(echo "$COVERAGE_PERCENT < 10" | bc -l) )); then
+            echo "❌ Code coverage is below 10%, failing the build."
+            exit 1
+          fi
       # Run build
       - name: Build Windows
         if: github.ref_name == 'main'

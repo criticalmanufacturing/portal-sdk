@@ -16,7 +16,7 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     env:
-      LOW_THRESHOLD: 10
+      LOW_THRESHOLD: 7
       HIGH_THRESHOLD: 50
     steps:
       # Checkout

@@ -15,6 +15,9 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    env:
+      LOW_THRESHOLD: 10
+      HIGH_THRESHOLD: 50
     steps:
       # Checkout
       - name: Git checkout
@@ -49,7 +52,7 @@ jobs:
           hide_complexity: true
           indicators: true
           output: both
-          thresholds: '5 8'
+          thresholds: '$LOW_THRESHOLD $HIGH_THRESHOLD'
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
         if: github.event_name == 'pull_request'
@@ -58,13 +61,13 @@ jobs:
           path: code-coverage-results.md
       - name: Write to Job Summary
         run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
-      - name: Validate if line coverage is above 10%
+      - name: Validate if line coverage is above $LOW_THRESHOLD%
         run: |
           # Get only the first occurrence of line-rate attribute
           LINE_RATE=$(grep -m 1 -oP 'line-rate="\K[^"]+' TestResults/MergedCoverage/Cobertura.xml)
           echo "Top-level line coverage rate: $(echo "$LINE_RATE * 100" | bc)%"
           if (( $(echo "$LINE_RATE < 0.1" | bc -l) )); then
-            echo "Coverage threshold not met. Top-level line coverage is $(echo "$LINE_RATE * 100" | bc)% which is below the required 10%"
+            echo "Coverage threshold not met. Top-level line coverage is $(echo "$LINE_RATE * 100" | bc)% which is below the required $LOW_THRESHOLD%"
             exit 1
           fi
       # Run build

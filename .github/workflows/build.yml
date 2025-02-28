@@ -15,6 +15,9 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
+    env:
+      LOW_THRESHOLD: 7
+      HIGH_THRESHOLD: 70
     steps:
       # Checkout
       - name: Git checkout
@@ -33,28 +36,23 @@ jobs:
       # Run tests with coverage
       - name: Run Unit Tests with Coverage
         run: |
-          dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            --logger trx \
-            --results-directory TestResults
+          dotnet test Cmf.CustomerPortal.Sdk.sln --no-build --no-restore --configuration Release --collect:"XPlat Code Coverage" --logger trx --results-directory TestResults
       - name: Merge Coverage Reports
         run: |
           dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:TestResults/**/coverage.cobertura.xml \
-                          -targetdir:TestResults/MergedCoverage \
-                          -reporttypes:Cobertura
+          reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:TestResults/MergedCoverage -reporttypes:Cobertura
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: TestResults/MergedCoverage/Cobertura.xml
           badge: true
-          fail_below_min: true
+          fail_below_min: false
           format: markdown
           hide_branch_rate: false
           hide_complexity: true
           indicators: true
           output: both
-          thresholds: '7 7'
+          thresholds: '${{ env.LOW_THRESHOLD }} ${{ env.HIGH_THRESHOLD }}'
       - name: Add Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
         if: github.event_name == 'pull_request'
@@ -63,6 +61,15 @@ jobs:
           path: code-coverage-results.md
       - name: Write to Job Summary
         run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+      - name: Validate if line coverage is above ${{ env.LOW_THRESHOLD }}%
+        run: |
+          # Get only the first occurrence of line-rate attribute
+          LINE_RATE=$(grep -m 1 -oP 'line-rate="\K[^"]+' TestResults/MergedCoverage/Cobertura.xml)
+          echo "Top-level line coverage rate: $(echo "$LINE_RATE * 100" | bc)%"
+          if (( $(echo "$LINE_RATE * 100 < ${{ env.LOW_THRESHOLD }}" | bc -l) )); then
+            echo "Coverage threshold not met. Top-level line coverage is $(echo "$LINE_RATE * 100" | bc)% which is below the required ${{ env.LOW_THRESHOLD }}%"
+            exit 1
+          fi
       # Run build
       - name: Build Windows
         if: github.ref_name == 'main'

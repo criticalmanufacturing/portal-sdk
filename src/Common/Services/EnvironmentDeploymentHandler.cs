@@ -25,6 +25,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private const string queuePositionMsg = "Queue Position:";
         string pattern = @$"{queuePositionMsg} \d+\n";
         private (int left, int top)? queuePositionCursorCoordinates = null;
+        private (int left, int top) queuePositionLoadingCursorCoordinates;
         CancellationTokenSource cancellationTokenDeploymentQueued;
         static SemaphoreSlim semaphore = new(1);
 
@@ -130,12 +131,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         Console.SetCursorPosition(queuePositionCursorCoordinates.Value.left, queuePositionCursorCoordinates.Value.top - 1);
                         _session.LogInformation(msg);
 
-                        var cursorQueuePosition = (queuePositionCursorCoordinates.Value.left + msg.Length + 1, queuePositionCursorCoordinates.Value.top - 1);
+                        queuePositionLoadingCursorCoordinates = (queuePositionCursorCoordinates.Value.left + msg.Length, queuePositionCursorCoordinates.Value.top - 1);
 
                         if (!presentingLoading)
                         {
                             presentingLoading = true;
-                            _ = Task.Run(() => ShowLoadingIndicator(cursorQueuePosition, token));
+                            _ = Task.Run(() => ShowLoadingIndicator(token));
                         }
                         Console.SetCursorPosition(0, initialTopLine);
                     }
@@ -150,20 +151,20 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async Task ShowLoadingIndicator((int Left, int Top) cursorPosition, CancellationToken token)
+        private async Task ShowLoadingIndicator(CancellationToken token)
         {
             int loadingIndex = 0;
-            (int Left, int Top) initialPosition;
+            (int left, int top) initialPosition;
             while (!this._isDeploymentFinished && !_hasDeploymentStarted && !token.IsCancellationRequested)
             {
                 try
                 {
                     await semaphore.WaitAsync(token);
                     initialPosition = Console.GetCursorPosition();
-                    Console.SetCursorPosition(cursorPosition.Left, cursorPosition.Top);
-                    Console.Write($"{loadingChars[loadingIndex]}");
+                    Console.SetCursorPosition(queuePositionLoadingCursorCoordinates.left, queuePositionLoadingCursorCoordinates.top);
+                    Console.Write($" {loadingChars[loadingIndex]} {new string(' ', Console.WindowWidth)}");
                     loadingIndex = (loadingIndex + 1) % loadingChars.Length;
-                    Console.SetCursorPosition(initialPosition.Left, initialPosition.Top);
+                    Console.SetCursorPosition(initialPosition.left, initialPosition.top);
                 }
                 catch { }
                 finally

@@ -4,9 +4,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Deployment.Models;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
+using Cmf.CustomerPortal.PackageManagement.Objects;
 using Cmf.MessageBus.Messages;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
@@ -25,7 +28,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private (int left, int top)? queuePositionCursorCoordinates = null;
         private (int left, int top) queuePositionLoadingCursorCoordinates;
         CancellationTokenSource cancellationTokenDeploymentQueued;
-        private readonly SemaphoreSlim semaphore = new(1);
+        private bool presentLoading = false;
 
         private static DateTime? utcOfLastMessageReceived = null;
 
@@ -106,48 +109,47 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async Task UpdateQueuePositionAsync(long deployableId, CancellationToken token)
+        private async void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
         {
-            bool presentingLoading = false;
-            int? position = null;
+            string position = null;
             int initialTopLine;
             string msg;
 
-            while (!_hasInstallationStarted && !token.IsCancellationRequested)
+            if (!_hasInstallationStarted)
             {
                 try
                 {
-                    position = new GetMessagePositionInDeploymentQueueInput()
+                    // handle escape
+                    string jsonString = message.Data.Trim('\"');
+                    jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
+
+                    var deploymentProgressMessage = JsonConvert.DeserializeObject<DeploymentProgressMessage>(jsonString);
+                    Match match = Regex.Match(deploymentProgressMessage.Data, pattern);
+
+                    if (match.Success)
                     {
-                        DeployableId = deployableId
-                    }.GetMessagePositionInDeploymentQueueSync().MessageQueuePosition;
+                        position = match.Groups[1].Value;
 
-                    await semaphore.WaitAsync(token);
-
-                    if (position != null && queuePositionCursorCoordinates != null)
-                    {
-                        initialTopLine = Console.CursorTop;
-                        msg = $"{queuePositionMsg} {position}";
-                        Console.SetCursorPosition(queuePositionCursorCoordinates.Value.left, queuePositionCursorCoordinates.Value.top - 1);
-                        _session.LogInformation(msg);
-
-                        queuePositionLoadingCursorCoordinates = (queuePositionCursorCoordinates.Value.left + msg.Length, queuePositionCursorCoordinates.Value.top - 1);
-
-                        if (!presentingLoading)
+                        if (!string.IsNullOrWhiteSpace(position))
                         {
-                            presentingLoading = true;
-                            _ = Task.Run(() => ShowLoadingIndicator(token));
+                            if (queuePositionCursorCoordinates == null)
+                            {
+                                queuePositionCursorCoordinates = Console.GetCursorPosition();
+                            }
+
+                            initialTopLine = Console.CursorTop;
+                            msg = $"{queuePositionMsg} {position}";
+                            Console.SetCursorPosition(queuePositionCursorCoordinates.Value.left, queuePositionCursorCoordinates.Value.top - 1);
+                            _session.LogInformation(msg);
+
+                            queuePositionLoadingCursorCoordinates = (queuePositionCursorCoordinates.Value.left + msg.Length, queuePositionCursorCoordinates.Value.top - 1);
+                            Console.SetCursorPosition(0, initialTopLine);
+
+                            presentLoading = true;
                         }
-                        Console.SetCursorPosition(0, initialTopLine);
                     }
                 }
                 catch { }
-                finally
-                {
-                    semaphore.Release();
-                }
-
-                await Task.Delay(5000);
             }
         }
 
@@ -159,18 +161,17 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 try
                 {
-                    await semaphore.WaitAsync(token);
-                    initialPosition = Console.GetCursorPosition();
-                    Console.SetCursorPosition(queuePositionLoadingCursorCoordinates.left, queuePositionLoadingCursorCoordinates.top);
-                    Console.Write($" {loadingChars[loadingIndex]} {new string(' ', Console.WindowWidth)}");
-                    loadingIndex = (loadingIndex + 1) % loadingChars.Length;
-                    Console.SetCursorPosition(initialPosition.left, initialPosition.top);
+                    if (presentLoading)
+                    {
+                        initialPosition = Console.GetCursorPosition();
+                        Console.SetCursorPosition(queuePositionLoadingCursorCoordinates.left, queuePositionLoadingCursorCoordinates.top);
+                        Console.Write($" {loadingChars[loadingIndex]} {new string(' ', Console.WindowWidth)}");
+                        loadingIndex = (loadingIndex + 1) % loadingChars.Length;
+                        Console.SetCursorPosition(initialPosition.left, initialPosition.top);
+                    }
                 }
                 catch { }
-                finally
-                {
-                    semaphore.Release();
-                }
+
                 await Task.Delay(500);
             }
         }
@@ -188,9 +189,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.APP.{customerEnvironmentApplicationPackage.Id}";
+            var subjectMessageQueuePosition = $"CUSTOMERPORTAL.DEPLOYMENT.MESSAGEQUEUE.POSITION.{customerEnvironmentApplicationPackage.Id}";
 
             _session.LogDebug($"Subscribing messagebus subject {subject}");
             messageBus.Subscribe(subject, ProcessDeploymentMessage);
+
+            _session.LogDebug($"Subscribing messagebus subject {subjectMessageQueuePosition}");
+            messageBus.Subscribe(subjectMessageQueuePosition, ProcessDeploymentMessageQueuePosition);
 
             // start deployment
             var startDeploymentInput = new StartDeploymentInput
@@ -215,7 +220,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 cancellationTokenDeploymentQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
                 CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, cancellationTokenDeploymentQueued.Token);
 
-                _ = Task.Run(() => UpdateQueuePositionAsync(customerEnvironmentApplicationPackage.Id, compositeTokenSourceWithDeploymentQueued.Token));
+                _ = Task.Run(() => ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
 
                 while (!this._isInstallationFinished)
                 {

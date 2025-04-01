@@ -25,7 +25,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private (int left, int top)? queuePositionCursorCoordinates = null;
         private (int left, int top) queuePositionLoadingCursorCoordinates;
         CancellationTokenSource cancellationTokenDeploymentQueued;
-        static SemaphoreSlim semaphore = new(1);
+        private readonly SemaphoreSlim semaphore = new(1);
 
         private static DateTime? utcOfLastMessageReceived = null;
 
@@ -77,6 +77,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         _hasInstallationFailed = true;
                     }
                     _isInstallationFinished = true;
+                    _hasInstallationStarted = true;
                 }
             }
             else
@@ -105,25 +106,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputDir)
-        {
-            switch (target)
-            {
-                case DeploymentTarget.dockerswarm:
-                case DeploymentTarget.KubernetesOnPremisesTarget:
-                case DeploymentTarget.OpenShiftOnPremisesTarget:
-                    string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
-                    bool success = await _artifactsDownloaderHandler.Handle(environment, outputPath);
-                    if (success)
-                    {
-                        _session.LogInformation($"Customer Environment created at {outputPath}");
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
         private async Task UpdateQueuePositionAsync(long deployableId, CancellationToken token)
         {
             bool presentingLoading = false;
@@ -131,7 +113,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             int initialTopLine;
             string msg;
 
-            while (!this._isInstallationFinished && !_hasInstallationStarted && !token.IsCancellationRequested)
+            while (!_hasInstallationStarted && !token.IsCancellationRequested)
             {
                 try
                 {
@@ -173,7 +155,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         {
             int loadingIndex = 0;
             (int left, int top) initialPosition;
-            while (!this._isInstallationFinished && !_hasInstallationStarted && !token.IsCancellationRequested)
+            while (!_hasInstallationStarted && !token.IsCancellationRequested)
             {
                 try
                 {

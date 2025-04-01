@@ -27,7 +27,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private (int left, int top)? queuePositionCursorCoordinates = null;
         private (int left, int top) queuePositionLoadingCursorCoordinates;
         CancellationTokenSource cancellationTokenDeploymentQueued;
-        static SemaphoreSlim semaphore = new(1);
+        private readonly SemaphoreSlim semaphore = new(1);
 
         private static DateTime? utcOfLastMessageReceived = null;
 
@@ -79,6 +79,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         _hasDeploymentFailed = true;
                     }
                     _isDeploymentFinished = true;
+                    _hasDeploymentStarted = true;
                 }
             }
             else
@@ -113,7 +114,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             int initialTopLine;
             string msg;
 
-            while (!this._isDeploymentFinished && !_hasDeploymentStarted && !token.IsCancellationRequested)
+            while (!_hasDeploymentStarted && !token.IsCancellationRequested)
             {
                 try
                 {
@@ -155,7 +156,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         {
             int loadingIndex = 0;
             (int left, int top) initialPosition;
-            while (!this._isDeploymentFinished && !_hasDeploymentStarted && !token.IsCancellationRequested)
+            while (!_hasDeploymentStarted && !token.IsCancellationRequested)
             {
                 try
                 {

@@ -109,9 +109,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
+        private void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
         {
-            string position = null;
             int initialTopLine;
             string msg;
 
@@ -128,7 +127,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                     if (match.Success)
                     {
-                        position = match.Groups[1].Value;
+                        string position = match.Groups[1].Value;
 
                         if (!string.IsNullOrWhiteSpace(position))
                         {

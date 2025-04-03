@@ -152,6 +152,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             presentLoading = true;
                         }
                     }
+                    else
+                    {
+                        _session.LogInformation("Unknown message received");
+                    }
                 }
                 catch { }
             }

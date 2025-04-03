@@ -18,14 +18,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private readonly ISession _session;
         private readonly ICustomerPortalClient _customerPortalClient;
         private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
-        private readonly IJsonHelper _jsonHelper;
 
         private bool _isInstallationFinished = false;
         private bool _hasInstallationFailed = false;
         private bool _hasInstallationStarted = false;
         private readonly string[] _loadingChars = { "|", "/", "-", "\\" };
         private const string _queuePositionMsg = "Queue Position:";
-        private string pattern = @$"{_queuePositionMsg} \d+\n";
+        private string _pattern = @$"{_queuePositionMsg} (\d+)\n";
         private (int left, int top)? _queuePositionCursorCoordinates = null;
         private (int left, int top) _queuePositionLoadingCursorCoordinates;
         CancellationTokenSource cancellationTokenDeploymentQueued;
@@ -35,16 +34,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         public bool HasInstallationStarted
         {
             get { return _hasInstallationStarted; }
-            set { _hasInstallationStarted = value; }
+           private set { _hasInstallationStarted = value; }
         }
 
         public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                      IArtifactsDownloaderHandler artifactsDownloaderHandler, IJsonHelper jsonHelper)
+                                      IArtifactsDownloaderHandler artifactsDownloaderHandler)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
             _artifactsDownloaderHandler = artifactsDownloaderHandler;
-            _jsonHelper = jsonHelper;
         }
 
         #region Private Methods
@@ -72,7 +70,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                 // handle the start position of queue position on console
                 if (!_hasInstallationStarted && !string.IsNullOrWhiteSpace(content.Data)
-                    && _queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, pattern))
+                    && _queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, _pattern))
                 {
                     _queuePositionCursorCoordinates = Console.GetCursorPosition();
 
@@ -129,8 +127,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     string jsonString = message.Data.Trim('\"');
                     jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
 
-                    var deploymentProgressMessage = _jsonHelper.Deserialize<DeploymentProgressMessage>(jsonString);
-                    Match match = Regex.Match(deploymentProgressMessage.Data, pattern);
+                    var deploymentProgressMessage = JsonConvert.DeserializeObject<DeploymentProgressMessage>(jsonString);
+                    Match match = Regex.Match(deploymentProgressMessage.Data, _pattern);
 
                     if (match.Success)
                     {
@@ -146,7 +144,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             initialTopLine = Console.CursorTop;
                             msg = $"{_queuePositionMsg} {position}";
                             Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
-                            _session.LogInformation(msg);
+                            _session.LogInformation($"{msg}");
 
                             _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
                             Console.SetCursorPosition(0, initialTopLine);
@@ -229,7 +227,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 cancellationTokenDeploymentQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
                 CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, cancellationTokenDeploymentQueued.Token);
 
-                _ = Task.Run(() => ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
+                await Task.Run(() => ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
 
                 while (!this._isInstallationFinished)
                 {

@@ -26,30 +26,26 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private readonly string[] _loadingChars = { "|", "/", "-", "\\" };
         private const string _queuePositionMsg = "Queue Position:";
         private string _pattern = @$"{_queuePositionMsg} (\d+)\n";
-        private (int left, int top)? queuePositionCursorCoordinates = null;
-        private (int left, int top) queuePositionLoadingCursorCoordinates;
-        CancellationTokenSource cancellationTokenDeploymentQueued;
-        private bool presentLoading = false;
+        private (int left, int top)? _queuePositionCursorCoordinates = null;
+        private (int left, int top) _queuePositionLoadingCursorCoordinates;
+        CancellationTokenSource _cancellationTokenDeploymentQueued;
+        private bool _presentLoading = false;
 
         private static DateTime? utcOfLastMessageReceived = null;
-
-        private IJsonHelper _jsonHelper { get; }
 
         public bool HasDeploymentStarted 
         {
             get { return _hasDeploymentStarted; }
-            set { _hasDeploymentStarted = value; }
+            private set { _hasDeploymentStarted = value; }
         }
 
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                            IArtifactsDownloaderHandler artifactsDownloaderHandler,
-                                            IJsonHelper jsonHelper)
+                                            IArtifactsDownloaderHandler artifactsDownloaderHandler)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
             _artifactsDownloaderHandler = artifactsDownloaderHandler;
-            _jsonHelper = jsonHelper;
         }
 
         #region Private Methods
@@ -62,27 +58,28 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             if (message != null && !string.IsNullOrWhiteSpace(message.Data))
             {
                 var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = string.Empty };
-                var content = _jsonHelper.DeserializeAnonymousType(message.Data, messageContentFormat);
+                var content = JsonConvert.DeserializeAnonymousType(message.Data, messageContentFormat);
 
                 if (!_hasDeploymentStarted && (content.DeploymentStatus != null && content.DeploymentStatus != DeploymentStatus.QueuedDeployment && content.DeploymentStatus != DeploymentStatus.QueuedTermination && content.DeploymentStatus != DeploymentStatus.NotDeployed))
                 {
                     _hasDeploymentStarted = true;
-                    if (cancellationTokenDeploymentQueued != null && !cancellationTokenDeploymentQueued.IsCancellationRequested)
+                    if (_cancellationTokenDeploymentQueued != null && !_cancellationTokenDeploymentQueued.IsCancellationRequested)
                     {
-                        cancellationTokenDeploymentQueued.Cancel();
+                        _cancellationTokenDeploymentQueued.Cancel();
                     }
                 }
 
                 _session.LogInformation(content.Data);
 
+
                 // handle the start position of queue position on console
                 if (!_hasDeploymentStarted && !string.IsNullOrWhiteSpace(content.Data)
-                    && queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, _pattern))
+                    && _queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, _pattern))
                 {
-                    queuePositionCursorCoordinates = Console.GetCursorPosition();
+                    _queuePositionCursorCoordinates = Console.GetCursorPosition();
 
                     // update for the correct row (remove 1 from top coordinate because \n)
-                    queuePositionCursorCoordinates = (queuePositionCursorCoordinates.Value.left, queuePositionCursorCoordinates.Value.top - 1);
+                    _queuePositionCursorCoordinates = (_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
                 }
 
                 if (content.DeploymentStatus == DeploymentStatus.DeploymentFailed || content.DeploymentStatus == DeploymentStatus.DeploymentPartiallySucceeded || content.DeploymentStatus == DeploymentStatus.DeploymentSucceeded)
@@ -134,7 +131,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     string jsonString = message.Data.Trim('\"');
                     jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
                     
-                    var deploymentProgressMessage = _jsonHelper.Deserialize<DeploymentProgressMessage>(jsonString);
+                    var deploymentProgressMessage = JsonConvert.DeserializeObject<DeploymentProgressMessage>(jsonString);
                     Match match = Regex.Match(deploymentProgressMessage.Data, _pattern);
 
                     if (match.Success)
@@ -143,20 +140,20 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                         if (!string.IsNullOrWhiteSpace(position))
                         {
-                            if (queuePositionCursorCoordinates == null)
+                            if (_queuePositionCursorCoordinates == null)
                             {
-                                queuePositionCursorCoordinates = Console.GetCursorPosition();
+                                _queuePositionCursorCoordinates = Console.GetCursorPosition();
                             }
 
                             initialTopLine = Console.CursorTop;
                             msg = $"{_queuePositionMsg} {position}";
-                            Console.SetCursorPosition(queuePositionCursorCoordinates.Value.left, queuePositionCursorCoordinates.Value.top - 1);
+                            Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
                             _session.LogInformation(msg);
 
-                            queuePositionLoadingCursorCoordinates = (queuePositionCursorCoordinates.Value.left + msg.Length, queuePositionCursorCoordinates.Value.top - 1);
+                            _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
                             Console.SetCursorPosition(0, initialTopLine);
 
-                            presentLoading = true;
+                            _presentLoading = true;
                         }
                     }
                     else
@@ -176,10 +173,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 try
                 {
-                    if (presentLoading)
+                    if (_presentLoading)
                     {
                         initialPosition = Console.GetCursorPosition();
-                        Console.SetCursorPosition(queuePositionLoadingCursorCoordinates.left, queuePositionLoadingCursorCoordinates.top);
+                        Console.SetCursorPosition(_queuePositionLoadingCursorCoordinates.left, _queuePositionLoadingCursorCoordinates.top);
                         Console.Write($" {_loadingChars[loadingIndex]} {new string(' ', Console.WindowWidth)}");
                         loadingIndex = (loadingIndex + 1) % _loadingChars.Length;
                         Console.SetCursorPosition(initialPosition.left, initialPosition.top);
@@ -243,16 +240,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 // The compositeTokenSource will be a composed token between the cancellationTokenMainTask and the cancellationTokenMBMessageReceived. The first ending returns the exception.
                 CancellationTokenSource compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
 
-                cancellationTokenDeploymentQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
-                CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, cancellationTokenDeploymentQueued.Token);
+                _cancellationTokenDeploymentQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
+                CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, _cancellationTokenDeploymentQueued.Token);
 
-                _ = Task.Run(() => ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
+                await Task.Run(() => ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
 
                 while (!this._isDeploymentFinished)
                 {
-                    if (_hasDeploymentStarted && cancellationTokenDeploymentQueued != null && !cancellationTokenDeploymentQueued.IsCancellationRequested)
+                    if (_hasDeploymentStarted && _cancellationTokenDeploymentQueued != null && !_cancellationTokenDeploymentQueued.IsCancellationRequested)
                     {
-                        cancellationTokenDeploymentQueued.Cancel();
+                        _cancellationTokenDeploymentQueued.Cancel();
                         compositeTokenSourceWithDeploymentQueued.Dispose();
                     }
 
@@ -269,7 +266,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             cancellationTokenMBMessageReceived?.Dispose();
                             compositeTokenSource?.Dispose();
                             compositeTokenSourceWithDeploymentQueued?.Dispose();
-                            cancellationTokenDeploymentQueued?.Dispose();
+                            _cancellationTokenDeploymentQueued?.Dispose();
 
                             throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutMainTask.TotalMinutes} minutes waiting for deployment to be finished.");
                         }
@@ -280,7 +277,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             {
                                 compositeTokenSource?.Dispose();
                                 cancellationTokenMBMessageReceived?.Dispose();
-                                cancellationTokenDeploymentQueued?.Dispose();
+                                _cancellationTokenDeploymentQueued?.Dispose();
                                 compositeTokenSourceWithDeploymentQueued?.Dispose();
 
                                 throw new TaskCanceledException($"Deployment Failed! The deployment timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes because the SDK client did not receive additional expected messages on MessageBus from the portal and the installation is not finished.");
@@ -297,7 +294,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 }
                 compositeTokenSource?.Dispose();
                 cancellationTokenMBMessageReceived?.Dispose();
-                cancellationTokenDeploymentQueued?.Dispose();
+                _cancellationTokenDeploymentQueued?.Dispose();
                 compositeTokenSourceWithDeploymentQueued?.Dispose();
             }
             if (_hasDeploymentFailed)
@@ -369,5 +366,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 ctSource.Dispose();
             }
         }
+
     }
 }

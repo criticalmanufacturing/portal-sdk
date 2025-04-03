@@ -1,15 +1,8 @@
-﻿using Autofac.Extras.Moq;
-using Cmf.CustomerPortal.Deployment.Models;
+﻿using Cmf.CustomerPortal.Deployment.Models;
 using Cmf.CustomerPortal.Sdk.Common;
-using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.MessageBus.Messages;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Common.UnitTests.Handlers
 {

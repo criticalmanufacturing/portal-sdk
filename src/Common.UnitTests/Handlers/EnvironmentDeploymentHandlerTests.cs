@@ -3,11 +3,6 @@ using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.MessageBus.Messages;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Common.UnitTests.Handlers
 {
@@ -47,7 +42,7 @@ namespace Common.UnitTests.Handlers
             var mockCustomerPortalClient = new Mock<ICustomerPortalClient>();
             var mockArtifactsDownloadHandler = new Mock<IArtifactsDownloaderHandler>();
 
-            AppInstallationHandler appInstallationHandler = new AppInstallationHandler(mockSession.Object, mockCustomerPortalClient.Object, mockArtifactsDownloadHandler.Object, mockJsonHelper.Object);
+            EnvironmentDeploymentHandler appInstallationHandler = new EnvironmentDeploymentHandler(mockSession.Object, mockCustomerPortalClient.Object, mockArtifactsDownloadHandler.Object, mockJsonHelper.Object);
 
             var validJson = "{ \"Data\": \"Queue position: 5\" }";
             var message = new MbMessage { Data = validJson };
@@ -73,7 +68,7 @@ namespace Common.UnitTests.Handlers
             var mockCustomerPortalClient = new Mock<ICustomerPortalClient>();
             var mockArtifactsDownloadHandler = new Mock<IArtifactsDownloaderHandler>();
 
-            AppInstallationHandler appInstallationHandler = new AppInstallationHandler(mockSession.Object, mockCustomerPortalClient.Object, mockArtifactsDownloadHandler.Object, mockJsonHelper.Object);
+            EnvironmentDeploymentHandler appInstallationHandler = new EnvironmentDeploymentHandler(mockSession.Object, mockCustomerPortalClient.Object, mockArtifactsDownloadHandler.Object, mockJsonHelper.Object);
 
             var invalidJson = "{ \"Data\": \"No match here\" }";
             var message = new MbMessage { Data = invalidJson };

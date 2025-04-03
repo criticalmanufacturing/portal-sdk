@@ -26,7 +26,7 @@ namespace Common.UnitTests.Handlers
                 Data = emptyJson,
             };
             
-            appInstallationHandler._hasInstallationStarted = true;
+            appInstallationHandler.HasInstallationStarted = true;
             appInstallationHandler.ProcessDeploymentMessageQueuePosition("subject", mbMessage);
 
             //Assert

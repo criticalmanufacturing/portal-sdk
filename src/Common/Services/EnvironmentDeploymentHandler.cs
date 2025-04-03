@@ -22,10 +22,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
-        public bool _hasDeploymentStarted = false;
-        private readonly string[] loadingChars = { "|", "/", "-", "\\" };
-        private const string queuePositionMsg = "Queue Position:";
-        string pattern = @$"{queuePositionMsg} (\d+)\n";
+        private bool _hasDeploymentStarted = false;
+        private readonly string[] _loadingChars = { "|", "/", "-", "\\" };
+        private const string _queuePositionMsg = "Queue Position:";
+        private string _pattern = @$"{_queuePositionMsg} (\d+)\n";
         private (int left, int top)? queuePositionCursorCoordinates = null;
         private (int left, int top) queuePositionLoadingCursorCoordinates;
         CancellationTokenSource cancellationTokenDeploymentQueued;
@@ -34,6 +34,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private static DateTime? utcOfLastMessageReceived = null;
 
         private IJsonHelper _jsonHelper { get; }
+
+        public bool HasDeploymentStarted 
+        {
+            get { return _hasDeploymentStarted; }
+            set { _hasDeploymentStarted = value; }
+        }
+
 
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient,
                                             IArtifactsDownloaderHandler artifactsDownloaderHandler,
@@ -70,7 +77,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                 // handle the start position of queue position on console
                 if (!_hasDeploymentStarted && !string.IsNullOrWhiteSpace(content.Data)
-                    && queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, pattern))
+                    && queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, _pattern))
                 {
                     queuePositionCursorCoordinates = Console.GetCursorPosition();
 
@@ -128,7 +135,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
                     
                     var deploymentProgressMessage = _jsonHelper.Deserialize<DeploymentProgressMessage>(jsonString);
-                    Match match = Regex.Match(deploymentProgressMessage.Data, pattern);
+                    Match match = Regex.Match(deploymentProgressMessage.Data, _pattern);
 
                     if (match.Success)
                     {
@@ -142,7 +149,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             }
 
                             initialTopLine = Console.CursorTop;
-                            msg = $"{queuePositionMsg} {position}";
+                            msg = $"{_queuePositionMsg} {position}";
                             Console.SetCursorPosition(queuePositionCursorCoordinates.Value.left, queuePositionCursorCoordinates.Value.top - 1);
                             _session.LogInformation(msg);
 
@@ -173,8 +180,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     {
                         initialPosition = Console.GetCursorPosition();
                         Console.SetCursorPosition(queuePositionLoadingCursorCoordinates.left, queuePositionLoadingCursorCoordinates.top);
-                        Console.Write($" {loadingChars[loadingIndex]} {new string(' ', Console.WindowWidth)}");
-                        loadingIndex = (loadingIndex + 1) % loadingChars.Length;
+                        Console.Write($" {_loadingChars[loadingIndex]} {new string(' ', Console.WindowWidth)}");
+                        loadingIndex = (loadingIndex + 1) % _loadingChars.Length;
                         Console.SetCursorPosition(initialPosition.left, initialPosition.top);
                     }
                 }

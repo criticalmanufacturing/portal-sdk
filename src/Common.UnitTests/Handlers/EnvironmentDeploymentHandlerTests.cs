@@ -26,7 +26,7 @@ namespace Common.UnitTests.Handlers
                 Data = emptyJson,
             };
 
-            environmentDeploymentHandler._hasDeploymentStarted = true;
+            environmentDeploymentHandler.HasDeploymentStarted = true;
             environmentDeploymentHandler.ProcessDeploymentMessageQueuePosition("subject", mbMessage);
 
             //Assert

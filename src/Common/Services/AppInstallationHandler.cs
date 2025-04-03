@@ -22,16 +22,21 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private bool _isInstallationFinished = false;
         private bool _hasInstallationFailed = false;
-        public bool _hasInstallationStarted = false;
-        private readonly string[] loadingChars = { "|", "/", "-", "\\" };
-        private const string queuePositionMsg = "Queue Position:";
-        string pattern = @$"{queuePositionMsg} \d+\n";
-        private (int left, int top)? queuePositionCursorCoordinates = null;
-        private (int left, int top) queuePositionLoadingCursorCoordinates;
+        private bool _hasInstallationStarted = false;
+        private readonly string[] _loadingChars = { "|", "/", "-", "\\" };
+        private const string _queuePositionMsg = "Queue Position:";
+        private string pattern = @$"{_queuePositionMsg} \d+\n";
+        private (int left, int top)? _queuePositionCursorCoordinates = null;
+        private (int left, int top) _queuePositionLoadingCursorCoordinates;
         CancellationTokenSource cancellationTokenDeploymentQueued;
-        private bool presentLoading = false;
+        private bool _presentLoading = false;
 
         private static DateTime? utcOfLastMessageReceived = null;
+        public bool HasInstallationStarted
+        {
+            get { return _hasInstallationStarted; }
+            set { _hasInstallationStarted = value; }
+        }
 
         public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient,
                                       IArtifactsDownloaderHandler artifactsDownloaderHandler, IJsonHelper jsonHelper)
@@ -67,12 +72,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                 // handle the start position of queue position on console
                 if (!_hasInstallationStarted && !string.IsNullOrWhiteSpace(content.Data)
-                    && queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, pattern))
+                    && _queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, pattern))
                 {
-                    queuePositionCursorCoordinates = Console.GetCursorPosition();
+                    _queuePositionCursorCoordinates = Console.GetCursorPosition();
 
                     // update for the correct row (remove 1 from top coordinate because \n)
-                    queuePositionCursorCoordinates = (queuePositionCursorCoordinates.Value.left, queuePositionCursorCoordinates.Value.top - 1);
+                    _queuePositionCursorCoordinates = (_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
                 }
 
                 if (content.DeploymentStatus == AppInstallationStatus.InstallationFailed || content.DeploymentStatus == AppInstallationStatus.InstallationSucceeded)
@@ -133,20 +138,20 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                         if (!string.IsNullOrWhiteSpace(position))
                         {
-                            if (queuePositionCursorCoordinates == null)
+                            if (_queuePositionCursorCoordinates == null)
                             {
-                                queuePositionCursorCoordinates = Console.GetCursorPosition();
+                                _queuePositionCursorCoordinates = Console.GetCursorPosition();
                             }
 
                             initialTopLine = Console.CursorTop;
-                            msg = $"{queuePositionMsg} {position}";
-                            Console.SetCursorPosition(queuePositionCursorCoordinates.Value.left, queuePositionCursorCoordinates.Value.top - 1);
+                            msg = $"{_queuePositionMsg} {position}";
+                            Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
                             _session.LogInformation(msg);
 
-                            queuePositionLoadingCursorCoordinates = (queuePositionCursorCoordinates.Value.left + msg.Length, queuePositionCursorCoordinates.Value.top - 1);
+                            _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
                             Console.SetCursorPosition(0, initialTopLine);
 
-                            presentLoading = true;
+                            _presentLoading = true;
                         }
                     } else
                     {
@@ -165,12 +170,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 try
                 {
-                    if (presentLoading)
+                    if (_presentLoading)
                     {
                         initialPosition = Console.GetCursorPosition();
-                        Console.SetCursorPosition(queuePositionLoadingCursorCoordinates.left, queuePositionLoadingCursorCoordinates.top);
-                        Console.Write($" {loadingChars[loadingIndex]} {new string(' ', Console.WindowWidth)}");
-                        loadingIndex = (loadingIndex + 1) % loadingChars.Length;
+                        Console.SetCursorPosition(_queuePositionLoadingCursorCoordinates.left, _queuePositionLoadingCursorCoordinates.top);
+                        Console.Write($" {_loadingChars[loadingIndex]} {new string(' ', Console.WindowWidth)}");
+                        loadingIndex = (loadingIndex + 1) % _loadingChars.Length;
                         Console.SetCursorPosition(initialPosition.left, initialPosition.top);
                     }
                 }

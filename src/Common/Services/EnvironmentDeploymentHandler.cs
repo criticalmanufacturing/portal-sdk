@@ -22,7 +22,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
-        private bool _hasDeploymentStarted = false;
+        public bool _hasDeploymentStarted = false;
         private readonly string[] loadingChars = { "|", "/", "-", "\\" };
         private const string queuePositionMsg = "Queue Position:";
         string pattern = @$"{queuePositionMsg} (\d+)\n";
@@ -33,12 +33,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         private static DateTime? utcOfLastMessageReceived = null;
 
+        private IJsonHelper _jsonHelper { get; }
+
         public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                            IArtifactsDownloaderHandler artifactsDownloaderHandler)
+                                            IArtifactsDownloaderHandler artifactsDownloaderHandler,
+                                            IJsonHelper jsonHelper)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
             _artifactsDownloaderHandler = artifactsDownloaderHandler;
+            _jsonHelper = jsonHelper;
         }
 
         #region Private Methods
@@ -51,7 +55,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             if (message != null && !string.IsNullOrWhiteSpace(message.Data))
             {
                 var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = string.Empty };
-                var content = JsonConvert.DeserializeAnonymousType(message.Data, messageContentFormat);
+                var content = _jsonHelper.DeserializeAnonymousType(message.Data, messageContentFormat);
 
                 if (!_hasDeploymentStarted && (content.DeploymentStatus != null && content.DeploymentStatus != DeploymentStatus.QueuedDeployment && content.DeploymentStatus != DeploymentStatus.QueuedTermination && content.DeploymentStatus != DeploymentStatus.NotDeployed))
                 {
@@ -109,7 +113,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private async void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
+        public void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
         {
             string position;
             int initialTopLine;
@@ -123,7 +127,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     string jsonString = message.Data.Trim('\"');
                     jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
                     
-                    var deploymentProgressMessage = JsonConvert.DeserializeObject<DeploymentProgressMessage>(jsonString);
+                    var deploymentProgressMessage = _jsonHelper.Deserialize<DeploymentProgressMessage>(jsonString);
                     Match match = Regex.Match(deploymentProgressMessage.Data, pattern);
 
                     if (match.Success)

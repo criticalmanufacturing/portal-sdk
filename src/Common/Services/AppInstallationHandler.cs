@@ -18,10 +18,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private readonly ISession _session;
         private readonly ICustomerPortalClient _customerPortalClient;
         private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
+        private readonly IJsonHelper _jsonHelper;
 
         private bool _isInstallationFinished = false;
         private bool _hasInstallationFailed = false;
-        private bool _hasInstallationStarted = false;
+        public bool _hasInstallationStarted = false;
         private readonly string[] loadingChars = { "|", "/", "-", "\\" };
         private const string queuePositionMsg = "Queue Position:";
         string pattern = @$"{queuePositionMsg} \d+\n";
@@ -33,11 +34,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private static DateTime? utcOfLastMessageReceived = null;
 
         public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                      IArtifactsDownloaderHandler artifactsDownloaderHandler)
+                                      IArtifactsDownloaderHandler artifactsDownloaderHandler, IJsonHelper jsonHelper)
         {
             _session = session;
             _customerPortalClient = customerPortalClient;
             _artifactsDownloaderHandler = artifactsDownloaderHandler;
+            _jsonHelper = jsonHelper;
         }
 
         #region Private Methods
@@ -109,7 +111,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
         }
 
-        private void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
+        public void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
         {
             int initialTopLine;
             string msg;
@@ -122,7 +124,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     string jsonString = message.Data.Trim('\"');
                     jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
 
-                    var deploymentProgressMessage = JsonConvert.DeserializeObject<DeploymentProgressMessage>(jsonString);
+                    var deploymentProgressMessage = _jsonHelper.Deserialize<DeploymentProgressMessage>(jsonString);
                     Match match = Regex.Match(deploymentProgressMessage.Data, pattern);
 
                     if (match.Success)
@@ -146,6 +148,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                             presentLoading = true;
                         }
+                    } else
+                    {
+                        _session.LogInformation("Unknown message received");
                     }
                 }
                 catch { }

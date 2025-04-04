@@ -30,7 +30,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private (int left, int top) _queuePositionLoadingCursorCoordinates;
         CancellationTokenSource _cancellationTokenDeploymentQueued;
         private bool _presentLoading = false;
-
         private static DateTime? utcOfLastMessageReceived = null;
 
         public bool HasDeploymentStarted 
@@ -49,55 +48,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         }
 
         #region Private Methods
-
-        private void ProcessDeploymentMessage(string subject, MbMessage message)
-        {
-            // set the DateTime of last message received
-            utcOfLastMessageReceived = DateTime.UtcNow;
-
-            if (message != null && !string.IsNullOrWhiteSpace(message.Data))
-            {
-                var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = string.Empty };
-                var content = JsonConvert.DeserializeAnonymousType(message.Data, messageContentFormat);
-
-                if (!_hasDeploymentStarted && (content.DeploymentStatus != null && content.DeploymentStatus != DeploymentStatus.QueuedDeployment && content.DeploymentStatus != DeploymentStatus.QueuedTermination && content.DeploymentStatus != DeploymentStatus.NotDeployed))
-                {
-                    _hasDeploymentStarted = true;
-                    if (_cancellationTokenDeploymentQueued != null && !_cancellationTokenDeploymentQueued.IsCancellationRequested)
-                    {
-                        _cancellationTokenDeploymentQueued.Cancel();
-                    }
-                }
-
-                _session.LogInformation(content.Data);
-
-
-                // handle the start position of queue position on console
-                if (!_hasDeploymentStarted && !string.IsNullOrWhiteSpace(content.Data)
-                    && _queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, _pattern))
-                {
-                    _queuePositionCursorCoordinates = Console.GetCursorPosition();
-
-                    // update for the correct row (remove 1 from top coordinate because \n)
-                    _queuePositionCursorCoordinates = (_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
-                }
-
-                if (content.DeploymentStatus == DeploymentStatus.DeploymentFailed || content.DeploymentStatus == DeploymentStatus.DeploymentPartiallySucceeded || content.DeploymentStatus == DeploymentStatus.DeploymentSucceeded)
-                {
-                    if (content.DeploymentStatus == DeploymentStatus.DeploymentFailed)
-                    {
-                        _hasDeploymentFailed = true;
-                    }
-                    _isDeploymentFinished = true;
-                    _hasDeploymentStarted = true;
-                }
-            }
-            else
-            {
-                _session.LogInformation("Unknown message received");
-            }
-        }
-
         private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputDir)
         {
             switch (target)
@@ -114,54 +64,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     break;
                 default:
                     break;
-            }
-        }
-
-        public void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
-        {
-            string position;
-            int initialTopLine;
-            string msg;
-
-            if (!_hasDeploymentStarted)
-            {
-                try
-                {
-                    // handle escape
-                    string jsonString = message.Data.Trim('\"');
-                    jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
-                    
-                    var deploymentProgressMessage = JsonConvert.DeserializeObject<DeploymentProgressMessage>(jsonString);
-                    Match match = Regex.Match(deploymentProgressMessage.Data, _pattern);
-
-                    if (match.Success)
-                    {
-                        position = match.Groups[1].Value;
-
-                        if (!string.IsNullOrWhiteSpace(position))
-                        {
-                            if (_queuePositionCursorCoordinates == null)
-                            {
-                                _queuePositionCursorCoordinates = Console.GetCursorPosition();
-                            }
-
-                            initialTopLine = Console.CursorTop;
-                            msg = $"{_queuePositionMsg} {position}";
-                            Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
-                            _session.LogInformation(msg);
-
-                            _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
-                            Console.SetCursorPosition(0, initialTopLine);
-
-                            _presentLoading = true;
-                        }
-                    }
-                    else
-                    {
-                        _session.LogInformation("Unknown message received");
-                    }
-                }
-                catch { }
             }
         }
 
@@ -189,6 +91,74 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         }
 
         #endregion
+        public void ProcessDeploymentMessage(string subject, MbMessage message)
+        {
+            string position;
+            int initialTopLine;
+            string msg;
+            // set the DateTime of last message received
+            utcOfLastMessageReceived = DateTime.UtcNow;
+            if (message != null && !string.IsNullOrWhiteSpace(message.Data))
+            {
+                // handle escape
+                string jsonString = message.Data.Trim('\"');
+                jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
+                var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = string.Empty };
+                var content = JsonConvert.DeserializeAnonymousType(jsonString, messageContentFormat);
+                Match match = Regex.Match(content.Data, _pattern);
+                msg = content.Data;
+                if (match.Success && !_hasDeploymentStarted)
+                {
+                    position = match.Groups[1].Value;
+
+                    if (!string.IsNullOrWhiteSpace(position))
+                    {
+                        if (_queuePositionCursorCoordinates == null)
+                        {
+                            _queuePositionCursorCoordinates = Console.GetCursorPosition();
+                        }
+
+                        initialTopLine = Console.CursorTop;
+                        msg = $"{_queuePositionMsg} {position}";
+                        Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
+                        _session.LogInformation(msg);
+                        _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
+                        Console.SetCursorPosition(0, initialTopLine);
+                        _presentLoading = true;
+                    }
+                }
+
+                if (!msg.StartsWith(_queuePositionMsg))
+                {
+                    _session.LogInformation(msg);
+                }
+
+                if (content.DeploymentStatus == DeploymentStatus.Deploying || content.DeploymentStatus == DeploymentStatus.Terminating)
+                {
+                    _presentLoading = false;
+                    _hasDeploymentStarted = true;
+
+                    if (_cancellationTokenDeploymentQueued != null && !_cancellationTokenDeploymentQueued.IsCancellationRequested)
+                    {
+                        _cancellationTokenDeploymentQueued.Cancel();
+                    }
+                }
+
+                if (content.DeploymentStatus == DeploymentStatus.DeploymentFailed || content.DeploymentStatus == DeploymentStatus.DeploymentPartiallySucceeded || content.DeploymentStatus == DeploymentStatus.DeploymentSucceeded)
+                {
+                    if (content.DeploymentStatus == DeploymentStatus.DeploymentFailed)
+                    {
+                        _hasDeploymentFailed = true;
+                    }
+                    _isDeploymentFinished = true;
+                    _hasDeploymentStarted = true;
+                }
+            }
+            else
+            {
+                _session.LogInformation("Unknown message received");
+            }
+        }
 
         public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask, double? minutesTimeoutToGetSomeMBMsg = null)
         {
@@ -199,16 +169,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             // assign the timeout of don't receive any message from portal by MB
             TimeSpan timeoutToGetSomeMBMessageTask = minutesTimeoutToGetSomeMBMsg > 0 ? TimeSpan.FromMinutes(minutesTimeoutToGetSomeMBMsg.Value) : TimeSpan.FromMinutes(30);
 
-
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.{customerEnvironment.Id}";
-            var subjectMessageQueuePosition = $"CUSTOMERPORTAL.DEPLOYMENT.MESSAGEQUEUE.POSITION.{customerEnvironment.Id}";
 
             _session.LogDebug($"Subscribing messagebus subject {subject}");
             messageBus.Subscribe(subject, ProcessDeploymentMessage);
-
-            _session.LogDebug($"Subscribing messagebus subject {subjectMessageQueuePosition}");
-            messageBus.Subscribe(subjectMessageQueuePosition, ProcessDeploymentMessageQueuePosition);
 
             // start deployment
             var startDeploymentInput = new StartDeploymentInput

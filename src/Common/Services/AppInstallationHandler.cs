@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Deployment.Models;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
-using Cmf.CustomerPortal.PackageManagement.Objects;
 using Cmf.MessageBus.Messages;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
@@ -27,9 +25,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private string _pattern = @$"{_queuePositionMsg} (\d+)\n";
         private (int left, int top)? _queuePositionCursorCoordinates = null;
         private (int left, int top) _queuePositionLoadingCursorCoordinates;
-        CancellationTokenSource cancellationTokenDeploymentQueued;
+        CancellationTokenSource _cancellationTokenDeploymentQueued;
         private bool _presentLoading = false;
-
         private static DateTime? utcOfLastMessageReceived = null;
         public bool HasInstallationStarted
         {
@@ -46,54 +43,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         }
 
         #region Private Methods
-
-        private void ProcessDeploymentMessage(string subject, MbMessage message)
-        {
-            // set the DateTime of last message received
-            utcOfLastMessageReceived = DateTime.UtcNow;
-
-            if (message != null && !string.IsNullOrWhiteSpace(message.Data))
-            {
-                var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (AppInstallationStatus?)AppInstallationStatus.NotInstalled, StepId = string.Empty };
-                var content = JsonConvert.DeserializeAnonymousType(message.Data, messageContentFormat);
-
-                if (!_hasInstallationStarted && (content.DeploymentStatus != null && content.DeploymentStatus != AppInstallationStatus.InstallationQueued && content.DeploymentStatus != AppInstallationStatus.UninstallationQueued && content.DeploymentStatus != AppInstallationStatus.NotInstalled))
-                {
-                    _hasInstallationStarted = true;
-                    if (cancellationTokenDeploymentQueued != null && !cancellationTokenDeploymentQueued.IsCancellationRequested)
-                    {
-                        cancellationTokenDeploymentQueued.Cancel();
-                    }
-                }
-
-                _session.LogInformation(content.Data);
-
-                // handle the start position of queue position on console
-                if (!_hasInstallationStarted && !string.IsNullOrWhiteSpace(content.Data)
-                    && _queuePositionCursorCoordinates == null && Regex.IsMatch(content.Data, _pattern))
-                {
-                    _queuePositionCursorCoordinates = Console.GetCursorPosition();
-
-                    // update for the correct row (remove 1 from top coordinate because \n)
-                    _queuePositionCursorCoordinates = (_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
-                }
-
-                if (content.DeploymentStatus == AppInstallationStatus.InstallationFailed || content.DeploymentStatus == AppInstallationStatus.InstallationSucceeded)
-                {
-                    if (content.DeploymentStatus == AppInstallationStatus.InstallationFailed)
-                    {
-                        _hasInstallationFailed = true;
-                    }
-                    _isInstallationFinished = true;
-                    _hasInstallationStarted = true;
-                }
-            }
-            else
-            {
-                _session.LogInformation("Unknown message received");
-            }
-        }
-
         private async Task ProcessAppInstallation(CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir)
         {
             switch (target)
@@ -113,53 +62,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     break;
             }
         }
-
-        public void ProcessDeploymentMessageQueuePosition(string subject, MbMessage message)
-        {
-            int initialTopLine;
-            string msg;
-
-            if (!_hasInstallationStarted)
-            {
-                try
-                {
-                    // handle escape
-                    string jsonString = message.Data.Trim('\"');
-                    jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
-
-                    var deploymentProgressMessage = JsonConvert.DeserializeObject<DeploymentProgressMessage>(jsonString);
-                    Match match = Regex.Match(deploymentProgressMessage.Data, _pattern);
-
-                    if (match.Success)
-                    {
-                        string position = match.Groups[1].Value;
-
-                        if (!string.IsNullOrWhiteSpace(position))
-                        {
-                            if (_queuePositionCursorCoordinates == null)
-                            {
-                                _queuePositionCursorCoordinates = Console.GetCursorPosition();
-                            }
-
-                            initialTopLine = Console.CursorTop;
-                            msg = $"{_queuePositionMsg} {position}";
-                            Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
-                            _session.LogInformation($"{msg}");
-
-                            _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
-                            Console.SetCursorPosition(0, initialTopLine);
-
-                            _presentLoading = true;
-                        }
-                    } else
-                    {
-                        _session.LogInformation("Unknown message received");
-                    }
-                }
-                catch { }
-            }
-        }
-
         private async Task ShowLoadingIndicator(CancellationToken token)
         {
             int loadingIndex = 0;
@@ -185,6 +87,81 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         #endregion
 
+        public void ProcessDeploymentMessage(string subject, MbMessage message)
+        {
+            string position;
+            int initialTopLine;
+            string msg;
+            // set the DateTime of last message received
+            utcOfLastMessageReceived = DateTime.UtcNow;
+
+            if (message != null && !string.IsNullOrWhiteSpace(message.Data))
+            {
+                // handle escape
+                string jsonString = message.Data.Trim('\"');
+                jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
+                var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (AppInstallationStatus?)AppInstallationStatus.NotInstalled, StepId = string.Empty };
+                var content = JsonConvert.DeserializeAnonymousType(jsonString, messageContentFormat);
+                Match match = Regex.Match(content.Data, _pattern);
+
+                msg = content.Data;
+                if (match.Success && !_hasInstallationStarted)
+                {
+                    position = match.Groups[1].Value;
+
+                    if (!string.IsNullOrWhiteSpace(position))
+                    {
+                        if (_queuePositionCursorCoordinates == null)
+                        {
+                            _queuePositionCursorCoordinates = Console.GetCursorPosition();
+                        }
+
+                        initialTopLine = Console.CursorTop;
+                        msg = $"{_queuePositionMsg} {position}";
+                        Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
+                        _session.LogInformation(msg);
+
+                        _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
+                        Console.SetCursorPosition(0, initialTopLine);
+
+                        _presentLoading = true;
+                    }
+                }
+                if (!msg.StartsWith(_queuePositionMsg))
+                {
+                    _session.LogInformation(msg);
+                }
+
+
+                if (content.DeploymentStatus == AppInstallationStatus.Installing || content.DeploymentStatus == AppInstallationStatus.Uninstalling)
+                {
+                    _presentLoading = false;
+                    _hasInstallationStarted = true;
+
+                    if (_cancellationTokenDeploymentQueued != null && !_cancellationTokenDeploymentQueued.IsCancellationRequested)
+                    {
+                        _cancellationTokenDeploymentQueued.Cancel();
+                    }
+                }
+
+
+                if (content.DeploymentStatus == AppInstallationStatus.InstallationFailed || content.DeploymentStatus == AppInstallationStatus.InstallationSucceeded)
+                {
+                    if (content.DeploymentStatus == AppInstallationStatus.InstallationFailed)
+                    {
+                        _hasInstallationFailed = true;
+                    }
+                    _isInstallationFinished = true;
+                    _hasInstallationStarted = true;
+                }
+            }
+            else
+            {
+                _session.LogInformation("Unknown message received");
+            }
+        }
+
+
         public async Task Handle(string appName, CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir, double? timeoutMinutesMainTask = null, double? timeoutMinutesToGetSomeMBMsg = null)
         {
             // assign the timeout of main task to deploy
@@ -200,9 +177,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
             _session.LogDebug($"Subscribing messagebus subject {subject}");
             messageBus.Subscribe(subject, ProcessDeploymentMessage);
-
-            _session.LogDebug($"Subscribing messagebus subject {subjectMessageQueuePosition}");
-            messageBus.Subscribe(subjectMessageQueuePosition, ProcessDeploymentMessageQueuePosition);
 
             // start deployment
             var startDeploymentInput = new StartDeploymentInput
@@ -224,16 +198,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 // The compositeTokenSource will be a composed token between the cancellationTokenMainTask and the cancellationTokenMBMessageReceived. The first ending returns the exception.
                 CancellationTokenSource compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
 
-                cancellationTokenDeploymentQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
-                CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, cancellationTokenDeploymentQueued.Token);
+                _cancellationTokenDeploymentQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
+                CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, _cancellationTokenDeploymentQueued.Token);
 
                 await Task.Run(() => ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
 
                 while (!this._isInstallationFinished)
                 {
-                    if (_hasInstallationStarted && cancellationTokenDeploymentQueued != null && !cancellationTokenDeploymentQueued.IsCancellationRequested)
+                    if (_hasInstallationStarted && _cancellationTokenDeploymentQueued != null && !_cancellationTokenDeploymentQueued.IsCancellationRequested)
                     {
-                        cancellationTokenDeploymentQueued.Cancel();
+                        _cancellationTokenDeploymentQueued.Cancel();
                         compositeTokenSourceWithDeploymentQueued.Dispose();
                     }
 
@@ -249,7 +223,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             cancellationTokenMBMessageReceived?.Dispose();
                             compositeTokenSource?.Dispose();
                             compositeTokenSourceWithDeploymentQueued?.Dispose();
-                            cancellationTokenDeploymentQueued?.Dispose();
+                            _cancellationTokenDeploymentQueued?.Dispose();
 
                             throw new TaskCanceledException($"Installation Failed! The installation timed out after waiting {timeoutMainTask.TotalMinutes} minutes to finish.");
                         }
@@ -260,7 +234,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             {
                                 compositeTokenSource?.Dispose();
                                 cancellationTokenMBMessageReceived?.Dispose();
-                                cancellationTokenDeploymentQueued?.Dispose();
+                                _cancellationTokenDeploymentQueued?.Dispose();
                                 compositeTokenSourceWithDeploymentQueued?.Dispose();
 
                                 throw new TaskCanceledException($"Installation Failed! The installation timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes because the SDK client did not receive additional expected messages on MessageBus from the portal and the installation is not finished.");
@@ -279,7 +253,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                 compositeTokenSource?.Dispose();
                 cancellationTokenMBMessageReceived?.Dispose();
-                cancellationTokenDeploymentQueued?.Dispose();
+                _cancellationTokenDeploymentQueued?.Dispose();
                 compositeTokenSourceWithDeploymentQueued?.Dispose();
             }
 

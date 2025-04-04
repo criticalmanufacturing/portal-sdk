@@ -23,7 +23,7 @@ namespace Common.UnitTests.Handlers
             var message = new MbMessage { Data = validJson };
 
             // Act
-            appInstallationHandler.ProcessDeploymentMessageQueuePosition("someSubject", message);
+            appInstallationHandler.ProcessDeploymentMessage("someSubject", message);
 
             // Assert
             mockSession.Verify(x => x.LogInformation("Unknown message received"), Times.Never);
@@ -39,12 +39,10 @@ namespace Common.UnitTests.Handlers
             var mockArtifactsDownloadHandler = new Mock<IArtifactsDownloaderHandler>();
 
             EnvironmentDeploymentHandler appInstallationHandler = new EnvironmentDeploymentHandler(mockSession.Object, mockCustomerPortalClient.Object, mockArtifactsDownloadHandler.Object);
-
-            var invalidJson = "{ \"Data\": \"No match here\" }";
-            var message = new MbMessage { Data = invalidJson };
+            var message = new MbMessage { Data = null };
 
             // Act
-            appInstallationHandler.ProcessDeploymentMessageQueuePosition("someSubject", message);
+            appInstallationHandler.ProcessDeploymentMessage("someSubject", message);
 
             // Assert
             mockSession.Verify(x => x.LogInformation("Unknown message received"), Times.Once);

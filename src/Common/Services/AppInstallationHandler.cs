@@ -22,7 +22,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private bool _hasInstallationStarted = false;
         private readonly string[] _loadingChars = { "|", "/", "-", "\\" };
         private const string _queuePositionMsg = "Queue Position:";
-        private string _pattern = @$"{_queuePositionMsg} (\d+)\n";
+        private string _pattern = @$"{_queuePositionMsg} (\d+)\\n";
         private (int left, int top)? _queuePositionCursorCoordinates = null;
         private (int left, int top) _queuePositionLoadingCursorCoordinates;
         CancellationTokenSource _cancellationTokenDeploymentQueued;
@@ -89,7 +89,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
         public void ProcessDeploymentMessage(string subject, MbMessage message)
         {
-            string position;
             int initialTopLine;
             string msg;
             // set the DateTime of last message received
@@ -99,15 +98,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 // handle escape
                 string jsonString = message.Data.Trim('\"');
-                jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
+                jsonString = jsonString.Replace("\\\"", "\"");
                 var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (AppInstallationStatus?)AppInstallationStatus.NotInstalled, StepId = string.Empty };
                 var content = JsonConvert.DeserializeAnonymousType(jsonString, messageContentFormat);
-                Match match = Regex.Match(content.Data, _pattern);
+                msg = content.Data ?? string.Empty;
+                Match match = Regex.Match(msg, _pattern);
 
-                msg = content.Data;
                 if (match.Success && !_hasInstallationStarted)
                 {
-                    position = match.Groups[1].Value;
+                   string position = match.Groups[1].Value;
 
                     if (!string.IsNullOrWhiteSpace(position))
                     {
@@ -173,7 +172,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
             var messageBus = await _customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.APP.{customerEnvironmentApplicationPackage.Id}";
-            var subjectMessageQueuePosition = $"CUSTOMERPORTAL.DEPLOYMENT.MESSAGEQUEUE.POSITION.{customerEnvironmentApplicationPackage.Id}";
 
             _session.LogDebug($"Subscribing messagebus subject {subject}");
             messageBus.Subscribe(subject, ProcessDeploymentMessage);

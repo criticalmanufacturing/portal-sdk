@@ -25,7 +25,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private bool _hasDeploymentStarted = false;
         private readonly string[] _loadingChars = { "|", "/", "-", "\\" };
         private const string _queuePositionMsg = "Queue Position:";
-        private string _pattern = @$"{_queuePositionMsg} (\d+)\n";
+        private string _pattern = @$"{_queuePositionMsg} (\d+)\\n";
         private (int left, int top)? _queuePositionCursorCoordinates = null;
         private (int left, int top) _queuePositionLoadingCursorCoordinates;
         CancellationTokenSource _cancellationTokenDeploymentQueued;
@@ -93,7 +93,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         #endregion
         public void ProcessDeploymentMessage(string subject, MbMessage message)
         {
-            string position;
             int initialTopLine;
             string msg;
             // set the DateTime of last message received
@@ -102,14 +101,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 // handle escape
                 string jsonString = message.Data.Trim('\"');
-                jsonString = jsonString.Replace("\\\"", "\"").Replace("\\\\", "\\");
+                jsonString = jsonString.Replace("\\\"", "\"");
                 var messageContentFormat = new { Data = string.Empty, DeploymentStatus = (DeploymentStatus?)DeploymentStatus.NotDeployed, StepId = string.Empty };
                 var content = JsonConvert.DeserializeAnonymousType(jsonString, messageContentFormat);
-                Match match = Regex.Match(content.Data, _pattern);
-                msg = content.Data;
+                msg = content.Data ?? string.Empty;
+                Match match = Regex.Match(msg, _pattern);
+
                 if (match.Success && !_hasDeploymentStarted)
                 {
-                    position = match.Groups[1].Value;
+                   string position = match.Groups[1].Value;
 
                     if (!string.IsNullOrWhiteSpace(position))
                     {

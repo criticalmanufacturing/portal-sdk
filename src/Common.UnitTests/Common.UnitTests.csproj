@@ -33,6 +33,9 @@
     <Reference Include="Cmf.LightBusinessObjects">
       <HintPath>..\Common\libs\Cmf.LightBusinessObjects.dll</HintPath>
     </Reference>
+    <Reference Include="Cmf.MessageBus.Client">
+      <HintPath>..\Common\libs\Cmf.MessageBus.Client.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

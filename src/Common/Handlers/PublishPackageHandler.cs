@@ -1,4 +1,5 @@
-﻿using Cmf.Foundation.BusinessObjects.QueryObject;
+﻿using Cmf.CustomerPortal.Sdk.Common.Services;
+using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.QueryManagement.OutputObjects;
 using System;
@@ -11,10 +12,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
     public class PublishPackageHandler : AbstractHandler
     {
         private readonly ICustomerPortalClient _customerPortalClient;
+        private readonly IQueryProxyService _queryProxyService;
 
-        public PublishPackageHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
+        public PublishPackageHandler(ICustomerPortalClient customerPortalClient, ISession session, IQueryProxyService queryProxyService) : base(session, true)
         {
             _customerPortalClient = customerPortalClient;
+            _queryProxyService = queryProxyService;
         }
 
         public async Task Run(FileSystemInfo path, string datagroup)
@@ -23,7 +26,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             Session.LogDebug("-------------------");
 
-            if (path.Attributes.HasFlag(FileAttributes.Directory)) {
+            if (path.Attributes.HasFlag(FileAttributes.Directory))
+            {
                 foreach (string file in Directory.GetFiles(path.FullName))
                 {
                     await UploadPackage(file, datagroup);
@@ -34,7 +38,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 await UploadPackage(path.FullName, datagroup);
             }
         }
-
 
         private async Task UploadPackage(string filePath, string datagroup)
         {
@@ -66,7 +69,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Session.LogError($"Package {fileName} failed to publish");
                     Session.LogError(exception);
                 }
-            } else
+            }
+            else
             {
                 Session.LogInformation($"Package {fileName} skipped");
             }
@@ -97,17 +101,22 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
         private async Task<bool> PackageExists(string fileName)
         {
-
             bool packageExists = false;
 
-            string pattern = @"^(.+)\.(\d+)\.(\d+)\.(\d+)\.zip$";
+            string pattern = @"^(?<packagename>.+?)\.(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<prerelease>[0-9A-Za-z\-\.]+))?\.zip$";
             RegexOptions options = RegexOptions.IgnoreCase;
             MatchCollection matches = Regex.Matches(fileName, pattern, options);
 
-            if (matches.Count > 0 && matches[0].Groups != null && matches[0].Groups.Count == 5)
+            if (matches.Count > 0 && matches[0].Groups != null && (matches[0].Groups.Count == 5 || matches[0].Groups.Count == 6))
             {
-                string packageName = matches[0].Groups[1].Value;
-                string packageVersion = $"{matches[0].Groups[2].Value}.{matches[0].Groups[3].Value}.{matches[0].Groups[4].Value}";
+                var match = matches[0];
+                string packageName = match.Groups["packagename"].Value;
+                string major = match.Groups["major"].Value;
+                string minor = match.Groups["minor"].Value;
+                string patch = match.Groups["patch"].Value;
+                string prerelease = match.Groups["prerelease"].Value;
+                string packageVersion = $"{major}.{minor}.{patch}";
+                packageVersion += string.IsNullOrEmpty(prerelease) ? "" : $"-{prerelease}";
 
                 // check if this package already exists
                 Session.LogDebug($"Verifying if package with name {packageName} and version {packageVersion} exists...");
@@ -118,7 +127,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     Session.LogDebug("Package does not exist");
                 }
-            } else
+            }
+            else
             {
                 Session.LogDebug($"Could not get data from file name ({fileName}) to validate if package exists.");
             }
@@ -149,6 +159,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     ObjectName = "CPInstallationPackage",
                     ObjectAlias = "CPInstallationPackage_1",
                     Operator = Cmf.Foundation.Common.FieldOperator.IsEqualTo,
+
                     Value = version,
                     LogicalOperator = Cmf.Foundation.Common.LogicalOperator.AND,
                     FilterType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,
@@ -178,20 +189,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             };
             query.Query.Relations = new RelationCollection();
 
-            ExecuteQueryOutput result = null;
-            try
-            {
-                result = await new ExecuteQueryInput()
-                {
-                    QueryObject = query,
-                    PageNumber = 1,
-                    PageSize = 1
-                }.ExecuteQueryAsync(true);
-            } catch (Exception e)
-            {
-                Session.LogDebug($"Failed to verify if package exists: {e.Message}");
-            }
-
+            var result = await _queryProxyService.ExecuteQuery(query, 1, 1, Session);
 
             return result?.TotalRows > 0;
         }

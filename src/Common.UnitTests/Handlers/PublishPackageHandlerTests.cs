@@ -4,6 +4,7 @@ using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.QueryManagement.OutputObjects;
 using Moq;
+using System.Reflection;
 
 namespace Common.UnitTests.Handlers;
 
@@ -17,7 +18,10 @@ public class PublishPackageHandlerTests
         var sessionMock = new Mock<ISession>();
         var queryProxyServiceMock = new Mock<IQueryProxyService>();
         var publishPackageHandler = new PublishPackageHandler(customerPortalClientMock.Object, sessionMock.Object, queryProxyServiceMock.Object);
-        var fileSystemInfo = new FileInfo(@"C:\tests\Cmf.Environment.11.2.0-alpha.male.zip");
+        var fileSystemInfo = new FileInfo(Path.Combine(
+                                        Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
+                                        "assets",
+                                        "Cmf.Environment.11.2.0-alpha.1.zip"));
 
         // act
         await publishPackageHandler.Run(fileSystemInfo, "");
@@ -39,7 +43,10 @@ public class PublishPackageHandlerTests
         queryProxyServiceMock.Setup(x => x.ExecuteQuery(It.IsAny<QueryObject>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<ISession>()))
             .ReturnsAsync(() => output);
         var publishPackageHandler = new PublishPackageHandler(customerPortalClientMock.Object, sessionMock.Object, queryProxyServiceMock.Object);
-        var fileSystemInfo = new FileInfo(@"C:\tests\Cmf.Environment.11.2.0-alpha.male.zip");
+        var fileSystemInfo = new FileInfo(Path.Combine(
+                                Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
+                                "assets",
+                                "Cmf.Environment.11.2.0-alpha.1.zip"));
 
         // act
         await publishPackageHandler.Run(fileSystemInfo, "");

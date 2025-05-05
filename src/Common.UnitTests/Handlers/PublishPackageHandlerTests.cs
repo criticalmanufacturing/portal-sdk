@@ -17,6 +17,7 @@ public class PublishPackageHandlerTests
     [InlineData("Cmf.Environment.11.2.zip")]
     [InlineData("Cmf.Environment-11.2-alpha.1.zip")]
     [InlineData("Cmf.Environment.11.2.0-.zip")]
+    [InlineData("Cmf.Environment.11.2.0.rc1.zip")]
     public async void Run_PackageHasWrongFormat_PackageIsNotUploaded(string packageName)
     {
         // arrange

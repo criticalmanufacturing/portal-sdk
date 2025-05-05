@@ -13,6 +13,29 @@ public class PublishPackageHandlerTests
     private readonly string _assets = "assets";
     private readonly string _testPackage = "Cmf.Environment.11.2.0-alpha.1.zip";
 
+    [Theory]
+    [InlineData("Cmf.Environment.11.2.zip")]
+    [InlineData("Cmf.Environment-11.2-alpha.1.zip")]
+    [InlineData("Cmf.Environment.11.2.0-.zip")]
+    public async void Run_PackageHasWrongFormat_PackageIsNotUploaded(string packageName)
+    {
+        // arrange
+        var customerPortalClientMock = new Mock<ICustomerPortalClient>();
+        var sessionMock = new Mock<ISession>();
+        var queryProxyServiceMock = new Mock<IQueryProxyService>();
+        var publishPackageHandler = new PublishPackageHandler(customerPortalClientMock.Object, sessionMock.Object, queryProxyServiceMock.Object);
+        var fileSystemInfo = new FileInfo(Path.Combine(
+                                        Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
+                                        _assets,
+                                        packageName));
+
+        // act
+        await publishPackageHandler.Run(fileSystemInfo, "");
+
+        // assert
+        sessionMock.Verify(x => x.LogInformation($"Package {fileSystemInfo.Name} skipped"));
+    }
+
     [Fact]
     public async void Run_PackageDoesNotExistInPortal_PackageIsUploaded()
     {

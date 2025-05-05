@@ -1,7 +1,5 @@
 ﻿using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects.QueryObject;
-using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
-using Cmf.Foundation.BusinessOrchestration.QueryManagement.OutputObjects;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -50,7 +48,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             Session.LogDebug($"Starting to publish package {fileName}...");
 
-            if (!await PackageExists(fileName))
+            var result = await PackageExists(fileName);
+            if (result.HasValue && !result.Value)
             {
                 try
                 {
@@ -99,11 +98,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             return true;
         }
 
-        private async Task<bool> PackageExists(string fileName)
+        private async Task<bool?> PackageExists(string fileName)
         {
             bool packageExists = false;
 
-            string pattern = @"^(?<packagename>.+?)\.(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:-(?<prerelease>[0-9A-Za-z\-\.]+))?\.zip$";
+            string pattern = @"^(?<packagename>.+?)\.(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+)(?:-(?<prerelease>[0-9A-Za-z\-\.]+))?\.zip$";
             RegexOptions options = RegexOptions.IgnoreCase;
             MatchCollection matches = Regex.Matches(fileName, pattern, options);
 
@@ -131,6 +130,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             else
             {
                 Session.LogDebug($"Could not get data from file name ({fileName}) to validate if package exists.");
+                return null;
             }
 
             return packageExists;

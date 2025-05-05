@@ -15,6 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<IArtifactsDownloaderHandler, ArtifactsDownloaderHandler>();
             serviceCollection.AddTransient<ICustomerEnvironmentServices, CustomerEnvironmentServices>();
             serviceCollection.AddTransient<ILicenseServices, LicenseServices>();
+            serviceCollection.AddTransient<IQueryProxyService, QueryProxyService>();
 
             // Add Handlers
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();

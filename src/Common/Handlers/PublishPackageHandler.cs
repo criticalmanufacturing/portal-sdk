@@ -116,7 +116,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 string patch = match.Groups["patch"].Value;
                 string prerelease = match.Groups["prerelease"].Value;
                 string packageVersion = $"{major}.{minor}.{patch}";
-                packageVersion += string.IsNullOrEmpty(prerelease) ? "" : $"-{prerelease}";
+                packageVersion += string.IsNullOrWhiteSpace(prerelease) ? "" : $"-{prerelease}";
 
                 // check if this package already exists
                 Session.LogDebug($"Verifying if package with name {packageName} and version {packageVersion} exists...");

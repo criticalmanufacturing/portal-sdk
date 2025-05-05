@@ -9,7 +9,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     /// <summary>
     /// Class to be used as proxy in lbos request for queries
     /// </summary>
-    public class QueryProxyService
+    public class QueryProxyService : IQueryProxyService
     {
         /// <inheritdoc/>
         public async Task<ExecuteQueryOutput> ExecuteQuery(QueryObject query, int pageNumber, int pageSize, ISession session)

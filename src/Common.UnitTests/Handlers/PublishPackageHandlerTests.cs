@@ -10,6 +10,9 @@ namespace Common.UnitTests.Handlers;
 
 public class PublishPackageHandlerTests
 {
+    private readonly string _assets = "assets";
+    private readonly string _testPackage = "Cmf.Environment.11.2.0-alpha.1.zip";
+
     [Fact]
     public async void Run_PackageDoesNotExistInPortal_PackageIsUploaded()
     {
@@ -20,8 +23,8 @@ public class PublishPackageHandlerTests
         var publishPackageHandler = new PublishPackageHandler(customerPortalClientMock.Object, sessionMock.Object, queryProxyServiceMock.Object);
         var fileSystemInfo = new FileInfo(Path.Combine(
                                         Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
-                                        "assets",
-                                        "Cmf.Environment.11.2.0-alpha.1.zip"));
+                                        _assets,
+                                        _testPackage));
 
         // act
         await publishPackageHandler.Run(fileSystemInfo, "");
@@ -45,8 +48,8 @@ public class PublishPackageHandlerTests
         var publishPackageHandler = new PublishPackageHandler(customerPortalClientMock.Object, sessionMock.Object, queryProxyServiceMock.Object);
         var fileSystemInfo = new FileInfo(Path.Combine(
                                 Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
-                                "assets",
-                                "Cmf.Environment.11.2.0-alpha.1.zip"));
+                                _assets,
+                                _testPackage));
 
         // act
         await publishPackageHandler.Run(fileSystemInfo, "");

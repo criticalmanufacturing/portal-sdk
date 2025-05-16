@@ -1,0 +1,13 @@
+{
+    "name": "install @criticalmanufacturing/portal-sdk",
+    "id": "install",
+    "version": "1.0.0",
+    "description": "Installs @criticalmanufacturing/portal-sdk package globally inside the devcontainer",
+    "options": {
+        "version": {
+            "type": "string",
+            "default": "latest",
+            "description": "The NPM tag to use when installing the package"
+        }
+    }
+}

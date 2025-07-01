@@ -51,6 +51,7 @@ Commands:
   - <a href="#login">```login```</a> - Log in to the CM Portal
   - <a href="#publish">```publish```</a> - Publishes one or more Deployment Manifests into Customer Portal
   - <a href="#publish-package">```publish-package```</a> - Publishes one or more Customization Packages into Customer Portal
+  - <a href="#undeploy">```undeploy```</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
 
 
 Examples:
@@ -220,6 +221,20 @@ Options:
   - ```-dg, --datagroup <datagroup>``` - Name of the existing datagroup to assign to the published packages
   - ```-?, -h, --help``` - Show help and usage information
 
+### undeploy
+
+Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+
+Equivalent to powershell cmdlet <a href="#reset-environment">Reset-Environment</a>
+
+Usage: ```cmf-portal publish-package [options]```
+
+Options:
+  - ```-v, --verbose``` - Show detailed logging
+  - ```-n, --name <name>``` - **REQUIRED** - Name of the Customer Environment to be used
+  - ```-tovrv, --terminateOtherVersionsRemoveVolumes``` - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.
+  - ```-?, -h, --help``` - Show help and usage information
+
 ## Powershell
 
 - If you downloaded the zip from the Releases section, you just need to import the dll using  
@@ -230,7 +245,7 @@ Options:
   Simply running ```.\run.ps1``` is enough and no other parameters are necessary. Optionally you can use the ```Configuration``` parameter but it is set to ```Release``` by default which should be the use case for most users.
   This will compile the Powershell version and automatically import the module in a new powershell window. It is important to note that imported cmdlets only work on the powershell where the import is called and will not be recognized on other powershell windows.
   - If the project has already been compiled and you only wish to import the cmdlets you can run  
-  ```Import-Module .\src\Powershell\bin\Release\netstandard2.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll``` 
+  ```Import-Module .\src\Powershell\bin\Release\net8.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll``` 
 
 After this the cmdlets can be called to execute the desired operations. Note that some cmdlets require certain options in order to execute. These options can be passed directly in the cmdlet call or if none is provided the cmdlet will ask for the parameters one by one.
 
@@ -244,6 +259,7 @@ Cmdlets:
   - <a href="#new-infrastructure">```New-Infrastructure```</a> - Creates a customer Infrastructure
   - <a href="#new-infrastructureagent">```New-InfrastructureAgent```</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#set-login">```Set-Login```</a> - Log in to the CM Portal
+  - <a href="#reset-environment">```Reset-Environment```</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
 
 
 Examples:
@@ -364,3 +380,16 @@ Usage: ```Set-Login [options]```
 
 Options:
   - ```-PAT <token>``` - Personal Access Token used to access the Customer Portal
+
+### Reset-Environment
+
+Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+
+Equivalent to the console command <a href="#undeploy">undeploy</a>
+
+Usage: ```Reset-Environment [options]```
+
+Options:
+  - ```-TerminateOtherVersionsRemoveVolumes``` - **Position 2** - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.
+  - ```-Name <name>``` - Name of the Customer Environment to be used
+  

@@ -1,13 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
-using Cmf.Foundation.BusinessObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
@@ -112,60 +108,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // terminate other versions
                 if (terminateOtherVersions)
                 {
-                    Session.LogInformation("Terminating other versions...");
-
-                    var customerEnvironmentsToTerminate = await _newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
-                    OperationAttributeCollection terminateOperationAttibutes = new OperationAttributeCollection();
-                    EntityType ceET = (await new GetEntityTypeByNameInput { Name = "CustomerEnvironment" }.GetEntityTypeByNameAsync(true)).EntityType;
-                    foreach (var ce in customerEnvironmentsToTerminate)
-                    {
-                        OperationAttribute attributeRemove = new OperationAttribute();
-                        attributeRemove.EntityId = ce.Id;
-                        attributeRemove.EntityType = ceET;
-                        attributeRemove.Name = "RemoveDeployments";
-                        attributeRemove.OperationName = "TerminateVersion";
-                        attributeRemove.Value = terminateOtherVersionsRemove ? 1 : 0;
-
-                        OperationAttribute attributeRemoveVolumes = new OperationAttribute();
-                        attributeRemoveVolumes.EntityId = ce.Id;
-                        attributeRemoveVolumes.EntityType = ceET;
-                        attributeRemoveVolumes.Name = "RemoveVolumes";
-                        attributeRemoveVolumes.OperationName = "TerminateVersion";
-                        attributeRemoveVolumes.Value = (terminateOtherVersionsRemove && terminateOtherVersionsRemoveVolumes) ? 1 : 0;
-
-                        terminateOperationAttibutes.Add(attributeRemove);
-                        terminateOperationAttibutes.Add(attributeRemoveVolumes);
-                    }
-                    if (customerEnvironmentsToTerminate.Count > 0)
-                    {
-                        await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
-
-                        // wait until they're terminated
-                        List<long> ceTerminationFailedIds = await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
-
-                        if (ceTerminationFailedIds?.Count > 0)
-                        {
-                            string failedIdsString = string.Join(", ", ceTerminationFailedIds.Select(x => x.ToString()));
-                            string errorMessage = $"Stopping deploy process because termination of other environment versions failed. Environment Ids of failed terminations: {failedIdsString}.";
-                            Exception ex = new Exception(errorMessage);
-                            Session.LogError(ex);
-
-                            foreach (long ceId in ceTerminationFailedIds)
-                            {
-                                var output = await (new GetCustomerEnvironmentByIdInput() { CustomerEnvironmentId = ceId }.GetCustomerEnvironmentByIdAsync(true));
-                                CustomerEnvironment ce = output.CustomerEnvironment;
-                                Session.LogError($"\nCustomer Environment {ce.Id} did not terminate sucessully. Termination logs:\n {ce.TerminationLogs}\n");
-                            }
-
-                            throw ex;
-                        }
-
-                        Session.LogInformation("Other versions terminated!");
-                    }
-                    else
-                    {
-                        Session.LogInformation("There are no versions with an eligible status to be terminated.");
-                    }
+                    await _customerEnvironmentServices.TerminateOtherVersions(Session, _newEnvironmentUtilities, _customerPortalClient, _environmentDeploymentHandler, environment, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
                 }
             }
             // if not, check if we are creating a new environment for an infrastructure

@@ -20,6 +20,7 @@
         public const string DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE = "Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP = "Flag that controls if the deployments of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions flag.";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.";
+        public const string UNDEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.";
         public const string APP_NAME_HELP = "The name of the App to install.";
         public const string APP_VERSION_HELP = "The version of the App to install.";
         public const string APP_CUSTOMER_ENVIRONMENT_HELP = "The name of a Convergence Customer Environment to install the App on.";
@@ -42,6 +43,8 @@
         public const string PUBLISHPACKAGE_DATAGROUP_HELP = "Name of the datagroup to assign to the published packages";
 
         public const string REPLACETOKENS_HELP = "Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.";
+
+        public const string CUSTOMER_ENVIRONMENT_NAME_HELP = "Name of the Customer Environment to be used.";
 
         public const string VERBOSE_HELP = "Show detailed logging";
     }

@@ -2,8 +2,12 @@
 using Cmf.CustomerPortal.Common.Deployment;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.Foundation.BusinessObjects;
+using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services;
@@ -15,7 +19,7 @@ internal class CustomerEnvironmentServices : ICustomerEnvironmentServices
         CustomerEnvironment environment = null;
         try
         {
-            environment = (await(new GetCustomerEnvironmentByNameInput() { CustomerEnvironmentName = name }.GetCustomerEnvironmentByNameAsync(true))).CustomerEnvironment;
+            environment = (await (new GetCustomerEnvironmentByNameInput() { CustomerEnvironmentName = name }.GetCustomerEnvironmentByNameAsync(true))).CustomerEnvironment;
 
             session.LogInformation($"Customer environment {name} actually exists...");
         }
@@ -86,4 +90,63 @@ internal class CustomerEnvironmentServices : ICustomerEnvironmentServices
             DeploymentPackageId = deploymentPackage.Id,
             SoftwareLicenseIds = softwareLicensesIds
         }.UpdateCustomerEnvironmentDeploymentPackageAsync(true);
+
+    /// <inheritdoc/>
+    public async Task TerminateOtherVersions(ISession session, INewEnvironmentUtilities newEnvironmentUtilities, ICustomerPortalClient customerPortalClient, IEnvironmentDeploymentHandler environmentDeploymentHandler, CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes)
+    {
+        session.LogInformation("Terminating other versions...");
+
+        var customerEnvironmentsToTerminate = await newEnvironmentUtilities.GetOtherVersionToTerminate(customerEnvironment);
+        OperationAttributeCollection terminateOperationAttributes = new OperationAttributeCollection();
+        EntityType ceET = (await new GetEntityTypeByNameInput { Name = "CustomerEnvironment" }.GetEntityTypeByNameAsync(true)).EntityType;
+        foreach (var ce in customerEnvironmentsToTerminate)
+        {
+            OperationAttribute attributeRemove = new OperationAttribute();
+            attributeRemove.EntityId = ce.Id;
+            attributeRemove.EntityType = ceET;
+            attributeRemove.Name = "RemoveDeployments";
+            attributeRemove.OperationName = "TerminateVersion";
+            attributeRemove.Value = terminateOtherVersionsRemove ? 1 : 0;
+
+            OperationAttribute attributeRemoveVolumes = new OperationAttribute();
+            attributeRemoveVolumes.EntityId = ce.Id;
+            attributeRemoveVolumes.EntityType = ceET;
+            attributeRemoveVolumes.Name = "RemoveVolumes";
+            attributeRemoveVolumes.OperationName = "TerminateVersion";
+            attributeRemoveVolumes.Value = (terminateOtherVersionsRemove && terminateOtherVersionsRemoveVolumes) ? 1 : 0;
+
+            terminateOperationAttributes.Add(attributeRemove);
+            terminateOperationAttributes.Add(attributeRemoveVolumes);
+        }
+        if (customerEnvironmentsToTerminate.Count > 0)
+        {
+            await customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttributes);
+
+            // wait until they're terminated
+            List<long> ceTerminationFailedIds = await environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
+
+            if (ceTerminationFailedIds?.Count > 0)
+            {
+                string failedIdsString = string.Join(", ", ceTerminationFailedIds.Select(x => x.ToString()));
+                string errorMessage = $"Stopping deploy process because termination of other environment versions failed. Environment Ids of failed terminations: {failedIdsString}.";
+                Exception ex = new(errorMessage);
+                session.LogError(ex);
+
+                foreach (long ceId in ceTerminationFailedIds)
+                {
+                    var output = await new GetCustomerEnvironmentByIdInput() { CustomerEnvironmentId = ceId }.GetCustomerEnvironmentByIdAsync(true);
+                    CustomerEnvironment ce = output.CustomerEnvironment;
+                    session.LogError($"\nCustomer Environment {ce.Id} did not terminate successfully. Termination logs:\n {ce.TerminationLogs}\n");
+                }
+
+                throw ex;
+            }
+
+            session.LogInformation("Other versions terminated!");
+        }
+        else
+        {
+            session.LogInformation("There are no versions with an eligible status to be terminated.");
+        }
+    }
 }

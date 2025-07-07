@@ -8,6 +8,7 @@ using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
+using Cmf.Foundation.Common.Base;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {

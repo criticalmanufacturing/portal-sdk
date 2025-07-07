@@ -163,7 +163,7 @@ public class NewEnvironmentHandlerTests
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment() { Name = name };
+        var customerEnvironment = new CustomerEnvironment() { Name = name, UniversalState = UniversalState.Created, Status = DeploymentStatus.DeploymentFailed };
         var deploymentPackage = new DeploymentPackage() { Name = deploymentPackageName };
         var cPSoftwareLicense = new CPSoftwareLicense() { Name = licenseName, Id = 1234 };
         string[] licenseNames = [licenseName];

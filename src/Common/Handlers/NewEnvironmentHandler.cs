@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.Common.Licenses.Enums;
+using Cmf.Foundation.Common.Base;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -101,8 +102,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // check environment connection
                 await newEnvironmentUtilities.CheckEnvironmentConnection(environment);
 
-                Session.LogInformation($"Creating a new version of the Customer environment {name}...");
-                environment = await customerEnvironmentServices.CreateEnvironment(customerPortalClient, environment);
+                // create a new CE version if the latest isn't Created or NotDeployed
+                if (environment.UniversalState != UniversalState.Created || environment.Status != DeploymentStatus.NotDeployed)
+                {
+                    Session.LogInformation($"Creating a new version of the Customer environment {name}...");
+                    environment = await customerEnvironmentServices.CreateEnvironment(customerPortalClient, environment);
+                }
 
                 // Update environment with the parameters to be merged instead of overwriting
                 environment.Parameters = rawParameters;

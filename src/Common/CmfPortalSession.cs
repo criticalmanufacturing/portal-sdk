@@ -134,6 +134,15 @@ namespace Cmf.CustomerPortal.Sdk.Common
             ConfigureLBOs(token);
         }
 
+        /// <summary>
+        /// Prints the current session token to the console.
+        /// </summary>
+        public void PrintSessionToken()
+        {
+            RestoreSession();
+            LogInformation(Token);
+        }
+
         public abstract void LogDebug(string message);
         public abstract void LogError(string message);
         public abstract void LogError(Exception exception);

@@ -96,7 +96,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 // Update environment with the parameters to be merged instead of overwriting
                 environment.Parameters = rawParameters;
-                environment = await _customerEnvironmentServices.UpdateEnvironment(environment);
+                environment = await _customerEnvironmentServices.UpdateCustomerEnvironmentDeploymentParameters(environment);
 
                 // update Deployment Package
                 if (!isInfrastructureAgent && !string.IsNullOrWhiteSpace(deploymentPackageName))
@@ -152,9 +152,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                             foreach (long ceId in ceTerminationFailedIds)
                             {
-                                var output = await (new GetCustomerEnvironmentByIdInput() { CustomerEnvironmentId = ceId }.GetCustomerEnvironmentByIdAsync(true));
-                                CustomerEnvironment ce = output.CustomerEnvironment;
-                                Session.LogError($"\nCustomer Environment {ce.Id} did not terminate sucessully. Termination logs:\n {ce.TerminationLogs}\n");
+                                var output = await (new GetCustomerEnvironmentTerminationLogsInput() { CustomerEnvironmentId = ceId }.GetCustomerEnvironmentTerminationLogsAsync(true));
+                                
+                                Session.LogError($"\nCustomer Environment {ceId} did not terminate sucessully. Termination logs:\n {output.Logs}\n");
                             }
 
                             throw ex;

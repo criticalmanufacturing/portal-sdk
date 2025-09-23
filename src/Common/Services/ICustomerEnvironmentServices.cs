@@ -35,12 +35,13 @@ public interface ICustomerEnvironmentServices
     /// <returns>new customer environment with the first version</returns>
     Task<CustomerEnvironment> CreateNewEnvironmentEntityOrVersion(CustomerEnvironment customerEnvironment, EntityTypeSource entityType);
 
+
     /// <summary>
-    /// Update a customer environment.
+    /// Update a customer environment deployment parameters.
     /// </summary>
     /// <param name="customerEnvironment">customer environment</param>
     /// <returns></returns>
-    Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment);
+    Task<CustomerEnvironment> UpdateCustomerEnvironmentDeploymentParameters(CustomerEnvironment customerEnvironment);
 
     /// <summary>
     /// Creates the customer environment for customer infrastructure.

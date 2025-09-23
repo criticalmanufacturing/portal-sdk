@@ -55,18 +55,19 @@ internal class CustomerEnvironmentServices : ICustomerEnvironmentServices
     }
 
     /// <summary>
-    /// Update a customer environment.
+    /// Update a customer environment deployment parameters.
     /// </summary>
     /// <param name="customerEnvironment">customer environment</param>
     /// <returns></returns>
-    public async Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment)
+  
+    public async Task<CustomerEnvironment> UpdateCustomerEnvironmentDeploymentParameters(CustomerEnvironment customerEnvironment)
     {
         customerEnvironment.ChangeSet = null;
-        return (await new UpdateCustomerEnvironmentInput
+        return (await new UpdateCustomerEnvironmentDeploymentParametersInput
         {
             CustomerEnvironment = customerEnvironment,
             DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge
-        }.UpdateCustomerEnvironmentAsync(true)).CustomerEnvironment;
+        }.UpdateCustomerEnvironmentDeploymentParametersAsync(true)).CustomerEnvironment;
     }
 
     /// <inheritdoc/>

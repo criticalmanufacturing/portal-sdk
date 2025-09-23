@@ -53,7 +53,7 @@ public class NewEnvironmentHandlerTests
 
         // Assert
         customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Never);
+        customerEnvironmentServicesMock.Verify(x => x.UpdateCustomerEnvironmentDeploymentParameters(customerEnvironment), Times.Never);
         
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackageName, 0), Times.Never);
         licenseServiceMock.Verify(x => x.GetLicensesByUniqueName(It.IsAny<string[]>()), Times.Never);
@@ -77,7 +77,7 @@ public class NewEnvironmentHandlerTests
             .Setup(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()))
             .Returns(Task.FromResult(customerEnvironment));
         customerEnvironmentServicesMock
-            .Setup(x => x.UpdateEnvironment(customerEnvironment))
+            .Setup(x => x.UpdateCustomerEnvironmentDeploymentParameters(customerEnvironment))
             .Returns(Task.FromResult(customerEnvironment));
 
         var customerPortalClientMock = mock.Mock<ICustomerPortalClient>();
@@ -96,7 +96,7 @@ public class NewEnvironmentHandlerTests
 
         // Assert
         customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Never);
+        customerEnvironmentServicesMock.Verify(x => x.UpdateCustomerEnvironmentDeploymentParameters(customerEnvironment), Times.Never);
         
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0), Times.Once);
         licenseServiceMock.Verify(x => x.GetLicensesByUniqueName(licenseNames), Times.Once);
@@ -145,7 +145,7 @@ public class NewEnvironmentHandlerTests
 
         // Assert
         customerEnvironmentServicesMock.Verify(x => x.CreateCustomerEnvironmentForCustomerInfrastructure(It.IsAny<CustomerEnvironment>(), ciName, false), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Never);
+        customerEnvironmentServicesMock.Verify(x => x.UpdateCustomerEnvironmentDeploymentParameters(customerEnvironment), Times.Never);
         
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0), Times.Once);
         licenseServiceMock.Verify(x => x.GetLicensesByUniqueName(licenseNames), Times.Once);
@@ -182,7 +182,7 @@ public class NewEnvironmentHandlerTests
             .Setup(x => x.CreateEnvironment(customerPortalClientMock.Object, customerEnvironment))
             .Returns(Task.FromResult(customerEnvironment));
         customerEnvironmentServicesMock
-            .Setup(x => x.UpdateEnvironment(customerEnvironment))
+            .Setup(x => x.UpdateCustomerEnvironmentDeploymentParameters(customerEnvironment))
             .Returns(Task.FromResult(customerEnvironment));
 
 
@@ -201,7 +201,7 @@ public class NewEnvironmentHandlerTests
         newEnvironmentUtilitiesMock.Verify(x => x.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Once);
         customerEnvironmentServicesMock.Verify(x => x.GetCustomerEnvironment(It.IsAny<ISession>(), customerEnvironment.Name), Times.Once);
         customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(customerPortalClientMock.Object, customerEnvironment), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.UpdateCustomerEnvironmentDeploymentParameters(customerEnvironment), Times.Once);
         
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0), Times.Once);
         licenseServiceMock.Verify(x => x.GetLicensesByUniqueName(licenseNames), Times.Once);

@@ -116,5 +116,19 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="attachmentId">Id of an EntityDocumentation to download.</param>
         /// <returns>The attachment file path.</returns>
         Task<string> DownloadAttachmentStreaming(long attachmentId);
+
+        /// <summary>
+        /// Loads the termination logs for a particular customer environment.
+        /// </summary>
+        /// <param name="ceId">Id of the Customer Environment.</param>
+        /// <returns></returns>
+        Task<string> GetCustomerEnvironmentTerminationLogs(long ceId);
+
+        /// <summary>
+        /// Loads an entity type by its name.
+        /// </summary>
+        /// <param name="name">Name of the entity type.</param>
+        /// <returns></returns>
+        Task<EntityType> GetEntityTypeByName(string name);
     }
 }

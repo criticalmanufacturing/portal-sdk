@@ -6,30 +6,24 @@ using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class AddManifestsHandler : AbstractHandler
+    public class AddManifestsHandler(ISession session, IFileSystem fileSystem) : AbstractHandler(session, true)
     {
-        private readonly ICustomerPortalClient _customerPortalClient;
-
-        public AddManifestsHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
-        {
-            _customerPortalClient = customerPortalClient;
-        }
-
         public async Task Run(FileSystemInfo path, string datagroup, string[] replaceTokens)
         {
             await EnsureLogin();
 
             List<string> manifestsToUpload = new List<string>();
 
-            if ((path.Attributes & FileAttributes.Directory) == FileAttributes.Directory)
+            if (path.Attributes.HasFlag(FileAttributes.Directory))
             {
                 Session.LogDebug($"Fetching manifests from directory: {path.FullName}");
 
-                manifestsToUpload.AddRange(Directory.GetFiles(path.FullName, "*.xml", SearchOption.AllDirectories));
+                manifestsToUpload.AddRange(fileSystem.Directory.GetFiles(path.FullName, "*.xml", SearchOption.AllDirectories));
             }
             else
             {
@@ -59,8 +53,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 Session.LogDebug($"Creating Deployment Package from file: {manifestfile}");
 
-                string content = File.ReadAllText(manifestfile);
-
+                var content = await fileSystem.File.ReadAllTextAsync(manifestfile);
                 content = await Utils.ReplaceTokens(Session, content, replaceTokens);
 
                 CreateDeploymentPackageInput deploymentPackageInput = new CreateDeploymentPackageInput
@@ -75,6 +68,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 Session.LogInformation($"Deployment Package created: {output.DeploymentPackage.Name}");
             }
+
             Session.LogDebug($"Requesting Changeset approval: {changeset.Name}");
 
             RequestChangeSetApprovalInput requestApproval = new RequestChangeSetApprovalInput

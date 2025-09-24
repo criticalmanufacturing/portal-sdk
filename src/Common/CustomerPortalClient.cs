@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -28,18 +29,12 @@ using Newtonsoft.Json;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
-    public class CustomerPortalClient : ICustomerPortalClient
+    public class CustomerPortalClient(ISession session, IFileSystem fileSystem) : ICustomerPortalClient
     {
         private static readonly SemaphoreSlim _transportLock = new SemaphoreSlim(1, 1);
         private const string jwtTenantNameKey = "tenantName";
 
-        private readonly ISession _session;
         private Transport _transport;
-
-        public CustomerPortalClient(ISession session)
-        {
-            _session = session;
-        }
 
         #region Private Methods
 
@@ -277,7 +272,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     return _transport;
                 }
 
-                _session.LogDebug($"Configuring message bus...");
+                session.LogDebug($"Configuring message bus...");
 
                 // create new transport using the config
                 var applicationBootInformation = await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true);
@@ -291,22 +286,22 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 // Register events
                 messageBus.Connected += () =>
                 {
-                    _session.LogDebug("Message Bus Connect!");
+                    session.LogDebug("Message Bus Connect!");
                 };
 
                 messageBus.Disconnected += () =>
                 {
-                    _session.LogDebug("Message Bus Disconnected!");
+                    session.LogDebug("Message Bus Disconnected!");
                 };
 
                 messageBus.InformationMessage += (string message) =>
                 {
-                    _session.LogDebug(message);
+                    session.LogDebug(message);
                 };
 
                 messageBus.Exception += (string message) =>
                 {
-                    _session.LogError(new Exception(message));
+                    session.LogError(new Exception(message));
                 };
 
                 // start the message bus and ensure that it is connected
@@ -337,11 +332,11 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 if (failedConnection)
                 {
                     Exception error = new Exception("Timed out waiting for client to connect to MessageBus");
-                    _session.LogError(error);
+                    session.LogError(error);
                     throw error;
                 }
 
-                _session.LogDebug("Message Bus connected with success!");
+                session.LogDebug("Message Bus connected with success!");
 
                 _transport = messageBus;
             }
@@ -428,26 +423,19 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <inheritdoc/>
         public async Task<string> DownloadAttachmentStreaming(long attachmentId)
         {
-            using DownloadAttachmentStreamingOutput downloadAttachmentOutput = await new DownloadAttachmentStreamingInput()
+            using var downloadAttachmentOutput = await new DownloadAttachmentStreamingInput
             {
                 attachmentId = attachmentId
             }.DownloadAttachmentAsync(true);
 
-            int bytesToRead = 10000;
-            byte[] buffer = new byte[bytesToRead];
+            string outputFile = fileSystem.Path.Combine(
+                fileSystem.Path.GetTempPath(),
+                downloadAttachmentOutput.FileName.Replace(" ", "").Replace("\"", "")
+            );
+            session.LogDebug($"Downloading to {outputFile}");
 
-            string outputFile = Path.Combine(Path.GetTempPath(), downloadAttachmentOutput.FileName).Replace(" ", "").Replace("\"", "");
-            _session.LogDebug($"Downloading to {outputFile}");
-
-            using BinaryWriter streamWriter = new(File.Open(outputFile, FileMode.Create, FileAccess.Write));
-            int length;
-            do
-            {
-                length = downloadAttachmentOutput.Stream.Read(buffer, 0, bytesToRead);
-                streamWriter.Write(buffer, 0, length);
-                buffer = new byte[bytesToRead];
-
-            } while (length > 0);
+            await using var file = fileSystem.File.OpenWrite(outputFile);
+            await downloadAttachmentOutput.Stream.CopyToAsync(file);
 
             return outputFile;
         }

@@ -18,6 +18,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.AddCommand(new LoginCommand());
             rootCommand.AddCommand(new PublishCommand());
             rootCommand.AddCommand(new PublishPackageCommand());
+            rootCommand.AddCommand(new TokenCommand());
 
             return await rootCommand.InvokeAsync(args);
         }

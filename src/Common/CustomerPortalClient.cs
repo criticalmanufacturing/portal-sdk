@@ -451,5 +451,20 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
             return outputFile;
         }
+
+        /// <inheritdoc/>
+        public async Task<string> GetCustomerEnvironmentTerminationLogs(long ceId)
+        {
+            return (await new GetCustomerEnvironmentTerminationLogsInput()
+            {
+                CustomerEnvironmentId = ceId
+            }.GetCustomerEnvironmentTerminationLogsAsync(true)).Logs;
+        }
+
+        /// <inheritdoc/>
+        public async Task<EntityType> GetEntityTypeByName(string name)
+        {
+            return (await new GetEntityTypeByNameInput { Name = name }.GetEntityTypeByNameAsync(true)).EntityType;
+        }
     }
 }

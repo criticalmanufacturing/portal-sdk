@@ -1,4 +1,5 @@
-﻿using Cmf.CustomerPortal.Sdk.Common;
+﻿using System.IO.Abstractions;
+using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects.QueryObject;
@@ -21,10 +22,10 @@ public class PublishPackageHandlerTests
     public async void Run_PackageHasWrongFormat_PackageIsNotUploaded(string packageName)
     {
         // arrange
-        var customerPortalClientMock = new Mock<ICustomerPortalClient>();
         var sessionMock = new Mock<ISession>();
         var queryProxyServiceMock = new Mock<IQueryProxyService>();
-        var publishPackageHandler = new PublishPackageHandler(customerPortalClientMock.Object, sessionMock.Object, queryProxyServiceMock.Object);
+        var fileSystem = new FileSystem(); // use real fs
+        var publishPackageHandler = new PublishPackageHandler(sessionMock.Object, fileSystem, queryProxyServiceMock.Object);
         var fileSystemInfo = new FileInfo(Path.Combine(
                                         Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
                                         _assets,
@@ -41,10 +42,10 @@ public class PublishPackageHandlerTests
     public async void Run_PackageDoesNotExistInPortal_PackageIsUploaded()
     {
         // arrange
-        var customerPortalClientMock = new Mock<ICustomerPortalClient>();
         var sessionMock = new Mock<ISession>();
         var queryProxyServiceMock = new Mock<IQueryProxyService>();
-        var publishPackageHandler = new PublishPackageHandler(customerPortalClientMock.Object, sessionMock.Object, queryProxyServiceMock.Object);
+        var fileSystem = new FileSystem(); // use real fs
+        var publishPackageHandler = new PublishPackageHandler(sessionMock.Object, fileSystem, queryProxyServiceMock.Object);
         var fileSystemInfo = new FileInfo(Path.Combine(
                                         Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
                                         _assets,
@@ -62,14 +63,15 @@ public class PublishPackageHandlerTests
     public async void Run_PackageExistsInPortal_PackageIsNotUploaded()
     {
         // arrange
-        var customerPortalClientMock = new Mock<ICustomerPortalClient>();
         var sessionMock = new Mock<ISession>();
-        var output = new ExecuteQueryOutput();
-        output.TotalRows = 1;
+        var fileSystem = new FileSystem(); // use real fs
         var queryProxyServiceMock = new Mock<IQueryProxyService>();
         queryProxyServiceMock.Setup(x => x.ExecuteQuery(It.IsAny<QueryObject>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<ISession>()))
-            .ReturnsAsync(() => output);
-        var publishPackageHandler = new PublishPackageHandler(customerPortalClientMock.Object, sessionMock.Object, queryProxyServiceMock.Object);
+            .ReturnsAsync(() => new ExecuteQueryOutput
+            {
+                TotalRows = 1
+            });
+        var publishPackageHandler = new PublishPackageHandler(sessionMock.Object, fileSystem, queryProxyServiceMock.Object);
         var fileSystemInfo = new FileInfo(Path.Combine(
                                 Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
                                 _assets,

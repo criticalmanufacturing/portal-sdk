@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Reflection;
 
 namespace Cmf.CustomerPortal.Sdk.Common
@@ -16,6 +17,8 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
             // register common services
             builder.RegisterCommon();
+
+            builder.AddTransient<IFileSystem, FileSystem>();
 
             // register app configuration
             IConfiguration configuration = new ConfigurationBuilder()

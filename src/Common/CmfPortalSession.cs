@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
@@ -16,6 +17,19 @@ namespace Cmf.CustomerPortal.Sdk.Common
         private static readonly string _loginCredentialsFilePath = Path.Combine(_loginCredentialsDir, _loginTokenFileName);
         
         private string token = null;
+        
+        private readonly IFileSystem _fileSystem;
+
+        protected CmfPortalSession()
+        {
+            _fileSystem = new FileSystem();
+        }
+
+        // For testing purposes
+        internal CmfPortalSession(IFileSystem fs)
+        {
+            _fileSystem = fs;
+        }
 
         public LogLevel LogLevel { get; protected set; } = LogLevel.Information;
 
@@ -39,12 +53,12 @@ namespace Cmf.CustomerPortal.Sdk.Common
                         LogDebug("Login Access Token restored from environment variable");
                     }
                     // see if file exists
-                    else if (File.Exists(_loginCredentialsFilePath))
+                    else if (_fileSystem.File.Exists(_loginCredentialsFilePath))
                     {
                         // try to deserialize
                         try
                         {
-                            token = File.ReadAllText(_loginCredentialsFilePath);
+                            token = _fileSystem.File.ReadAllText(_loginCredentialsFilePath);
                             LogDebug("Login Access Token restored from file");
                         }
                         catch (Exception ex)
@@ -60,8 +74,8 @@ namespace Cmf.CustomerPortal.Sdk.Common
             set
             {
                 // write to file
-                Directory.CreateDirectory(_loginCredentialsDir);
-                File.WriteAllText(_loginCredentialsFilePath, value);
+                _fileSystem.Directory.CreateDirectory(_loginCredentialsDir);
+                _fileSystem.File.WriteAllText(_loginCredentialsFilePath, value);
                 token = value;
                 LogDebug("Login Access Token saved");
             }

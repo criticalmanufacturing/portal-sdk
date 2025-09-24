@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
@@ -10,25 +11,16 @@ using Cmf.Foundation.Common.Licenses.Enums;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class NewEnvironmentHandler : AbstractHandler
+    public class NewEnvironmentHandler(
+        ICustomerPortalClient customerPortalClient,
+        ISession session,
+        IFileSystem fileSystem,
+        INewEnvironmentUtilities newEnvironmentUtilities,
+        IEnvironmentDeploymentHandler environmentDeploymentHandler,
+        ICustomerEnvironmentServices customerEnvironmentServices,
+        ILicenseServices licenseService)
+        : AbstractHandler(session, true)
     {
-        private readonly ICustomerPortalClient _customerPortalClient;
-        private readonly INewEnvironmentUtilities _newEnvironmentUtilities;
-        private readonly IEnvironmentDeploymentHandler _environmentDeploymentHandler;
-        private readonly ICustomerEnvironmentServices _customerEnvironmentServices;
-        private readonly ILicenseServices _licenseService;
-
-        public NewEnvironmentHandler(ICustomerPortalClient customerPortalClient, ISession session,
-            INewEnvironmentUtilities newEnvironmentUtilities, IEnvironmentDeploymentHandler environmentDeploymentHandler,
-            ICustomerEnvironmentServices customerEnvironmentServices, ILicenseServices licenseService) : base(session, true)
-        {
-            _customerPortalClient = customerPortalClient;
-            _newEnvironmentUtilities = newEnvironmentUtilities;
-            _environmentDeploymentHandler = environmentDeploymentHandler;
-            _customerEnvironmentServices = customerEnvironmentServices;
-            _licenseService = licenseService;
-        }
-
         public async Task Run(
             string name,
             FileInfo parameters,
@@ -66,14 +58,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             if (parameters != null)
             {
-                rawParameters = File.ReadAllText(parameters.FullName);
+                rawParameters = await fileSystem.File.ReadAllTextAsync(parameters.FullName);
                 rawParameters = await Utils.ReplaceTokens(Session, rawParameters, replaceTokens, true);
             }
 
             Session.LogInformation($"Checking if customer environment {name} exists...");
 
             // let's see if the environment already exists
-            CustomerEnvironment environment = await _customerEnvironmentServices.GetCustomerEnvironment(Session, name);
+            CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironment(Session, name);
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
             if (environment != null)
@@ -83,27 +75,27 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     environment.Description = description;
                 }
 
-                environment.DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target);
+                environment.DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target);
                 environment.ChangeSet = null;
 
                 // check environment connection
-                await _newEnvironmentUtilities.CheckEnvironmentConnection(environment);
+                await newEnvironmentUtilities.CheckEnvironmentConnection(environment);
 
                 Session.LogInformation($"Creating a new version of the Customer environment {name}...");
-                environment = await _customerEnvironmentServices.CreateEnvironment(_customerPortalClient, environment);
+                environment = await customerEnvironmentServices.CreateEnvironment(customerPortalClient, environment);
 
                 // Update environment with the parameters to be merged instead of overwriting
                 environment.Parameters = rawParameters;
-                environment = await _customerEnvironmentServices.UpdateEnvironment(environment);
+                environment = await customerEnvironmentServices.UpdateEnvironment(environment);
 
                 // update Deployment Package
                 if (!isInfrastructureAgent && !string.IsNullOrWhiteSpace(deploymentPackageName))
                 {
                     // update Deployment Package
-                    await _customerEnvironmentServices.UpdateDeploymentPackage(
+                    await customerEnvironmentServices.UpdateDeploymentPackage(
                         environment,
-                        await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                        [.. (await _licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
+                        await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
+                        [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
                 }
 
 
@@ -112,7 +104,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     Session.LogInformation("Terminating other versions...");
 
-                    var customerEnvironmentsToTerminate = await _newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
+                    var customerEnvironmentsToTerminate = await newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
                     OperationAttributeCollection terminateOperationAttibutes = new OperationAttributeCollection();
                     EntityType ceET = await _customerPortalClient.GetEntityTypeByName("CustomerEnvironment");
                     foreach (var ce in customerEnvironmentsToTerminate)
@@ -136,10 +128,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     }
                     if (customerEnvironmentsToTerminate.Count > 0)
                     {
-                        await _customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
+                        await customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
 
                         // wait until they're terminated
-                        List<long> ceTerminationFailedIds = await _environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
+                        List<long> ceTerminationFailedIds = await environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
 
                         if (ceTerminationFailedIds?.Count > 0)
                         {
@@ -175,7 +167,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     // If the user defined a site, load it
                     if (!string.IsNullOrEmpty(siteName))
                     {
-                        environmentSite = await _customerPortalClient.GetObjectByName<ProductSite>(siteName);
+                        environmentSite = await customerPortalClient.GetObjectByName<ProductSite>(siteName);
                     }
                     else
                     {
@@ -189,7 +181,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Description = description,
                     Parameters = rawParameters,
                     EnvironmentType = environmentType.ToString(),
-                    DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
+                    DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target),
                     Site = environmentSite,
                 };
 
@@ -197,15 +189,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 await CheckConnectionNewEnvironmentCreation(environment, customerInfrastructureName);
 
                 Session.LogInformation($"Creating the customer environment {name} for a customer infrastructure...");
-                environment = await _customerEnvironmentServices.CreateCustomerEnvironmentForCustomerInfrastructure(environment, customerInfrastructureName, isInfrastructureAgent);
+                environment = await customerEnvironmentServices.CreateCustomerEnvironmentForCustomerInfrastructure(environment, customerInfrastructureName, isInfrastructureAgent);
 
                 if (!isInfrastructureAgent)
                 {
                     // update Deployment Package
-                    await _customerEnvironmentServices.UpdateDeploymentPackage(
+                    await customerEnvironmentServices.UpdateDeploymentPackage(
                         environment,
-                        await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                        [.. (await _licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
+                        await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
+                        [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
                 }
             }
             // if not, just create a new environment
@@ -216,28 +208,28 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 environment = new CustomerEnvironment
                 {
                     EnvironmentType = environmentType.ToString(),
-                    Site = isInfrastructureAgent ? null : await _customerPortalClient.GetObjectByName<ProductSite>(siteName),
+                    Site = isInfrastructureAgent ? null : await customerPortalClient.GetObjectByName<ProductSite>(siteName),
                     Name = name,
-                    DeploymentTarget = _newEnvironmentUtilities.GetDeploymentTargetValue(target),
+                    DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target),
                     Parameters = rawParameters
                 };
 
-                environment = await _customerEnvironmentServices.CreateEnvironment(_customerPortalClient, environment);
+                environment = await customerEnvironmentServices.CreateEnvironment(customerPortalClient, environment);
 
                 if (!isInfrastructureAgent)
                 {
                     // update Deployment Package
-                    await _customerEnvironmentServices.UpdateDeploymentPackage(
+                    await customerEnvironmentServices.UpdateDeploymentPackage(
                         environment,
-                        await _customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                        [.. (await _licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
+                        await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
+                        [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
                 }
             }
 
             Session.LogInformation($"Customer environment {name} created...");
 
             // handle installation
-            await _environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg);
+            await environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg);
         }
 
         /// <summary>
@@ -251,7 +243,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             newEnvironment.CustomerInfrastructure = infrastructure;
 
             // check environment connection
-            await _newEnvironmentUtilities.CheckEnvironmentConnection(newEnvironment);
+            await newEnvironmentUtilities.CheckEnvironmentConnection(newEnvironment);
         }
     }
 }

@@ -1,22 +1,23 @@
 ﻿using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Deployment.Models;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.MessageBus.Messages;
 using Newtonsoft.Json;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
-    public class AppInstallationHandler : IAppInstallationHandler
+    public class AppInstallationHandler(
+        ISession session,
+        IFileSystem fileSystem,
+        ICustomerPortalClient customerPortalClient,
+        IArtifactsDownloaderHandler artifactsDownloaderHandler)
+        : IAppInstallationHandler
     {
-        private readonly ISession _session;
-        private readonly ICustomerPortalClient _customerPortalClient;
-        private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
-
         private bool _isInstallationFinished = false;
         private bool _hasInstallationFailed = false;
         private bool _hasInstallationStarted = false;
@@ -34,14 +35,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
            private set { _hasInstallationStarted = value; }
         }
 
-        public AppInstallationHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                      IArtifactsDownloaderHandler artifactsDownloaderHandler)
-        {
-            _session = session;
-            _customerPortalClient = customerPortalClient;
-            _artifactsDownloaderHandler = artifactsDownloaderHandler;
-        }
-
         #region Private Methods
         private async Task ProcessAppInstallation(CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir)
         {
@@ -51,11 +44,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 case "PortainerV2Target":
                 case "KubernetesOnPremisesTarget":
                 case "OpenShiftOnPremisesTarget":
-                    string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
-                    bool success = await _artifactsDownloaderHandler.Handle(customerEnvironmentApplicationPackage, outputPath);
+                    string outputPath = outputDir != null ? outputDir.FullName : fileSystem.Path.Combine(fileSystem.Directory.GetCurrentDirectory(), "out");
+                    bool success = await artifactsDownloaderHandler.Handle(customerEnvironmentApplicationPackage, outputPath);
                     if (success)
                     {
-                        _session.LogInformation($"App created at {outputPath}");
+                        session.LogInformation($"App created at {outputPath}");
                     }
                     break;
                 default:
@@ -118,7 +111,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         initialTopLine = Console.CursorTop;
                         msg = $"{_queuePositionMsg} {position}";
                         Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
-                        _session.LogInformation(msg);
+                        session.LogInformation(msg);
 
                         _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
                         Console.SetCursorPosition(0, initialTopLine);
@@ -128,7 +121,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 }
                 if (!msg.StartsWith(_queuePositionMsg))
                 {
-                    _session.LogInformation(msg);
+                    session.LogInformation(msg);
                 }
 
 
@@ -156,7 +149,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
             else
             {
-                _session.LogInformation("Unknown message received");
+                session.LogInformation("Unknown message received");
             }
         }
 
@@ -170,10 +163,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             TimeSpan timeoutToGetSomeMBMessageTask = timeoutMinutesToGetSomeMBMsg > 0 ? TimeSpan.FromMinutes(timeoutMinutesToGetSomeMBMsg.Value) : TimeSpan.FromMinutes(30);
 
 
-            var messageBus = await _customerPortalClient.GetMessageBusTransport();
+            var messageBus = await customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.APP.{customerEnvironmentApplicationPackage.Id}";
 
-            _session.LogDebug($"Subscribing messagebus subject {subject}");
+            session.LogDebug($"Subscribing messagebus subject {subject}");
             messageBus.Subscribe(subject, ProcessDeploymentMessage);
 
             // start deployment
@@ -182,7 +175,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 CustomerEnvironmentApplicationPackageId = customerEnvironmentApplicationPackage.Id
             };
 
-            _session.LogInformation($"Starting the installation of the App: {appName}...");
+            session.LogInformation($"Starting the installation of the App: {appName}...");
             var result = await startDeploymentInput.StartDeploymentAsync(true);
 
             // show progress from deployment
@@ -209,7 +202,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         compositeTokenSourceWithDeploymentQueued.Dispose();
                     }
 
-                    _session.LogPendingMessages();
+                    session.LogPendingMessages();
                     try
                     {
                         await Task.Delay(TimeSpan.FromSeconds(0.1), compositeTokenSource.Token);

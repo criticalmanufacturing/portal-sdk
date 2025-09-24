@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class NewInfrastructureHandler : AbstractHandler
+    public class NewInfrastructureHandler(ICustomerPortalClient customerPortalClient, ISession session, IFileSystem fileSystem)
+        : AbstractHandler(session, true)
     {
-        private readonly ICustomerPortalClient _customerPortalClient;
-
-        public NewInfrastructureHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
-        {
-            this._customerPortalClient = customerPortalClient;
-        }
-
         public async Task Run(string infrastructureName, string siteName, string customerName, bool ignoreIfExists, FileInfo deploymentParameters)
         {
             await EnsureLogin();
@@ -32,7 +27,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string infrastructureDeploymentParameters = null;
             if (deploymentParameters != null)
             {
-                infrastructureDeploymentParameters = File.ReadAllText(deploymentParameters.FullName);
+                infrastructureDeploymentParameters = await fileSystem.File.ReadAllTextAsync(deploymentParameters.FullName);
             }
 
             ProductCustomer customer;
@@ -44,7 +39,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             else
             {
                 customer = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductCustomer>(Session,
-                    _customerPortalClient,
+                    customerPortalClient,
                     customerName,
                     new Dictionary<Foundation.Common.CmfExceptionType, string>()
                         {
@@ -57,7 +52,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string customerInfrastructureName = string.IsNullOrWhiteSpace(infrastructureName) ? $"CustomerInfrastructure-{Guid.NewGuid()}" : infrastructureName;
 
             // check if the current customerInfrastructureName already exists and continue deppending on the value of ignoreIfExists variable
-            CustomerInfrastructure customerInfrastructure = await InfrastructureCreationService.CheckCustomerInfrastructureAlreadyExists(Session, _customerPortalClient, ignoreIfExists, customerInfrastructureName);
+            CustomerInfrastructure customerInfrastructure = await InfrastructureCreationService.CheckCustomerInfrastructureAlreadyExists(Session, customerPortalClient, ignoreIfExists, customerInfrastructureName);
 
             if (customerInfrastructure == null)
             {
@@ -66,7 +61,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
 
             // wait if necessary to Unlock Customer Infrastructure
-            await InfrastructureCreationService.WaitForCustomerInfrastructureUnlockAsync(Session, _customerPortalClient, customerInfrastructure);
+            await InfrastructureCreationService.WaitForCustomerInfrastructureUnlockAsync(Session, customerPortalClient, customerInfrastructure);
 
             InfrastructureCreationService.GetInfrastructureUrl(Session, customerInfrastructure);
         }
@@ -75,7 +70,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         {
             ProductCustomer customer;
             ProductSite site = await Utilities.GetObjectByNameWithDefaultErrorMessage<ProductSite>(Session,
-                                _customerPortalClient,
+                                customerPortalClient,
                                 siteName,
                                 new Dictionary<Foundation.Common.CmfExceptionType, string>()
                                     {

@@ -2,44 +2,41 @@
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using System;
 using System.IO;
+using System.IO.Abstractions;
+using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class PublishPackageHandler : AbstractHandler
+    public class PublishPackageHandler(
+        ISession session,
+        IFileSystem fileSystem,
+        IQueryProxyService queryProxyService)
+        : AbstractHandler(session, true)
     {
-        private readonly ICustomerPortalClient _customerPortalClient;
-        private readonly IQueryProxyService _queryProxyService;
-
-        public PublishPackageHandler(ICustomerPortalClient customerPortalClient, ISession session, IQueryProxyService queryProxyService) : base(session, true)
-        {
-            _customerPortalClient = customerPortalClient;
-            _queryProxyService = queryProxyService;
-        }
-
-        public async Task Run(FileSystemInfo path, string datagroup)
+        public async Task Run(string path, string datagroup)
         {
             await EnsureLogin();
 
             Session.LogDebug("-------------------");
 
-            if (path.Attributes.HasFlag(FileAttributes.Directory))
+            if (fileSystem.File.GetAttributes(path).HasFlag(FileAttributes.Directory))
             {
-                foreach (string file in Directory.GetFiles(path.FullName))
+                foreach (string file in fileSystem.Directory.GetFiles(path))
                 {
                     await UploadPackage(file, datagroup);
                 }
             }
             else
             {
-                await UploadPackage(path.FullName, datagroup);
+                await UploadPackage(path, datagroup);
             }
         }
 
         private async Task UploadPackage(string filePath, string datagroup)
         {
-            string fileName = Path.GetFileName(filePath);
+            string fileName = fileSystem.Path.GetFileName(filePath);
 
             if (!ValidateFile(filePath))
             {
@@ -55,9 +52,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     // publish
                     Session.LogDebug("Uploading package...");
-                    var publishNewNewStreamingOutput = await new PackageManagement.PublishApplicationPackageBaseStreamingInput
+                    await new PackageManagement.PublishApplicationPackageBaseStreamingInput
                     {
-                        FilePath = filePath,
+                        FilePath = filePath, // boundary for IO.Abstractions
                         DatagroupName = datagroup,
                     }.PublishApplicationPackageBaseAsync(true);
 
@@ -79,15 +76,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
         private bool ValidateFile(string filePath)
         {
-            // verify if is zip
+            // verify if is a zip file and it's not empty
             try
             {
-                var zipFile = System.IO.Compression.ZipFile.OpenRead(filePath);
+                using var zipFile = new ZipArchive(fileSystem.File.OpenRead(filePath));
                 if (zipFile.Entries.Count == 0)
                 {
                     throw new Exception("No files in package zip");
                 }
-                zipFile.Dispose();
             }
             catch
             {
@@ -102,9 +98,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         {
             bool packageExists = false;
 
-            string pattern = @"^(?<packagename>.+?)\.(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+)(?:-(?<prerelease>[0-9A-Za-z\-\.]+))?\.zip$";
-            RegexOptions options = RegexOptions.IgnoreCase;
-            MatchCollection matches = Regex.Matches(fileName, pattern, options);
+            const string pattern = @"^(?<packagename>.+?)\.(?<major>[0-9]+)\.(?<minor>[0-9]+)\.(?<patch>[0-9]+)(?:-(?<prerelease>[0-9A-Za-z\-\.]+))?\.zip$";
+            MatchCollection matches = Regex.Matches(fileName, pattern, RegexOptions.IgnoreCase);
 
             if (matches.Count > 0 && matches[0].Groups != null && (matches[0].Groups.Count == 5 || matches[0].Groups.Count == 6))
             {
@@ -189,7 +184,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             };
             query.Query.Relations = new RelationCollection();
 
-            var result = await _queryProxyService.ExecuteQuery(query, 1, 1, Session);
+            var result = await queryProxyService.ExecuteQuery(query, 1, 1, Session);
 
             return result?.TotalRows > 0;
         }

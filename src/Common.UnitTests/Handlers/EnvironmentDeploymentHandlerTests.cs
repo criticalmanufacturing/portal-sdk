@@ -1,9 +1,8 @@
-﻿using Cmf.CustomerPortal.Deployment.Models;
+﻿using Autofac.Extras.Moq;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.MessageBus.Messages;
 using Moq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Common.UnitTests.Handlers
 {
@@ -13,13 +12,11 @@ namespace Common.UnitTests.Handlers
         public void ProcessDeploymentMessageQueuePosition_ShouldNotLogUnknownMessageReceived_WhenRegexMatches()
         {
             // Arrange
-            var mockSession = new Mock<ISession>();
-            var mockCustomerPortalClient = new Mock<ICustomerPortalClient>();
-            var mockArtifactsDownloadHandler = new Mock<IArtifactsDownloaderHandler>();
+            var mock = AutoMock.GetLoose();
+            var mockSession = mock.Mock<ISession>();
+            var appInstallationHandler = mock.Create<EnvironmentDeploymentHandler>();
 
-            EnvironmentDeploymentHandler appInstallationHandler = new EnvironmentDeploymentHandler(mockSession.Object, mockCustomerPortalClient.Object, mockArtifactsDownloadHandler.Object);
-
-            var validJson = "{\"DeploymentOperation\":0,\"Data\":\"Queue Position: 1\n\"}";
+            const string validJson = "{\"DeploymentOperation\":0,\"Data\":\"Queue Position: 1\n\"}";
             var message = new MbMessage { Data = validJson };
 
             // Act
@@ -33,12 +30,10 @@ namespace Common.UnitTests.Handlers
         public void ProcessDeploymentMessageQueuePosition_ShouldCallLogInformation_WhenRegexDoesNotMatch()
         {
             // Arrange
-            var mockSession = new Mock<ISession>();
-
-            var mockCustomerPortalClient = new Mock<ICustomerPortalClient>();
-            var mockArtifactsDownloadHandler = new Mock<IArtifactsDownloaderHandler>();
-
-            EnvironmentDeploymentHandler appInstallationHandler = new EnvironmentDeploymentHandler(mockSession.Object, mockCustomerPortalClient.Object, mockArtifactsDownloadHandler.Object);
+            var mock = AutoMock.GetLoose();
+            var mockSession = mock.Mock<ISession>();
+            var appInstallationHandler = mock.Create<EnvironmentDeploymentHandler>();
+            
             var message = new MbMessage { Data = null };
 
             // Act

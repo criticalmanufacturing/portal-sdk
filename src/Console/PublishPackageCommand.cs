@@ -35,7 +35,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(verbose);
             PublishPackageHandler newEnvironmentHandler = ServiceLocator.Get<PublishPackageHandler>();
-            await newEnvironmentHandler.Run(path, datagroup);
+            await newEnvironmentHandler.Run(path.FullName, datagroup);
         }
     }
 }

@@ -1,25 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Deployment.Models;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
+using Cmf.Foundation.Common.Base;
 using Cmf.LightBusinessObjects.Infrastructure;
 using Cmf.MessageBus.Messages;
 using Newtonsoft.Json;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
-    public class EnvironmentDeploymentHandler : IEnvironmentDeploymentHandler
+    public class EnvironmentDeploymentHandler(
+        ISession session,
+        IFileSystem fileSystem,
+        ICustomerPortalClient customerPortalClient,
+        IArtifactsDownloaderHandler artifactsDownloaderHandler)
+        : IEnvironmentDeploymentHandler
     {
-        private readonly ISession _session;
-        private readonly ICustomerPortalClient _customerPortalClient;
-        private readonly IArtifactsDownloaderHandler _artifactsDownloaderHandler;
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
         private bool _hasDeploymentStarted = false;
@@ -39,14 +41,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         }
 
 
-        public EnvironmentDeploymentHandler(ISession session, ICustomerPortalClient customerPortalClient,
-                                            IArtifactsDownloaderHandler artifactsDownloaderHandler)
-        {
-            _session = session;
-            _customerPortalClient = customerPortalClient;
-            _artifactsDownloaderHandler = artifactsDownloaderHandler;
-        }
-
         #region Private Methods
         private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputDir)
         {
@@ -55,11 +49,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 case DeploymentTarget.dockerswarm:
                 case DeploymentTarget.KubernetesOnPremisesTarget:
                 case DeploymentTarget.OpenShiftOnPremisesTarget:
-                    string outputPath = outputDir != null ? outputDir.FullName : Path.Combine(Directory.GetCurrentDirectory(), "out");
-                    bool success = await _artifactsDownloaderHandler.Handle(environment, outputPath);
+                    string outputPath = outputDir != null ? outputDir.FullName : fileSystem.Path.Combine(fileSystem.Directory.GetCurrentDirectory(), "out");
+                    bool success = await artifactsDownloaderHandler.Handle(environment, outputPath);
                     if (success)
                     {
-                        _session.LogInformation($"Customer Environment created at {outputPath}");
+                        session.LogInformation($"Customer Environment created at {outputPath}");
                     }
                     break;
                 default:
@@ -121,7 +115,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         initialTopLine = Console.CursorTop;
                         msg = $"{_queuePositionMsg} {position}";
                         Console.SetCursorPosition(_queuePositionCursorCoordinates.Value.left, _queuePositionCursorCoordinates.Value.top - 1);
-                        _session.LogInformation(msg);
+                        session.LogInformation(msg);
                         _queuePositionLoadingCursorCoordinates = (_queuePositionCursorCoordinates.Value.left + msg.Length, _queuePositionCursorCoordinates.Value.top - 1);
                         Console.SetCursorPosition(0, initialTopLine);
                         _presentLoading = true;
@@ -130,7 +124,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                 if (!msg.StartsWith(_queuePositionMsg))
                 {
-                    _session.LogInformation(msg);
+                    session.LogInformation(msg);
                 }
 
                 if (content.DeploymentStatus == DeploymentStatus.Deploying || content.DeploymentStatus == DeploymentStatus.Terminating)
@@ -156,7 +150,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             }
             else
             {
-                _session.LogInformation("Unknown message received");
+                session.LogInformation("Unknown message received");
             }
         }
 
@@ -169,10 +163,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             // assign the timeout of don't receive any message from portal by MB
             TimeSpan timeoutToGetSomeMBMessageTask = minutesTimeoutToGetSomeMBMsg > 0 ? TimeSpan.FromMinutes(minutesTimeoutToGetSomeMBMsg.Value) : TimeSpan.FromMinutes(30);
 
-            var messageBus = await _customerPortalClient.GetMessageBusTransport();
+            var messageBus = await customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.{customerEnvironment.Id}";
 
-            _session.LogDebug($"Subscribing messagebus subject {subject}");
+            session.LogDebug($"Subscribing messagebus subject {subject}");
             messageBus.Subscribe(subject, ProcessDeploymentMessage);
 
             // start deployment
@@ -185,13 +179,13 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 string infrastructureUrl = $"{(ClientConfigurationProvider.ClientConfiguration.UseSsl ? "https" : "http")}://{ClientConfigurationProvider.ClientConfiguration.HostAddress}/Entity/CustomerEnvironment/{customerEnvironment.Id}/View/Installation";
 
-                _session.LogInformation($"Environment {customerEnvironment.Name} was created, please access the portal url to configure the environment and start the installation:");
-                _session.LogInformation(infrastructureUrl);
-                _session.LogInformation($"Waiting for user configuration...");
+                session.LogInformation($"Environment {customerEnvironment.Name} was created, please access the portal url to configure the environment and start the installation:");
+                session.LogInformation(infrastructureUrl);
+                session.LogInformation($"Waiting for user configuration...");
             }
             else
             {
-                _session.LogInformation($"Starting deployment of environment {customerEnvironment.Name}...");
+                session.LogInformation($"Starting deployment of environment {customerEnvironment.Name}...");
                 var result = await startDeploymentInput.StartDeploymentAsync(true);
             }
 
@@ -218,7 +212,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         compositeTokenSourceWithDeploymentQueued.Dispose();
                     }
 
-                    _session.LogPendingMessages();
+                    session.LogPendingMessages();
 
                     try
                     {
@@ -288,12 +282,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                         ct.ThrowIfCancellationRequested();
                     }
 
-                    var checkedCustomerEnvironments = await _customerPortalClient.GetCustomerEnvironmentsById(ids.ToArray());
+                    var checkedCustomerEnvironments = await customerPortalClient.GetCustomerEnvironmentsById(ids.ToArray());
                     foreach (var ce in checkedCustomerEnvironments)
                     {
                         // keep track of which environments have already been terminated
                         if ((ce.Status == DeploymentStatus.Terminated || ce.Status == DeploymentStatus.TerminationFailed) &&
-                        ce.UniversalState == Foundation.Common.Base.UniversalState.Terminated)
+                        ce.UniversalState == UniversalState.Terminated)
                         {
                             ids.Remove(ce.Id);
 

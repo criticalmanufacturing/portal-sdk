@@ -25,7 +25,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         protected async override Task ProcessRecordAsync()
         {
             PublishPackageHandler publishPackageHandler = ServiceLocator.Get<PublishPackageHandler>();
-            await publishPackageHandler.Run(new FileInfo(Path), Datagroup);
+            await publishPackageHandler.Run(Path, Datagroup);
         }
     }
 }

@@ -1,18 +1,21 @@
-﻿using System.IO.Abstractions;
+﻿using System.IO.Abstractions.TestingHelpers;
+using System.Reflection;
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.QueryManagement.OutputObjects;
 using Moq;
-using System.Reflection;
 
 namespace Common.UnitTests.Handlers;
 
 public class PublishPackageHandlerTests
 {
-    private readonly string _assets = "assets";
-    private readonly string _testPackage = "Cmf.Environment.11.2.0-alpha.1.zip";
+    private const string _assets = "assets";
+    private const string _testPackage = "Cmf.Environment.11.2.0-alpha.1.zip";
+
+    private readonly string _validPackageResourcePath =
+        $"{Assembly.GetExecutingAssembly().GetName().Name}.{_assets}.{_testPackage}";
 
     [Theory]
     [InlineData("Cmf.Environment.11.2.zip")]
@@ -24,18 +27,26 @@ public class PublishPackageHandlerTests
         // arrange
         var sessionMock = new Mock<ISession>();
         var queryProxyServiceMock = new Mock<IQueryProxyService>();
-        var fileSystem = new FileSystem(); // use real fs
-        var publishPackageHandler = new PublishPackageHandler(sessionMock.Object, fileSystem, queryProxyServiceMock.Object);
-        var fileSystemInfo = new FileInfo(Path.Combine(
-                                        Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
-                                        _assets,
-                                        packageName));
+
+        var fileSystem = new MockFileSystem();
+        var filePath = fileSystem.Path.Combine("/whatever/", packageName);
+        fileSystem.AddFileFromEmbeddedResource(
+            filePath, // valid data, invalid name
+            Assembly.GetExecutingAssembly(),
+            _validPackageResourcePath
+        );
+
+        var publishPackageHandler = new PublishPackageHandler(
+            sessionMock.Object,
+            fileSystem,
+            queryProxyServiceMock.Object
+        );
 
         // act
-        await publishPackageHandler.Run(fileSystemInfo, "");
+        await publishPackageHandler.Run(filePath, "");
 
         // assert
-        sessionMock.Verify(x => x.LogInformation($"Package {fileSystemInfo.Name} skipped"));
+        sessionMock.Verify(x => x.LogInformation($"Package {packageName} skipped"));
     }
 
     [Fact]
@@ -44,15 +55,24 @@ public class PublishPackageHandlerTests
         // arrange
         var sessionMock = new Mock<ISession>();
         var queryProxyServiceMock = new Mock<IQueryProxyService>();
-        var fileSystem = new FileSystem(); // use real fs
-        var publishPackageHandler = new PublishPackageHandler(sessionMock.Object, fileSystem, queryProxyServiceMock.Object);
-        var fileSystemInfo = new FileInfo(Path.Combine(
-                                        Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
-                                        _assets,
-                                        _testPackage));
+
+        var fileSystem = new MockFileSystem();
+        var packagePath = Path.Combine("/some/path", _testPackage);
+        fileSystem.AddFileFromEmbeddedResource(
+            packagePath,
+            Assembly.GetExecutingAssembly(),
+            _validPackageResourcePath
+        );
+
+        var publishPackageHandler = new PublishPackageHandler(
+            sessionMock.Object,
+            fileSystem,
+            queryProxyServiceMock.Object
+        );
+
 
         // act
-        await publishPackageHandler.Run(fileSystemInfo, "");
+        await publishPackageHandler.Run(packagePath, "");
 
         // assert
         sessionMock.Verify(x => x.LogDebug("Package does not exist"));
@@ -64,23 +84,34 @@ public class PublishPackageHandlerTests
     {
         // arrange
         var sessionMock = new Mock<ISession>();
-        var fileSystem = new FileSystem(); // use real fs
+
+        var fileSystem = new MockFileSystem();
+        var packagePath = Path.Combine("/some/path", _testPackage);
+        fileSystem.AddFileFromEmbeddedResource(
+            packagePath,
+            Assembly.GetExecutingAssembly(),
+            _validPackageResourcePath
+        );
+
         var queryProxyServiceMock = new Mock<IQueryProxyService>();
-        queryProxyServiceMock.Setup(x => x.ExecuteQuery(It.IsAny<QueryObject>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<ISession>()))
-            .ReturnsAsync(() => new ExecuteQueryOutput
-            {
-                TotalRows = 1
-            });
-        var publishPackageHandler = new PublishPackageHandler(sessionMock.Object, fileSystem, queryProxyServiceMock.Object);
-        var fileSystemInfo = new FileInfo(Path.Combine(
-                                Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
-                                _assets,
-                                _testPackage));
+        queryProxyServiceMock.Setup(x => x.ExecuteQuery(
+                    It.IsAny<QueryObject>(),
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<ISession>()
+                )
+            )
+            .ReturnsAsync(() => new ExecuteQueryOutput { TotalRows = 1 });
+        var publishPackageHandler = new PublishPackageHandler(
+            sessionMock.Object,
+            fileSystem,
+            queryProxyServiceMock.Object
+        );
 
         // act
-        await publishPackageHandler.Run(fileSystemInfo, "");
+        await publishPackageHandler.Run(packagePath, "");
 
         // assert
-        sessionMock.Verify(x => x.LogInformation($"Package {fileSystemInfo.Name} skipped"));
+        sessionMock.Verify(x => x.LogInformation($"Package {_testPackage} skipped"));
     }
 }

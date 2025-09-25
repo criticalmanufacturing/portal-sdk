@@ -48,9 +48,16 @@ public class ArtifactsDownloaderHandlerTests(ITestOutputHelper testOutputHelper)
         var sessionMock = new Mock<ISession>();
 
         var fileSystem = new MockFileSystem();
+
+        testOutputHelper.WriteLine(string.Join('\n', Assembly.GetExecutingAssembly().GetManifestResourceNames()));
+        // Since we are mocking the filesystem, we have to add our *real* asset into it
+        fileSystem.AddFileFromEmbeddedResource(
+            attachmentFilePath,
+            Assembly.GetExecutingAssembly(),
+            "Common.UnitTests.assets.archive.zip"
+        );
         
-        // Since we are mocking the filesystem, we have to copy our *real* asset into it
-        fileSystem.AddFile(attachmentFilePath, new MockFileData(await File.ReadAllBytesAsync(attachmentFilePath)));
+        // fileSystem.AddFile(attachmentFilePath, new MockFileData(await File.ReadAllBytesAsync(attachmentFilePath)));
 
         var artifactsDownloaderHandler =
             new ArtifactsDownloaderHandler(sessionMock.Object, fileSystem, customerPortalClientMock.Object);

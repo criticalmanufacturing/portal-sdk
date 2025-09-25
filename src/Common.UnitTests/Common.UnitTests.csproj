@@ -24,13 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="assets\" />
-        <None Include="assets\**\*">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
         <Reference Include="Cmf.LightBusinessObjects">
             <HintPath>..\Common\libs\Cmf.LightBusinessObjects.dll</HintPath>
         </Reference>
@@ -44,20 +37,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="assets\Cmf.Environment.11.2.0-alpha.1.zip">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="assets\Cmf.Environment.11.2.zip">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="assets\Cmf.Environment-11.2-alpha.1.zip">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="assets\Cmf.Environment.11.2.0-.zip">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="assets\Cmf.Environment.11.2.0.rc1.zip">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+        <!-- Resource names: `Common.UnitTests.assets.<filename>` -->
+        <EmbeddedResource Include="assets\*"/>
     </ItemGroup>
 </Project>

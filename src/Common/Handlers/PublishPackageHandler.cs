@@ -15,22 +15,22 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         IQueryProxyService queryProxyService)
         : AbstractHandler(session, true)
     {
-        public async Task Run(FileSystemInfo path, string datagroup)
+        public async Task Run(string path, string datagroup)
         {
             await EnsureLogin();
 
             Session.LogDebug("-------------------");
 
-            if (path.Attributes.HasFlag(FileAttributes.Directory))
+            if (fileSystem.File.GetAttributes(path).HasFlag(FileAttributes.Directory))
             {
-                foreach (string file in fileSystem.Directory.GetFiles(path.FullName))
+                foreach (string file in fileSystem.Directory.GetFiles(path))
                 {
                     await UploadPackage(file, datagroup);
                 }
             }
             else
             {
-                await UploadPackage(path.FullName, datagroup);
+                await UploadPackage(path, datagroup);
             }
         }
 

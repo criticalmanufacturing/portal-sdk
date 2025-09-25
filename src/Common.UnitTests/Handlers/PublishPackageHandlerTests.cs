@@ -114,4 +114,57 @@ public class PublishPackageHandlerTests
         // assert
         sessionMock.Verify(x => x.LogInformation($"Package {_testPackage} skipped"));
     }
+
+    [Fact]
+    public async Task Run_PassingDirectoryTriesAllPackages()
+    {
+        // Arrange
+        var sessionMock = new Mock<ISession>();
+
+        var fileSystem = new MockFileSystem();
+        const string packagesDir = "/some/dir";
+        fileSystem.AddFileFromEmbeddedResource(
+            fileSystem.Path.Combine(packagesDir, "Cmf.Environment.11.2.0.zip"),
+            Assembly.GetExecutingAssembly(),
+            _validPackageResourcePath
+        );
+        const string existingPkgName = "Cmf.Host";
+        const string existingPkg = $"{existingPkgName}.11.2.0.zip";
+        fileSystem.AddFileFromEmbeddedResource(
+            fileSystem.Path.Combine(packagesDir, existingPkg),
+            Assembly.GetExecutingAssembly(),
+            _validPackageResourcePath
+        );
+        fileSystem.AddFileFromEmbeddedResource(
+            fileSystem.Path.Combine(packagesDir, "Cmf.Security.11.2.0.zip"),
+            Assembly.GetExecutingAssembly(),
+            _validPackageResourcePath
+        );
+
+        var queryProxyServiceMock = new Mock<IQueryProxyService>();
+        queryProxyServiceMock.Setup(x => x.ExecuteQuery(
+                    It.Is<QueryObject>(qo =>
+                        qo.Query.Filters.Exists(f => "Name".Equals(f.Name) && existingPkgName.Equals(f.Value))
+                    ),
+                    It.IsAny<int>(),
+                    It.IsAny<int>(),
+                    It.IsAny<ISession>()
+                )
+            )
+            .ReturnsAsync(() => new ExecuteQueryOutput { TotalRows = 1 });
+
+        var handler = new PublishPackageHandler(sessionMock.Object, fileSystem, queryProxyServiceMock.Object);
+
+        // Act
+        await handler.Run(packagesDir, "");
+
+
+        // Assert
+
+        // Two of them will be uploaded
+        sessionMock.Verify(x => x.LogDebug("Uploading package..."), Times.Exactly(2));
+
+        // The one that already exists won't
+        sessionMock.Verify(x => x.LogInformation($"Package {existingPkg} skipped"), Times.Once);
+    }
 }

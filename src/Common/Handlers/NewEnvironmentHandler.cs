@@ -106,7 +106,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                     var customerEnvironmentsToTerminate = await newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
                     OperationAttributeCollection terminateOperationAttibutes = new OperationAttributeCollection();
-                    EntityType ceET = await _customerPortalClient.GetEntityTypeByName("CustomerEnvironment");
+                    EntityType ceET = await customerPortalClient.GetEntityTypeByName("CustomerEnvironment");
                     foreach (var ce in customerEnvironmentsToTerminate)
                     {
                         OperationAttribute attributeRemove = new OperationAttribute();
@@ -142,8 +142,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                             foreach (long ceId in ceTerminationFailedIds)
                             {
-                                var logs = await _customerPortalClient.GetCustomerEnvironmentTerminationLogs(ceId);
-                                Session.LogError($"\nCustomer Environment {ceId} did not terminate sucessully. Termination logs:\n {logs}\n");
+                                var logs = await customerPortalClient.GetCustomerEnvironmentTerminationLogs(ceId);
+                                Session.LogError($"\nCustomer Environment {ceId} did not terminate successfully. Termination logs:\n {logs}\n");
                             }
 
                             throw ex;

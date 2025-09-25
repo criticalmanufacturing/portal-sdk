@@ -1,4 +1,5 @@
-﻿using Autofac.Extras.Moq;
+﻿using System.IO.Abstractions;
+using Autofac.Extras.Moq;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
@@ -222,6 +223,7 @@ public class NewEnvironmentHandlerTests
         var mockEnvServices = new Mock<ICustomerEnvironmentServices>();
         var mockLicenseServices = new Mock<ILicenseServices>();
         var mockSession = new Mock<ISession>();
+        var mockFilesystem = new Mock<IFileSystem>();
 
         // Capture session logs
         var loggedExceptionObjects = new List<Exception>();
@@ -278,6 +280,7 @@ public class NewEnvironmentHandlerTests
         var handler = new NewEnvironmentHandler(
             mockClient.Object,
             mockSession.Object,
+            mockFilesystem.Object,
             mockUtils.Object,
             mockEnvDeploymentHandler.Object,
             mockEnvServices.Object,

@@ -48,7 +48,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             {
                 // ZipArchiveEntry paths are always relative
                 var subDir = fileSystem.Path.GetDirectoryName(entry.FullName);
-                if (subDir != null)
+                if (!string.IsNullOrWhiteSpace(subDir))
                 {
                     outDir.CreateSubdirectory(subDir);
                 }

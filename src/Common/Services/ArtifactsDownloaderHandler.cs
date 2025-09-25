@@ -19,7 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 deployEntity.GetType() == typeof(CustomerEnvironment) ? "CustomerEnvironment" : "App";
 
             // get the attachments of the current customer environment or app
-            var attachments = await customerPortalClient.GetAttachmentsForEntity(deployEntity);
+            var attachments = await customerPortalClient.GetAttachmentsForEntity(deployEntity) ?? [];
 
             var attachmentToDownload = attachments
                 .Where(e => e.Filename.StartsWith($"{entityTypePrefix}_{deployEntity.Name}"))

@@ -4,6 +4,7 @@ using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Common.Services;
+using Cmf.Foundation.Common.Base;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Moq;

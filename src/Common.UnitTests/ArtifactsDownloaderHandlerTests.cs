@@ -57,8 +57,6 @@ public class ArtifactsDownloaderHandlerTests(ITestOutputHelper testOutputHelper)
             "Common.UnitTests.assets.archive.zip"
         );
         
-        // fileSystem.AddFile(attachmentFilePath, new MockFileData(await File.ReadAllBytesAsync(attachmentFilePath)));
-
         var artifactsDownloaderHandler =
             new ArtifactsDownloaderHandler(sessionMock.Object, fileSystem, customerPortalClientMock.Object);
 

@@ -1,12 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
-using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.Foundation.Common.Base;
 
@@ -22,6 +20,28 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         ILicenseServices licenseService)
         : AbstractHandler(session, true)
     {
+        // private readonly ICustomerPortalClient _customerPortalClient;
+        // private readonly INewEnvironmentUtilities _newEnvironmentUtilities;
+        // private readonly IEnvironmentDeploymentHandler _environmentDeploymentHandler;
+        // private readonly ICustomerEnvironmentServices _customerEnvironmentServices;
+        // private readonly ILicenseServices _licenseService;
+
+        // public NewEnvironmentHandler(
+        //     ICustomerPortalClient customerPortalClient,
+        //     ISession session,
+        //     IFileSystem fileSystem,
+        //     INewEnvironmentUtilities newEnvironmentUtilities,
+        //     IEnvironmentDeploymentHandler environmentDeploymentHandler,
+        //     ICustomerEnvironmentServices customerEnvironmentServices,
+        //     ILicenseServices licenseService)
+        //     : AbstractHandler(session, true)
+        // {
+        //     // _customerPortalClient = customerPortalClient;
+        //     // _newEnvironmentUtilities = newEnvironmentUtilities;
+        //     // _environmentDeploymentHandler = environmentDeploymentHandler;
+        //     // _customerEnvironmentServices = customerEnvironmentServices;
+        //     // _licenseService = licenseService;
+        // }
         public async Task Run(
             string name,
             FileInfo parameters,
@@ -103,59 +123,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // terminate other versions
                 if (terminateOtherVersions)
                 {
-                    Session.LogInformation("Terminating other versions...");
-
-                    var customerEnvironmentsToTerminate = await newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
-                    OperationAttributeCollection terminateOperationAttibutes = new OperationAttributeCollection();
-                    EntityType ceET = await customerPortalClient.GetEntityTypeByName("CustomerEnvironment");
-                    foreach (var ce in customerEnvironmentsToTerminate)
-                    {
-                        OperationAttribute attributeRemove = new OperationAttribute();
-                        attributeRemove.EntityId = ce.Id;
-                        attributeRemove.EntityType = ceET;
-                        attributeRemove.Name = "RemoveDeployments";
-                        attributeRemove.OperationName = "TerminateVersion";
-                        attributeRemove.Value = terminateOtherVersionsRemove ? 1 : 0;
-
-                        OperationAttribute attributeRemoveVolumes = new OperationAttribute();
-                        attributeRemoveVolumes.EntityId = ce.Id;
-                        attributeRemoveVolumes.EntityType = ceET;
-                        attributeRemoveVolumes.Name = "RemoveVolumes";
-                        attributeRemoveVolumes.OperationName = "TerminateVersion";
-                        attributeRemoveVolumes.Value = (terminateOtherVersionsRemove && terminateOtherVersionsRemoveVolumes) ? 1 : 0;
-
-                        terminateOperationAttibutes.Add(attributeRemove);
-                        terminateOperationAttibutes.Add(attributeRemoveVolumes);
-                    }
-                    if (customerEnvironmentsToTerminate.Count > 0)
-                    {
-                        await customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
-
-                        // wait until they're terminated
-                        List<long> ceTerminationFailedIds = await environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
-
-                        if (ceTerminationFailedIds?.Count > 0)
-                        {
-                            string failedIdsString = string.Join(", ", ceTerminationFailedIds.Select(x => x.ToString()));
-                            string errorMessage = $"Stopping deploy process because termination of other environment versions failed. Environment Ids of failed terminations: {failedIdsString}.";
-                            Exception ex = new Exception(errorMessage);
-                            Session.LogError(ex);
-
-                            foreach (long ceId in ceTerminationFailedIds)
-                            {
-                                var logs = await customerPortalClient.GetCustomerEnvironmentTerminationLogs(ceId);
-                                Session.LogError($"\nCustomer Environment {ceId} did not terminate successfully. Termination logs:\n {logs}\n");
-                            }
-
-                            throw ex;
-                        }
-
-                        Session.LogInformation("Other versions terminated!");
-                    }
-                    else
-                    {
-                        Session.LogInformation("There are no versions with an eligible status to be terminated.");
-                    }
+                    await customerEnvironmentServices.TerminateOtherVersions(Session, newEnvironmentUtilities, customerPortalClient, environmentDeploymentHandler, environment, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
                 }
             }
             // if not, check if we are creating a new environment for an infrastructure

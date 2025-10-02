@@ -221,7 +221,6 @@ public class NewEnvironmentHandlerTests
         var mockClient = new Mock<ICustomerPortalClient>();
         var mockUtils = new Mock<INewEnvironmentUtilities>();
         var mockEnvDeploymentHandler = new Mock<IEnvironmentDeploymentHandler>();
-        var mockEnvServices = new Mock<ICustomerEnvironmentServices>();
         var mockLicenseServices = new Mock<ILicenseServices>();
         var mockSession = new Mock<ISession>();
         var mockFilesystem = new Mock<IFileSystem>();
@@ -239,7 +238,7 @@ public class NewEnvironmentHandlerTests
 
         // Existing environment returned by GetCustomerEnvironment -> triggers "environment != null" branch
         var existingEnvironment = new CustomerEnvironment { Id = 1, Name = "env-existing" };
-        mockEnvServices.Setup(s => s.GetCustomerEnvironment(It.IsAny<string>()))
+        mockClient.Setup(c => c.GetObjectByName<CustomerEnvironment>(It.IsAny<string>(), 0))
             .ReturnsAsync(existingEnvironment);
 
         // Utilities and services behavior
@@ -247,13 +246,6 @@ public class NewEnvironmentHandlerTests
             .Returns("SomeTarget");
         mockUtils.Setup(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()))
             .Returns(Task.FromResult(new List<CustomerEnvironment>()));
-
-        // Simulate created/updated environment returned after CreateEnvironment/UpdateEnvironment
-        mockEnvServices.Setup(s => s.CreateEnvironment(It.IsAny<CustomerEnvironment>()))
-            .ReturnsAsync(existingEnvironment);
-        mockEnvServices.Setup(s => s.UpdateEnvironment(It.IsAny<CustomerEnvironment>()))
-            .ReturnsAsync(existingEnvironment);
-
         // Prepare other versions to terminate (non-empty list so termination logic runs)
         var otherEnv1 = new CustomerEnvironment { Id = 10, Name = "env-old-1" };
         var otherEnv2 = new CustomerEnvironment { Id = 20, Name = "env-old-2" };
@@ -284,7 +276,7 @@ public class NewEnvironmentHandlerTests
             mockFilesystem.Object,
             mockUtils.Object,
             mockEnvDeploymentHandler.Object,
-            mockEnvServices.Object,
+            new CustomerEnvironmentServices(mockClient.Object, mockSession.Object, mockUtils.Object, mockEnvDeploymentHandler.Object),
             mockLicenseServices.Object
         );
 

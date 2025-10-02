@@ -8,18 +8,24 @@ using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
+[assembly: InternalsVisibleTo("Common.UnitTests")]
 namespace Cmf.CustomerPortal.Sdk.Common.Services;
 
-internal class CustomerEnvironmentServices(ICustomerPortalClient customerPortalClient) : ICustomerEnvironmentServices
+internal class CustomerEnvironmentServices(
+    ICustomerPortalClient customerPortalClient,
+    ISession session,
+    INewEnvironmentUtilities newEnvironmentUtilities,
+    IEnvironmentDeploymentHandler environmentDeploymentHandler) : AbstractHandler(session, true), ICustomerEnvironmentServices
 {
-    public async Task<CustomerEnvironment> GetCustomerEnvironment(ISession session, string name)
+    public async Task<CustomerEnvironment> GetCustomerEnvironment(string name)
     {
         CustomerEnvironment environment = null;
         try
         {
-            environment = (await (new GetCustomerEnvironmentByNameInput() { CustomerEnvironmentName = name }.GetCustomerEnvironmentByNameAsync(true))).CustomerEnvironment;
+            environment = await customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
 
             session.LogInformation($"Customer environment {name} actually exists...");
         }
@@ -31,11 +37,11 @@ internal class CustomerEnvironmentServices(ICustomerPortalClient customerPortalC
         return environment;
     }
 
-    public async Task<CustomerEnvironment> CreateEnvironment(ICustomerPortalClient client, CustomerEnvironment customerEnvironment)
+    public async Task<CustomerEnvironment> CreateEnvironment(CustomerEnvironment customerEnvironment)
     {
         try
         {
-            CustomerEnvironment ceFound = await client.GetObjectByName<CustomerEnvironment>(customerEnvironment.Name);
+            CustomerEnvironment ceFound = await customerPortalClient.GetObjectByName<CustomerEnvironment>(customerEnvironment.Name);
 
             // was found on GetObjectByName, so let's create a new version
             return await CreateNewEnvironmentEntityOrVersion(customerEnvironment, EntityTypeSource.Version);
@@ -65,12 +71,7 @@ internal class CustomerEnvironmentServices(ICustomerPortalClient customerPortalC
     /// <returns></returns>
     public async Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment)
     {
-        customerEnvironment.ChangeSet = null;
-        return (await new UpdateCustomerEnvironmentInput
-        {
-            CustomerEnvironment = customerEnvironment,
-            DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge
-        }.UpdateCustomerEnvironmentAsync(true)).CustomerEnvironment;
+        return await customerPortalClient.UpdateEnvironment(customerEnvironment);
     }
 
     /// <inheritdoc/>
@@ -92,7 +93,7 @@ internal class CustomerEnvironmentServices(ICustomerPortalClient customerPortalC
         }.UpdateCustomerEnvironmentDeploymentPackageAsync(true);
 
     /// <inheritdoc/>
-    public async Task TerminateOtherVersions(ISession session, INewEnvironmentUtilities newEnvironmentUtilities, ICustomerPortalClient customerPortalClient, IEnvironmentDeploymentHandler environmentDeploymentHandler, CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes)
+    public async Task TerminateOtherVersions(CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes)
     {
         session.LogInformation("Terminating other versions...");
 

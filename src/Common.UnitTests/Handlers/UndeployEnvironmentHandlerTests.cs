@@ -20,10 +20,8 @@ public class UndeployEnvironmentHandlerTests
     public UndeployEnvironmentHandlerTests()
     {
         _handler = new UndeployEnvironmentHandler(
-            _customerPortalClientMock.Object,
             _sessionMock.Object,
             _newEnvironmentUtilitiesMock.Object,
-            _environmentDeploymentHandlerMock.Object,
             _customerEnvironmentServicesMock.Object);
     }
 
@@ -37,7 +35,7 @@ public class UndeployEnvironmentHandlerTests
     [Fact]
     public async Task Run_WhenEnvironmentDoesNotExist_ThrowsException()
     {
-        _ = _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment(_sessionMock.Object, "env"))
+        _ = _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync((CustomerEnvironment?)null);
 
         await Assert.ThrowsAsync<Exception>(() => _handler.Run("env", false));
@@ -47,15 +45,15 @@ public class UndeployEnvironmentHandlerTests
     public async Task Run_WhenValid_RunsSuccessfully()
     {
         var env = new CustomerEnvironment();
-        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment(_sessionMock.Object, "env"))
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync(env);
-        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(_customerPortalClientMock.Object, env))
+        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
             .ReturnsAsync(env);
 
         await _handler.Run("env", true);
 
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Once);
-        _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(_customerPortalClientMock.Object, env), Times.Once);
-        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(_sessionMock.Object, _newEnvironmentUtilitiesMock.Object, _customerPortalClientMock.Object, _environmentDeploymentHandlerMock.Object, env, true, true), Times.Once);
+        _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Once);
+        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(env, true, true), Times.Once);
     }
 }

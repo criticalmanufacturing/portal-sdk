@@ -20,28 +20,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         ILicenseServices licenseService)
         : AbstractHandler(session, true)
     {
-        // private readonly ICustomerPortalClient _customerPortalClient;
-        // private readonly INewEnvironmentUtilities _newEnvironmentUtilities;
-        // private readonly IEnvironmentDeploymentHandler _environmentDeploymentHandler;
-        // private readonly ICustomerEnvironmentServices _customerEnvironmentServices;
-        // private readonly ILicenseServices _licenseService;
 
-        // public NewEnvironmentHandler(
-        //     ICustomerPortalClient customerPortalClient,
-        //     ISession session,
-        //     IFileSystem fileSystem,
-        //     INewEnvironmentUtilities newEnvironmentUtilities,
-        //     IEnvironmentDeploymentHandler environmentDeploymentHandler,
-        //     ICustomerEnvironmentServices customerEnvironmentServices,
-        //     ILicenseServices licenseService)
-        //     : AbstractHandler(session, true)
-        // {
-        //     // _customerPortalClient = customerPortalClient;
-        //     // _newEnvironmentUtilities = newEnvironmentUtilities;
-        //     // _environmentDeploymentHandler = environmentDeploymentHandler;
-        //     // _customerEnvironmentServices = customerEnvironmentServices;
-        //     // _licenseService = licenseService;
-        // }
         public async Task Run(
             string name,
             FileInfo parameters,
@@ -86,7 +65,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation($"Checking if customer environment {name} exists...");
 
             // let's see if the environment already exists
-            CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironment(Session, name);
+            CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironment(name);
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
             if (environment != null)
@@ -106,7 +85,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 if (environment.UniversalState != UniversalState.Created || environment.Status != DeploymentStatus.NotDeployed)
                 {
                     Session.LogInformation($"Creating a new version of the Customer environment {name}...");
-                    environment = await customerEnvironmentServices.CreateEnvironment(customerPortalClient, environment);
+                    environment = await customerEnvironmentServices.CreateEnvironment(environment);
                 }
 
                 // Update environment with the parameters to be merged instead of overwriting
@@ -127,7 +106,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // terminate other versions
                 if (terminateOtherVersions)
                 {
-                    await customerEnvironmentServices.TerminateOtherVersions(Session, newEnvironmentUtilities, customerPortalClient, environmentDeploymentHandler, environment, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
+                    await customerEnvironmentServices.TerminateOtherVersions(environment, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
                 }
             }
             // if not, check if we are creating a new environment for an infrastructure
@@ -187,7 +166,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Parameters = rawParameters
                 };
 
-                environment = await customerEnvironmentServices.CreateEnvironment(customerPortalClient, environment);
+                environment = await customerEnvironmentServices.CreateEnvironment(environment);
 
                 if (!isInfrastructureAgent)
                 {

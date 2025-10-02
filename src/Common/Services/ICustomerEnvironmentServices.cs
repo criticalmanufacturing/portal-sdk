@@ -12,14 +12,14 @@ public interface ICustomerEnvironmentServices
     /// <param name="session">The session.</param>
     /// <param name="name">The customer environment name.</param>
     /// <returns>The customer environ</returns>
-    Task<CustomerEnvironment> GetCustomerEnvironment(ISession session, string name);
+    Task<CustomerEnvironment> GetCustomerEnvironment(string name);
 
     /// <summary>
     /// Creates the environment or a new version if it already exists.
     /// </summary>
     /// <param name="customerEnvironment">The customer environment.</param>
     /// <returns>The created environment.</returns>
-    Task<CustomerEnvironment> CreateEnvironment(ICustomerPortalClient client, CustomerEnvironment customerEnvironment);
+    Task<CustomerEnvironment> CreateEnvironment(CustomerEnvironment customerEnvironment);
 
     /// <summary>
     /// Creates new customer environment entity or a new customer environment version.
@@ -67,5 +67,5 @@ public interface ICustomerEnvironmentServices
     /// <param name="terminateOtherVersionsRemove">Controls if the deployments of the versions of the <paramref name="customerEnvironment"/> that will be terminated should be removed.</param>
     /// <param name="terminateOtherVersionsRemoveVolumes">Controls if the volumes of the versions of the <paramref name="customerEnvironment"/> that will be terminated should be removed.</param>
     /// <returns></returns>
-    Task TerminateOtherVersions(ISession session, INewEnvironmentUtilities newEnvironmentUtilities, ICustomerPortalClient customerPortalClient, IEnvironmentDeploymentHandler environmentDeploymentHandler, CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes);
+    Task TerminateOtherVersions(CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes);
 }

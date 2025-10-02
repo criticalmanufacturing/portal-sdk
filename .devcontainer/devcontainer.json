@@ -1,0 +1,22 @@
+{
+    "name": "portal-sdk devcontainer",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+    "features": {
+        "ghcr.io/devcontainers/features/dotnet": {
+            "version": "8.0"
+        },
+        "ghcr.io/devcontainers/features/node": {
+            "version": "lts"
+        },
+        "ghcr.io/devcontainers/features/github-cli": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-dotnettools.csdevkit",
+                "ms-dotnettools.csharp"
+            ]
+        }
+    },
+    "postCreateCommand": "echo \"alias 'cmf-portal=src/Console/bin/Debug/net8.0/cmf-portal'\" >> /home/vscode/.bashrc"
+}

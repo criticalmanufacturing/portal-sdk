@@ -130,5 +130,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="name">Name of the entity type.</param>
         /// <returns></returns>
         Task<EntityType> GetEntityTypeByName(string name);
+
+        /// <summary>
+        /// Update a customer environment.
+        /// </summary>
+        /// <param name="customerEnvironment">customer environment</param>
+        /// <returns></returns>
+        public Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment);
+
     }
 }

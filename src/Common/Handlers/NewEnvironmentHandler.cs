@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
-using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
+using Cmf.Foundation.Common.Base;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -21,6 +20,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         ILicenseServices licenseService)
         : AbstractHandler(session, true)
     {
+
         public async Task Run(
             string name,
             FileInfo parameters,
@@ -65,7 +65,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation($"Checking if customer environment {name} exists...");
 
             // let's see if the environment already exists
-            CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironment(Session, name);
+            CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironment(name);
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
             if (environment != null)
@@ -81,8 +81,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // check environment connection
                 await newEnvironmentUtilities.CheckEnvironmentConnection(environment);
 
-                Session.LogInformation($"Creating a new version of the Customer environment {name}...");
-                environment = await customerEnvironmentServices.CreateEnvironment(customerPortalClient, environment);
+                // create a new CE version if the latest isn't Created or NotDeployed
+                if (environment.UniversalState != UniversalState.Created || environment.Status != DeploymentStatus.NotDeployed)
+                {
+                    Session.LogInformation($"Creating a new version of the Customer environment {name}...");
+                    environment = await customerEnvironmentServices.CreateEnvironment(environment);
+                }
 
                 // Update environment with the parameters to be merged instead of overwriting
                 environment.Parameters = rawParameters;
@@ -102,59 +106,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // terminate other versions
                 if (terminateOtherVersions)
                 {
-                    Session.LogInformation("Terminating other versions...");
-
-                    var customerEnvironmentsToTerminate = await newEnvironmentUtilities.GetOtherVersionToTerminate(environment);
-                    OperationAttributeCollection terminateOperationAttibutes = new OperationAttributeCollection();
-                    EntityType ceET = await customerPortalClient.GetEntityTypeByName("CustomerEnvironment");
-                    foreach (var ce in customerEnvironmentsToTerminate)
-                    {
-                        OperationAttribute attributeRemove = new OperationAttribute();
-                        attributeRemove.EntityId = ce.Id;
-                        attributeRemove.EntityType = ceET;
-                        attributeRemove.Name = "RemoveDeployments";
-                        attributeRemove.OperationName = "TerminateVersion";
-                        attributeRemove.Value = terminateOtherVersionsRemove ? 1 : 0;
-
-                        OperationAttribute attributeRemoveVolumes = new OperationAttribute();
-                        attributeRemoveVolumes.EntityId = ce.Id;
-                        attributeRemoveVolumes.EntityType = ceET;
-                        attributeRemoveVolumes.Name = "RemoveVolumes";
-                        attributeRemoveVolumes.OperationName = "TerminateVersion";
-                        attributeRemoveVolumes.Value = (terminateOtherVersionsRemove && terminateOtherVersionsRemoveVolumes) ? 1 : 0;
-
-                        terminateOperationAttibutes.Add(attributeRemove);
-                        terminateOperationAttibutes.Add(attributeRemoveVolumes);
-                    }
-                    if (customerEnvironmentsToTerminate.Count > 0)
-                    {
-                        await customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttibutes);
-
-                        // wait until they're terminated
-                        List<long> ceTerminationFailedIds = await environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);
-
-                        if (ceTerminationFailedIds?.Count > 0)
-                        {
-                            string failedIdsString = string.Join(", ", ceTerminationFailedIds.Select(x => x.ToString()));
-                            string errorMessage = $"Stopping deploy process because termination of other environment versions failed. Environment Ids of failed terminations: {failedIdsString}.";
-                            Exception ex = new Exception(errorMessage);
-                            Session.LogError(ex);
-
-                            foreach (long ceId in ceTerminationFailedIds)
-                            {
-                                var logs = await customerPortalClient.GetCustomerEnvironmentTerminationLogs(ceId);
-                                Session.LogError($"\nCustomer Environment {ceId} did not terminate successfully. Termination logs:\n {logs}\n");
-                            }
-
-                            throw ex;
-                        }
-
-                        Session.LogInformation("Other versions terminated!");
-                    }
-                    else
-                    {
-                        Session.LogInformation("There are no versions with an eligible status to be terminated.");
-                    }
+                    await customerEnvironmentServices.TerminateOtherVersions(environment, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
                 }
             }
             // if not, check if we are creating a new environment for an infrastructure
@@ -214,7 +166,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Parameters = rawParameters
                 };
 
-                environment = await customerEnvironmentServices.CreateEnvironment(customerPortalClient, environment);
+                environment = await customerEnvironmentServices.CreateEnvironment(environment);
 
                 if (!isInfrastructureAgent)
                 {

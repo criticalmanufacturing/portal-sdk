@@ -4,6 +4,7 @@ using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Common.Services;
+using Cmf.Foundation.Common.Base;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Moq;
@@ -41,7 +42,7 @@ public class NewEnvironmentHandlerTests
 
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
         customerEnvironmentServicesMock
-            .Setup(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()))
+            .Setup(x => x.CreateEnvironment(It.IsAny<CustomerEnvironment>()))
             .Returns(Task.FromResult(customerEnvironment));
 
         var customerPortalClientMock = mock.Mock<ICustomerPortalClient>();
@@ -54,7 +55,7 @@ public class NewEnvironmentHandlerTests
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert
-        customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(It.IsAny<CustomerEnvironment>()), Times.Once);
         customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Never);
 
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackageName, 0), Times.Never);
@@ -76,7 +77,7 @@ public class NewEnvironmentHandlerTests
 
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
         customerEnvironmentServicesMock
-            .Setup(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()))
+            .Setup(x => x.CreateEnvironment(It.IsAny<CustomerEnvironment>()))
             .Returns(Task.FromResult(customerEnvironment));
         customerEnvironmentServicesMock
             .Setup(x => x.UpdateEnvironment(customerEnvironment))
@@ -97,7 +98,7 @@ public class NewEnvironmentHandlerTests
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert
-        customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(It.IsAny<ICustomerPortalClient>(), It.IsAny<CustomerEnvironment>()), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(It.IsAny<CustomerEnvironment>()), Times.Once);
         customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Never);
 
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0), Times.Once);
@@ -163,7 +164,7 @@ public class NewEnvironmentHandlerTests
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment() { Name = name };
+        var customerEnvironment = new CustomerEnvironment() { Name = name, UniversalState = UniversalState.Created, Status = DeploymentStatus.DeploymentFailed };
         var deploymentPackage = new DeploymentPackage() { Name = deploymentPackageName };
         var cPSoftwareLicense = new CPSoftwareLicense() { Name = licenseName, Id = 1234 };
         string[] licenseNames = [licenseName];
@@ -178,10 +179,10 @@ public class NewEnvironmentHandlerTests
 
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
         customerEnvironmentServicesMock
-            .Setup(x => x.GetCustomerEnvironment(It.IsAny<ISession>(), customerEnvironment.Name))
+            .Setup(x => x.GetCustomerEnvironment(customerEnvironment.Name))
             .Returns(Task.FromResult(customerEnvironment));
         customerEnvironmentServicesMock
-            .Setup(x => x.CreateEnvironment(customerPortalClientMock.Object, customerEnvironment))
+            .Setup(x => x.CreateEnvironment(customerEnvironment))
             .Returns(Task.FromResult(customerEnvironment));
         customerEnvironmentServicesMock
             .Setup(x => x.UpdateEnvironment(customerEnvironment))
@@ -201,8 +202,8 @@ public class NewEnvironmentHandlerTests
 
         // Assert
         newEnvironmentUtilitiesMock.Verify(x => x.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.GetCustomerEnvironment(It.IsAny<ISession>(), customerEnvironment.Name), Times.Once);
-        customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(customerPortalClientMock.Object, customerEnvironment), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.GetCustomerEnvironment(customerEnvironment.Name), Times.Once);
+        customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(customerEnvironment), Times.Once);
         customerEnvironmentServicesMock.Verify(x => x.UpdateEnvironment(customerEnvironment), Times.Once);
 
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0), Times.Once);
@@ -220,7 +221,6 @@ public class NewEnvironmentHandlerTests
         var mockClient = new Mock<ICustomerPortalClient>();
         var mockUtils = new Mock<INewEnvironmentUtilities>();
         var mockEnvDeploymentHandler = new Mock<IEnvironmentDeploymentHandler>();
-        var mockEnvServices = new Mock<ICustomerEnvironmentServices>();
         var mockLicenseServices = new Mock<ILicenseServices>();
         var mockSession = new Mock<ISession>();
         var mockFilesystem = new Mock<IFileSystem>();
@@ -238,7 +238,7 @@ public class NewEnvironmentHandlerTests
 
         // Existing environment returned by GetCustomerEnvironment -> triggers "environment != null" branch
         var existingEnvironment = new CustomerEnvironment { Id = 1, Name = "env-existing" };
-        mockEnvServices.Setup(s => s.GetCustomerEnvironment(mockSession.Object, It.IsAny<string>()))
+        mockClient.Setup(c => c.GetObjectByName<CustomerEnvironment>(It.IsAny<string>(), 0))
             .ReturnsAsync(existingEnvironment);
 
         // Utilities and services behavior
@@ -246,13 +246,6 @@ public class NewEnvironmentHandlerTests
             .Returns("SomeTarget");
         mockUtils.Setup(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()))
             .Returns(Task.FromResult(new List<CustomerEnvironment>()));
-
-        // Simulate created/updated environment returned after CreateEnvironment/UpdateEnvironment
-        mockEnvServices.Setup(s => s.CreateEnvironment(mockClient.Object, It.IsAny<CustomerEnvironment>()))
-            .ReturnsAsync(existingEnvironment);
-        mockEnvServices.Setup(s => s.UpdateEnvironment(It.IsAny<CustomerEnvironment>()))
-            .ReturnsAsync(existingEnvironment);
-
         // Prepare other versions to terminate (non-empty list so termination logic runs)
         var otherEnv1 = new CustomerEnvironment { Id = 10, Name = "env-old-1" };
         var otherEnv2 = new CustomerEnvironment { Id = 20, Name = "env-old-2" };
@@ -283,7 +276,7 @@ public class NewEnvironmentHandlerTests
             mockFilesystem.Object,
             mockUtils.Object,
             mockEnvDeploymentHandler.Object,
-            mockEnvServices.Object,
+            new CustomerEnvironmentServices(mockClient.Object, mockSession.Object, mockUtils.Object, mockEnvDeploymentHandler.Object),
             mockLicenseServices.Object
         );
 
@@ -322,5 +315,52 @@ public class NewEnvironmentHandlerTests
 
         Assert.NotEmpty(loggedStrings);
         Assert.Contains(loggedStrings, s => s.Contains("Customer Environment 20") && s.Contains("termination logs for 20"));
+    }
+
+    [Theory]
+    [InlineData(UniversalState.Created, DeploymentStatus.DeploymentSucceeded, true)]
+    [InlineData(UniversalState.Active, DeploymentStatus.NotDeployed, true)]
+    [InlineData(UniversalState.Created, DeploymentStatus.NotDeployed, false)]
+    public async Task Run_WhenUniversalStateAndStatusRequiresCreation_CreatesOrNotCustomerEnvironment(UniversalState universalState, DeploymentStatus status, bool shouldCallCreate)
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+
+        var customerEnvironment = new CustomerEnvironment
+        {
+            Name = name,
+            UniversalState = universalState,
+            Status = status
+        };
+
+        var deploymentPackage = new DeploymentPackage() { Name = deploymentPackageName };
+
+        var customerPortalClientMock = mock.Mock<ICustomerPortalClient>();
+        customerPortalClientMock
+            .Setup(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0))
+            .ReturnsAsync(deploymentPackage);
+
+        var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
+        customerEnvironmentServicesMock
+            .Setup(x => x.GetCustomerEnvironment(customerEnvironment.Name))
+            .ReturnsAsync(customerEnvironment);
+        customerEnvironmentServicesMock
+            .Setup(x => x.CreateEnvironment(customerEnvironment))
+            .ReturnsAsync(customerEnvironment);
+
+        mock.Mock<INewEnvironmentUtilities>()
+            .Setup(x => x.CheckEnvironmentConnection(customerEnvironment))
+            .Returns(Task.CompletedTask);
+
+        var newEnvironmentHandler = mock.Create<NewEnvironmentHandler>();
+
+        // Act
+        await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, Array.Empty<string>(), deploymentPackageName, target, outputDir, replaceTokens, interactive,
+            customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
+            terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
+
+        // Assert
+        var verifyTimes = shouldCallCreate ? Times.Once() : Times.Never();
+        customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(customerEnvironment), verifyTimes);
     }
 }

@@ -13,6 +13,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Common.CustomerInfrastructure;
+using Cmf.CustomerPortal.Common.Deployment;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
 using Cmf.Foundation.BusinessObjects;
@@ -453,6 +454,21 @@ namespace Cmf.CustomerPortal.Sdk.Common
         public async Task<EntityType> GetEntityTypeByName(string name)
         {
             return (await new GetEntityTypeByNameInput { Name = name }.GetEntityTypeByNameAsync(true)).EntityType;
+        }
+
+        /// <summary>
+        /// Update a customer environment.
+        /// </summary>
+        /// <param name="customerEnvironment">customer environment</param>
+        /// <returns></returns>
+        public async Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment)
+        {
+            customerEnvironment.ChangeSet = null;
+            return (await new UpdateCustomerEnvironmentInput
+            {
+                CustomerEnvironment = customerEnvironment,
+                DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge
+            }.UpdateCustomerEnvironmentAsync(true)).CustomerEnvironment;
         }
     }
 }

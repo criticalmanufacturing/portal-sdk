@@ -470,5 +470,19 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 DeploymentParametersMergeMode = DeploymentParametersMergeMode.Merge
             }.UpdateCustomerEnvironmentAsync(true)).CustomerEnvironment;
         }
+
+        /// <summary>
+        /// Get Customer Environment By Id
+        /// </summary>
+        /// <param name="customerEnvironmentId">customer Environment id</param>
+        /// <returns></returns>
+        public async Task<CustomerEnvironment> GetCustomerEnvironmentById(long customerEnvironmentId)
+        {
+            return (await new GetCustomerEnvironmentByIdInput()
+            {
+                CustomerEnvironmentId = customerEnvironmentId,
+                IsToLoadParameters = true
+            }.GetCustomerEnvironmentByIdAsync(true)).CustomerEnvironment;
+        }
     }
 }

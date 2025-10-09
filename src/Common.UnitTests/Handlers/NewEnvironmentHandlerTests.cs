@@ -240,6 +240,8 @@ public class NewEnvironmentHandlerTests
         var existingEnvironment = new CustomerEnvironment { Id = 1, Name = "env-existing" };
         mockClient.Setup(c => c.GetObjectByName<CustomerEnvironment>(It.IsAny<string>(), 0))
             .ReturnsAsync(existingEnvironment);
+        mockClient.Setup(c => c.GetCustomerEnvironmentById(It.IsAny<long>()))
+           .ReturnsAsync(existingEnvironment);
 
         // Utilities and services behavior
         mockUtils.Setup(u => u.GetDeploymentTargetValue(It.IsAny<DeploymentTarget>()))

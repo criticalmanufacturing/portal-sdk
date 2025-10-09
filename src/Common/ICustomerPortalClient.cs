@@ -138,5 +138,12 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <returns></returns>
         public Task<CustomerEnvironment> UpdateEnvironment(CustomerEnvironment customerEnvironment);
 
+        /// <summary>
+        /// Get Customer Environment By Id
+        /// </summary>
+        /// <param name="customerEnvironmentId">customer Environment id</param>
+        /// <returns></returns>
+        public Task<CustomerEnvironment> GetCustomerEnvironmentById(long customerEnvironmentId);
+
     }
 }

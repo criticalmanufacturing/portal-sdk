@@ -26,6 +26,11 @@ internal class CustomerEnvironmentServices(
         try
         {
             environment = await customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
+            environment = (await new GetCustomerEnvironmentByIdInput()
+            {
+                CustomerEnvironmentId = environment.Id,
+                IsToLoadParameters = true
+            }.GetCustomerEnvironmentByIdAsync(true)).CustomerEnvironment;
 
             session.LogInformation($"Customer environment {name} actually exists...");
         }

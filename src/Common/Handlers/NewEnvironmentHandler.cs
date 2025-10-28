@@ -106,7 +106,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // terminate other versions
                 if (terminateOtherVersions)
                 {
-                    await customerEnvironmentServices.TerminateOtherVersions(environment, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
+                    await customerEnvironmentServices.TerminateOtherVersions(environment, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes, false);
                 }
             }
             // if not, check if we are creating a new environment for an infrastructure

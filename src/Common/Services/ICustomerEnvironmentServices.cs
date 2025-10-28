@@ -66,6 +66,7 @@ public interface ICustomerEnvironmentServices
     /// <param name="customerEnvironment">Customer Environment to be used.</param>
     /// <param name="terminateOtherVersionsRemove">Controls if the deployments of the versions of the <paramref name="customerEnvironment"/> that will be terminated should be removed.</param>
     /// <param name="terminateOtherVersionsRemoveVolumes">Controls if the volumes of the versions of the <paramref name="customerEnvironment"/> that will be terminated should be removed.</param>
+    /// <param name="undeploy">Controls if the undeploy operation should be performed.</param>
     /// <returns></returns>
-    Task TerminateOtherVersions(CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes);
+    Task TerminateOtherVersions(CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes, bool undeploy);
 }

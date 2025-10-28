@@ -1,8 +1,6 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Common.Deployment;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.Foundation.BusinessObjects;
-using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
@@ -94,32 +92,47 @@ internal class CustomerEnvironmentServices(
         }.UpdateCustomerEnvironmentDeploymentPackageAsync(true);
 
     /// <inheritdoc/>
-    public async Task TerminateOtherVersions(CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes)
+    public async Task TerminateOtherVersions(CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes, bool undeploy)
     {
         session.LogInformation("Terminating other versions...");
 
         var customerEnvironmentsToTerminate = await newEnvironmentUtilities.GetOtherVersionToTerminate(customerEnvironment);
-        OperationAttributeCollection terminateOperationAttributes = new OperationAttributeCollection();
+        OperationAttributeCollection terminateOperationAttributes = [];
         EntityType ceET = await customerPortalClient.GetEntityTypeByName("CustomerEnvironment");
         foreach (var ce in customerEnvironmentsToTerminate)
         {
-            OperationAttribute attributeRemove = new OperationAttribute();
-            attributeRemove.EntityId = ce.Id;
-            attributeRemove.EntityType = ceET;
-            attributeRemove.Name = "RemoveDeployments";
-            attributeRemove.OperationName = "TerminateVersion";
-            attributeRemove.Value = terminateOtherVersionsRemove ? 1 : 0;
+            OperationAttribute attributeRemove = new()
+            {
+                EntityId = ce.Id,
+                EntityType = ceET,
+                Name = "RemoveDeployments",
+                OperationName = "TerminateVersion",
+                Value = terminateOtherVersionsRemove ? 1 : 0
+            };
 
-            OperationAttribute attributeRemoveVolumes = new OperationAttribute();
-            attributeRemoveVolumes.EntityId = ce.Id;
-            attributeRemoveVolumes.EntityType = ceET;
-            attributeRemoveVolumes.Name = "RemoveVolumes";
-            attributeRemoveVolumes.OperationName = "TerminateVersion";
-            attributeRemoveVolumes.Value = (terminateOtherVersionsRemove && terminateOtherVersionsRemoveVolumes) ? 1 : 0;
+            OperationAttribute attributeRemoveVolumes = new()
+            {
+                EntityId = ce.Id,
+                EntityType = ceET,
+                Name = "RemoveVolumes",
+                OperationName = "TerminateVersion",
+                Value = (terminateOtherVersionsRemove && terminateOtherVersionsRemoveVolumes) ? 1 : 0
+            };
+
+            OperationAttribute attributeUndeploy = new()
+            {
+                EntityId = ce.Id,
+                EntityType = ceET,
+                Name = "Undeploy",
+                OperationName = "TerminateVersion",
+                Value = undeploy ? 1 : 0
+            };
 
             terminateOperationAttributes.Add(attributeRemove);
             terminateOperationAttributes.Add(attributeRemoveVolumes);
+            terminateOperationAttributes.Add(attributeUndeploy);
         }
+
         if (customerEnvironmentsToTerminate.Count > 0)
         {
             await customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttributes);

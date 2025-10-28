@@ -9,7 +9,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 {
     class UndeployCommand : BaseCommand
     {
-        public UndeployCommand() : this("undeploy", "Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments")
+        public UndeployCommand() : this("undeploy", "[Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments")
         {
         }
 

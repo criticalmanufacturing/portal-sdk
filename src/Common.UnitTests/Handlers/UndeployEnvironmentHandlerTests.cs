@@ -3,16 +3,13 @@ using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common;
-using Cmf.Foundation.Common.Base;
 
 namespace Common.UnitTests.Handlers;
 
 public class UndeployEnvironmentHandlerTests
 {
-    private readonly Mock<ICustomerPortalClient> _customerPortalClientMock = new();
     private readonly Mock<ISession> _sessionMock = new();
     private readonly Mock<INewEnvironmentUtilities> _newEnvironmentUtilitiesMock = new();
-    private readonly Mock<IEnvironmentDeploymentHandler> _environmentDeploymentHandlerMock = new();
     private readonly Mock<ICustomerEnvironmentServices> _customerEnvironmentServicesMock = new();
 
     private readonly UndeployEnvironmentHandler _handler;
@@ -29,7 +26,13 @@ public class UndeployEnvironmentHandlerTests
     public async Task Run_WhenNameIsNullOrWhitespace_ThrowsArgumentNullException()
     {
         await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(null, false));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run("", false));
         await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(" ", false));
+
+        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment(It.IsAny<string>()), Times.Never);
+        _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Never);
+        _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(It.IsAny<CustomerEnvironment>()), Times.Never);
+        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(It.IsAny<CustomerEnvironment>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
     }
 
     [Fact]
@@ -39,6 +42,11 @@ public class UndeployEnvironmentHandlerTests
             .ReturnsAsync((CustomerEnvironment?)null);
 
         await Assert.ThrowsAsync<Exception>(() => _handler.Run("env", false));
+
+        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
+        _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Never);
+        _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(It.IsAny<CustomerEnvironment>()), Times.Never);
+        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(It.IsAny<CustomerEnvironment>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
     }
 
     [Fact]
@@ -52,8 +60,31 @@ public class UndeployEnvironmentHandlerTests
 
         await _handler.Run("env", true);
 
+        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Once);
         _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Once);
-        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(env, true, true), Times.Once);
+        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(env, true, It.Is<bool>(b => b == true), true), Times.Once);
+    }
+
+    [Fact]
+    public async Task Run_ForwardsRemoveVolumesFlag_ToTerminateOtherVersions()
+    {
+        var env = new CustomerEnvironment();
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
+            .ReturnsAsync(env);
+        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
+            .ReturnsAsync(env);
+
+        // Case 1: removeVolumes = false
+        await _handler.Run("env", false);
+        _customerEnvironmentServicesMock.Verify(
+            s => s.TerminateOtherVersions(env, true, It.Is<bool>(b => b == false), true),
+            Times.Once);
+
+        // Case 2: removeVolumes = true
+        await _handler.Run("env", true);
+        _customerEnvironmentServicesMock.Verify(
+            s => s.TerminateOtherVersions(env, true, It.Is<bool>(b => b == true), true),
+            Times.Once);
     }
 }

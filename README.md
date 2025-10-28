@@ -51,7 +51,7 @@ Commands:
   - <a href="#login">```login```</a> - Log in to the CM Portal
   - <a href="#publish">```publish```</a> - Publishes one or more Deployment Manifests into Customer Portal
   - <a href="#publish-package">```publish-package```</a> - Publishes one or more Customization Packages into Customer Portal
-  - <a href="#undeploy">```undeploy```</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+  - <a href="#undeploy">```undeploy```</a> - [Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
 
 
 Examples:
@@ -223,7 +223,7 @@ Options:
 
 ### undeploy
 
-Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+[Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments. This feature is in preview and may change.
 
 Equivalent to powershell cmdlet <a href="#undeploy-environment">Undeploy-Environment</a>
 
@@ -259,7 +259,7 @@ Cmdlets:
   - <a href="#new-infrastructure">```New-Infrastructure```</a> - Creates a customer Infrastructure
   - <a href="#new-infrastructureagent">```New-InfrastructureAgent```</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#set-login">```Set-Login```</a> - Log in to the CM Portal
-  - <a href="#undeploy-environment">```Undeploy-Environment```</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+  - <a href="#undeploy-environment">```Undeploy-Environment```</a> - [Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
 
 
 Examples:
@@ -383,7 +383,7 @@ Options:
 
 ### Undeploy-Environment
 
-Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+[Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments. This feature is in preview and may change.
 
 Equivalent to the console command <a href="#undeploy">undeploy</a>
 

@@ -16,7 +16,7 @@ internal class CustomerEnvironmentServices(
     ICustomerPortalClient customerPortalClient,
     ISession session,
     INewEnvironmentUtilities newEnvironmentUtilities,
-    IEnvironmentDeploymentHandler environmentDeploymentHandler) : AbstractHandler(session, true), ICustomerEnvironmentServices
+    IEnvironmentDeploymentHandler environmentDeploymentHandler) : ICustomerEnvironmentServices
 {
     public async Task<CustomerEnvironment> GetCustomerEnvironment(string name)
     {

@@ -2,6 +2,7 @@
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common;
+using Cmf.Foundation.Common.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,13 @@ internal class LicenseServices : ILicenseServices
                     LogicalOperator= LogicalOperator.AND,
                     Operator= FieldOperator.GreaterThan,
                     Value = 0
+                },
+                 new Filter()
+                {
+                    Name = "UniversalState",
+                    LogicalOperator= LogicalOperator.AND,
+                    Operator= FieldOperator.IsNotEqualTo,
+                    Value = UniversalState.Terminated
                 }
             ];
 

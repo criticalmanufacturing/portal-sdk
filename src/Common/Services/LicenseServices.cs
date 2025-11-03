@@ -35,8 +35,8 @@ internal class LicenseServices : ILicenseServices
                 {
                     Name = "UniversalState",
                     LogicalOperator= LogicalOperator.AND,
-                    Operator= FieldOperator.IsNotEqualTo,
-                    Value = UniversalState.Terminated
+                    Operator= FieldOperator.NotIn,
+                    Value = new [] { UniversalState.Terminated, UniversalState.Frozen }
                 }
             ];
 

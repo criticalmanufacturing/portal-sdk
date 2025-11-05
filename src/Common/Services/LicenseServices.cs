@@ -36,7 +36,7 @@ internal class LicenseServices : ILicenseServices
                     Name = "UniversalState",
                     LogicalOperator= LogicalOperator.AND,
                     Operator= FieldOperator.NotIn,
-                    Value = new [] { UniversalState.Terminated, UniversalState.Frozen }
+                    Value = new [] { (int)UniversalState.Terminated, (int)UniversalState.Frozen }
                 }
             ];
 
@@ -53,10 +53,16 @@ internal class LicenseServices : ILicenseServices
         }
 
         var licenses = objects.Cast<CPSoftwareLicense>();
-        if (licenses.Count() != licensesUniqueNames.Length)
+
+        // compute missing licenses
+        var missingLicenses = licensesUniqueNames
+        .Except(licenses.Select(x => x.LicenseUniqueName))
+        .ToArray();
+
+        if (missingLicenses.Length > 0)
         {
-            string licensesNotFound = string.Join(", ", licenses.Where(x => !licensesUniqueNames.Contains(x.LicenseUniqueName)));
-            throw new Exception($"The following Licenses were not found: {licensesNotFound}");
+            // show the missing licenses
+            throw new Exception($"The following Licenses were not found: {string.Join(", ", missingLicenses)}");
         }
 
         return licenses;

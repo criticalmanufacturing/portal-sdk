@@ -52,7 +52,7 @@ internal class LicenseServices : ILicenseServices
             throw new Exception("No Licenses found");
         }
 
-        var licenses = objects.Cast<CPSoftwareLicense>();
+        var licenses = objects.Cast<CPSoftwareLicense>().ToList();
 
         // compute missing licenses
         var missingLicenses = licensesUniqueNames

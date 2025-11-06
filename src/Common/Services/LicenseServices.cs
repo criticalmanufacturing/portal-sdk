@@ -2,6 +2,7 @@
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common;
+using Cmf.Foundation.Common.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,13 @@ internal class LicenseServices : ILicenseServices
                     LogicalOperator= LogicalOperator.AND,
                     Operator= FieldOperator.GreaterThan,
                     Value = 0
+                },
+                 new Filter()
+                {
+                    Name = "UniversalState",
+                    LogicalOperator= LogicalOperator.AND,
+                    Operator= FieldOperator.NotIn,
+                    Value = new [] { (int)UniversalState.Terminated, (int)UniversalState.Frozen }
                 }
             ];
 
@@ -44,11 +52,17 @@ internal class LicenseServices : ILicenseServices
             throw new Exception("No Licenses found");
         }
 
-        var licenses = objects.Cast<CPSoftwareLicense>();
-        if (licenses.Count() != licensesUniqueNames.Length)
+        var licenses = objects.Cast<CPSoftwareLicense>().ToList();
+
+        // compute missing licenses
+        var missingLicenses = licensesUniqueNames
+        .Except(licenses.Select(x => x.LicenseUniqueName))
+        .ToArray();
+
+        if (missingLicenses.Length > 0)
         {
-            string licensesNotFound = string.Join(", ", licenses.Where(x => !licensesUniqueNames.Contains(x.LicenseUniqueName)));
-            throw new Exception($"The following Licenses were not found: {licensesNotFound}");
+            // show the missing licenses
+            throw new Exception($"The following Licenses were not found: {string.Join(", ", missingLicenses)}");
         }
 
         return licenses;

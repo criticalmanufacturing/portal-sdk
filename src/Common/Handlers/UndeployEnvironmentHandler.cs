@@ -12,27 +12,25 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
     {
         public async Task Run(string name, bool force)
         {
-            Session.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with the entity, rendering them unrecoverable.");
+            Session.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with it, rendering them unrecoverable.");
 
-            if (!force)
+            // Confirmation dialogue, skipped when --force is enabled
+            if (!force) 
             {
                 Console.WriteLine("Do you wish to proceed? [y/n]");
                 string? input = Console.ReadLine()?.Trim().ToLower();
-                while (input != "y" && input != "yes" && input != "n" && input != "no")
-                {
-                    Console.WriteLine("Invalid input.");
-                    Console.WriteLine("Do you wish to proceed? [y/n]");
-                    input = Console.ReadLine()?.Trim().ToLower();
-                }
-                if (input == "n" || input == "no")
+                if (input != "y" || input != "yes")
                 {
                     Console.WriteLine("Operation Cancelled.");
                     return;
                 }
+            } else
+            {
+                Session.LogInformation("Skipping confirmation dialogue with --force specified.");
             }
 
-            // login
-            await EnsureLogin();
+                // login
+                await EnsureLogin();
 
             // Feature preview notice
             Session.LogInformation("[Preview] The 'undeploy' feature is currently in feature preview and may change.");

@@ -15,14 +15,14 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         )]
         public string Name { get; set; }
 
-        [Parameter(Position = 1, HelpMessage = Resources.UNDEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP)]
-        public SwitchParameter TerminateOtherVersionsRemoveVolumes;
+        [Parameter(Position = 1, HelpMessage = Resources.UNDEPLOYMENT_FORCE_HELP)]
+        public SwitchParameter Force;
 
         protected async override Task ProcessRecordAsync()
         {
             // get undeploy environment handler and run it
             UndeployEnvironmentHandler undeployEnvironmentHandler = ServiceLocator.Get<UndeployEnvironmentHandler>();
-            await undeployEnvironmentHandler.Run(Name, TerminateOtherVersionsRemoveVolumes.ToBool());
+            await undeployEnvironmentHandler.Run(Name, Force.ToBool());
         }
     }
 }

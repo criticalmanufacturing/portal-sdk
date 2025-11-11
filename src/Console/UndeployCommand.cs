@@ -20,7 +20,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = true
             });
 
-            Add(new Option<bool>(new[] { "--terminateOtherVersionsRemoveVolumes", "-tovrv" }, Resources.UNDEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP));
+            Add(new Option<bool>(new[] { "--force", "-f" }, Resources.UNDEPLOYMENT_FORCE_HELP));
 
             Handler = CommandHandler.Create((DeployParameters x) => DeployHandler(x));
         }
@@ -30,7 +30,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get undeploy environment handler and run it
             CreateSession(parameters.Verbose);
             UndeployEnvironmentHandler undeployEnvironmentHandler = ServiceLocator.Get<UndeployEnvironmentHandler>();
-            await undeployEnvironmentHandler.Run(parameters.Name, parameters.TerminateOtherVersionsRemoveVolumes);
+            await undeployEnvironmentHandler.Run(parameters.Name, parameters.Force);
         }
     }
 }

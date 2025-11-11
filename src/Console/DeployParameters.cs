@@ -24,5 +24,6 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public double? DeploymentTimeoutMinutesToGetSomeMBMessage { get; set; }
         public bool TerminateOtherVersionsRemove { get; set; }
         public bool TerminateOtherVersionsRemoveVolumes { get; set; }
+        public bool Force {  get; set; }
     }
 }

@@ -21,6 +21,7 @@
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP = "Flag that controls if the deployments of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions flag.";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.";
         public const string UNDEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.";
+        public const string UNDEPLOYMENT_FORCE_HELP = "Flag that controls if the confirmation message on whether to proceed with undeployment is skipped.";
         public const string APP_NAME_HELP = "The name of the App to install.";
         public const string APP_VERSION_HELP = "The version of the App to install.";
         public const string APP_CUSTOMER_ENVIRONMENT_HELP = "The name of a Convergence Customer Environment to install the App on.";

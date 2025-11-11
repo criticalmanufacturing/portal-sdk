@@ -19,7 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 Console.WriteLine("Do you wish to proceed? [y/n]");
                 string? input = Console.ReadLine()?.Trim().ToLower();
-                if (input != "y" || input != "yes")
+                if (input != "y" && input != "yes")
                 {
                     Console.WriteLine("Operation Cancelled.");
                     return;

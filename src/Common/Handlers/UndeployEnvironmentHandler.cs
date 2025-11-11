@@ -29,8 +29,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 Session.LogInformation("Skipping confirmation dialogue with --force specified.");
             }
 
-                // login
-                await EnsureLogin();
+            // login
+            await EnsureLogin();
 
             // Feature preview notice
             Session.LogInformation("[Preview] The 'undeploy' feature is currently in feature preview and may change.");

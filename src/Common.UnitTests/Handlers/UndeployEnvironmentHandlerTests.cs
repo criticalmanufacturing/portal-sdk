@@ -60,6 +60,8 @@ public class UndeployEnvironmentHandlerTests
 
         await _handler.Run("env", true);
 
+        // assert warning is always logged
+        _sessionMock.Verify(s => s.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with it, rendering them unrecoverable."), Times.Once);
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Once);
         _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Once);

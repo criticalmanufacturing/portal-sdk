@@ -20,7 +20,6 @@
         public const string DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE = "Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP = "Flag that controls if the deployments of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions flag.";
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.";
-        public const string UNDEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.";
         public const string UNDEPLOYMENT_FORCE_HELP = "Flag that controls if the confirmation message on whether to proceed with undeployment is skipped.";
         public const string APP_NAME_HELP = "The name of the App to install.";
         public const string APP_VERSION_HELP = "The version of the App to install.";

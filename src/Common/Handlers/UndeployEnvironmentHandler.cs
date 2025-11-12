@@ -17,7 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // Confirmation dialogue, skipped when --force is enabled
             if (!force) 
             {
-                Session.LogInformation("Do you wish to proceed? [y/n]");
+                Session.LogInformation("Do you wish to proceed? [y/N]");
                 string? input = Console.ReadLine()?.Trim().ToLower();
                 if (input != "y" && input != "yes")
                 {

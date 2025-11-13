@@ -35,7 +35,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 throw new Exception($"Customer environment with name '{name}' does not exist...");
             }
 
-            if (environment.EnvironmentType == "Production")
+            if (environment.EnvironmentType == nameof(EnvironmentType.Production))
             {
                 throw new Exception("It is not possible to undeploy a Customer Environment of type 'Production'.");
             }

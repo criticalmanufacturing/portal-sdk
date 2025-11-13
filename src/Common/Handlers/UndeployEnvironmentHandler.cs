@@ -10,8 +10,25 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         INewEnvironmentUtilities newEnvironmentUtilities,
         ICustomerEnvironmentServices customerEnvironmentServices) : AbstractHandler(session, true)
     {
-        public async Task Run(string name, bool terminateOtherVersionsRemoveVolumes)
+        public async Task Run(string name, bool force)
         {
+            Session.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with it, rendering them unrecoverable.");
+
+            // Confirmation dialogue, skipped when --force is enabled
+            if (!force) 
+            {
+                Session.LogInformation("Do you wish to proceed? [y/N]");
+                string? input = Console.ReadLine()?.Trim().ToLower();
+                if (input != "y" && input != "yes")
+                {
+                    Session.LogInformation("Operation Cancelled.");
+                    return;
+                }
+            } else
+            {
+                Session.LogInformation("Skipping confirmation because --force was specified.");
+            }
+
             // login
             await EnsureLogin();
 
@@ -41,7 +58,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation($"Creating a new version of the Customer environment {name}...");
             environment = await customerEnvironmentServices.CreateEnvironment(environment);
 
-            await customerEnvironmentServices.TerminateOtherVersions(environment, true, terminateOtherVersionsRemoveVolumes, true);
+            await customerEnvironmentServices.TerminateOtherVersions(environment, true, true, true);
 
             Session.LogInformation($"Customer environment {name} undeploy succeeded...");
         }

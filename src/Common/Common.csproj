@@ -3,6 +3,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>Cmf.CustomerPortal.Sdk.Common</AssemblyName>
     <RootNamespace>Cmf.CustomerPortal.Sdk.Common</RootNamespace>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
   <Import Project="..\Version.props" />
   <ItemGroup>

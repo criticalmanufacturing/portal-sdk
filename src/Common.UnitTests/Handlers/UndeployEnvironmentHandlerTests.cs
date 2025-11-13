@@ -25,9 +25,9 @@ public class UndeployEnvironmentHandlerTests
     [Fact]
     public async Task Run_WhenNameIsNullOrWhitespace_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(null, false));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run("", false));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(" ", false));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(null, true));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run("", true));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(" ", true));
 
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment(It.IsAny<string>()), Times.Never);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Never);
@@ -41,7 +41,7 @@ public class UndeployEnvironmentHandlerTests
         _ = _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync((CustomerEnvironment?)null);
 
-        await Assert.ThrowsAsync<Exception>(() => _handler.Run("env", false));
+        await Assert.ThrowsAsync<Exception>(() => _handler.Run("env", true));
 
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Never);
@@ -60,29 +60,48 @@ public class UndeployEnvironmentHandlerTests
 
         await _handler.Run("env", true);
 
+        // assert warning is always logged
+        _sessionMock.Verify(s => s.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with it, rendering them unrecoverable."), Times.Once);
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Once);
         _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Once);
-        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(env, true, It.Is<bool>(b => b == true), true), Times.Once);
+        _customerEnvironmentServicesMock.Verify(
+            s => s.TerminateOtherVersions(env, true, It.Is<bool>(b => b == true), true),
+            Times.Once);
     }
 
     [Fact]
-    public async Task Run_ForwardsRemoveVolumesFlag_ToTerminateOtherVersions()
+    public async Task Run_WhenForceDisabledAndNegativeInput_Cancels()
     {
         var env = new CustomerEnvironment();
         _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync(env);
         _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
             .ReturnsAsync(env);
+        Console.SetIn(new StringReader("a"));
 
-        // Case 1: removeVolumes = false
         await _handler.Run("env", false);
-        _customerEnvironmentServicesMock.Verify(
-            s => s.TerminateOtherVersions(env, true, It.Is<bool>(b => b == false), true),
-            Times.Once);
 
-        // Case 2: removeVolumes = true
-        await _handler.Run("env", true);
+        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Never);
+        _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Never);
+        _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Never);
+    }
+
+    [Fact]
+    public async Task Run_WhenForceDisabledAndPositiveInput_RunsSuccessfully()
+    {
+        var env = new CustomerEnvironment();
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
+            .ReturnsAsync(env);
+        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
+            .ReturnsAsync(env);
+        Console.SetIn(new StringReader("y"));
+
+        await _handler.Run("env", false);
+
+        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
+        _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Once);
+        _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Once);
         _customerEnvironmentServicesMock.Verify(
             s => s.TerminateOtherVersions(env, true, It.Is<bool>(b => b == true), true),
             Times.Once);

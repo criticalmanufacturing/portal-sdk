@@ -26,7 +26,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 }
             } else
             {
-                Session.LogInformation("Skipping confirmation dialogue with --force specified.");
+                Session.LogInformation("Skipping confirmation because --force was specified.");
             }
 
             // login

@@ -99,7 +99,7 @@ public class UndeployEnvironmentHandlerTests
         _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync(env);
 
-        await Assert.ThrowsAsync<Exception>(() => _handler.Run("env", true));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Run("env", true));
 
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Never);

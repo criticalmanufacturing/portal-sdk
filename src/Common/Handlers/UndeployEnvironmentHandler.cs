@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
+using Cmf.Foundation.Common.Licenses.Enums;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
@@ -50,6 +51,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             if (environment == null)
             {
                 throw new Exception($"Customer environment with name '{name}' does not exist...");
+            }
+
+            if (environment.EnvironmentType == nameof(EnvironmentType.Production))
+            {
+                throw new InvalidOperationException("It is not possible to undeploy a Customer Environment of type 'Production'.");
             }
 
             // check environment connection

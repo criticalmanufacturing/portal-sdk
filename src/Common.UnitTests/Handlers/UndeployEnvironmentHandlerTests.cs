@@ -3,6 +3,7 @@ using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.Foundation.Common.Licenses.Enums;
 
 namespace Common.UnitTests.Handlers;
 
@@ -105,5 +106,22 @@ public class UndeployEnvironmentHandlerTests
         _customerEnvironmentServicesMock.Verify(
             s => s.TerminateOtherVersions(env, true, It.Is<bool>(b => b == true), true),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Run_ProdEnv_ThrowsException()
+    {
+        var env = new CustomerEnvironment
+        {
+            EnvironmentType = nameof(EnvironmentType.Production)
+        };
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
+            .ReturnsAsync(env);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Run("env", true));
+
+        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
+        _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Never);
+        _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Never);
     }
 }

@@ -38,7 +38,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             if (environment.EnvironmentType == nameof(EnvironmentType.Production))
             {
-                throw new Exception("It is not possible to undeploy a Customer Environment of type 'Production'.");
+                throw new InvalidOperationException("It is not possible to undeploy a Customer Environment of type 'Production'.");
             }
 
             // check environment connection

@@ -30,7 +30,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
       # Run dotnet restore
       - name: Run dotnet restore
         run: dotnet restore Cmf.CustomerPortal.Sdk.sln
@@ -99,16 +99,16 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64
-          path: src/Console/bin/Release/net8.0/win-x64/publish/
+          path: src/Console/bin/Release/net10.0/win-x64/publish/
       - name: Archive Console Linux64
         if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64
-          path: src/Console/bin/Release/net8.0/linux-x64/publish/
+          path: src/Console/bin/Release/net10.0/linux-x64/publish/
       - name: Archive PowerShell
         if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
         with:
           name: Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}
-          path: src/Powershell/bin/Release/net8.0/linux-x64/publish/
+          path: src/Powershell/bin/Release/net10.0/linux-x64/publish/

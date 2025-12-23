@@ -11,6 +11,6 @@ if ($BuildAndPublish -eq $true) {
     dotnet publish -c $Configuration
 }
 
-Import-Module  $PSScriptRoot\src\Powershell\bin\$Configuration\net8.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll
+Import-Module  $PSScriptRoot\src\Powershell\bin\$Configuration\net10.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll
 
 Pop-Location

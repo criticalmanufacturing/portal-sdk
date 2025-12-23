@@ -38,7 +38,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
 
         public TService Get<TService>() where TService : class
         {
-            return ServiceProvider.GetService<TService>();
+            return ServiceProvider.GetRequiredService<TService>();
         }
     }
 }

@@ -7,7 +7,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Console/bin/Debug/net8.0/cmf-portal.dll",
+            "program": "${workspaceFolder}/src/Console/bin/Debug/net10.0/cmf-portal.dll",
             "args": [
                 "login",
                 "--verbose"
@@ -23,7 +23,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Console/bin/Debug/net8.0/cmf-portal.dll",
+            "program": "${workspaceFolder}/src/Console/bin/Debug/net10.0/cmf-portal.dll",
             "args": [
                 "checkagentconnection",
                 "-n", "myagent123",
@@ -46,7 +46,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/Console/bin/Debug/net8.0/cmf-portal.dll",
+            "program": "${workspaceFolder}/src/Console/bin/Debug/net10.0/cmf-portal.dll",
             "args": [
                 "install-app",
                 "-n", "",

@@ -245,7 +245,7 @@ Options:
   Simply running ```.\run.ps1``` is enough and no other parameters are necessary. Optionally you can use the ```Configuration``` parameter but it is set to ```Release``` by default which should be the use case for most users.
   This will compile the Powershell version and automatically import the module in a new powershell window. It is important to note that imported cmdlets only work on the powershell where the import is called and will not be recognized on other powershell windows.
   - If the project has already been compiled and you only wish to import the cmdlets you can run  
-  ```Import-Module .\src\Powershell\bin\Release\net8.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll``` 
+  ```Import-Module .\src\Powershell\bin\Release\net10.0\publish\Cmf.CustomerPortal.Sdk.Powershell.dll``` 
 
 After this the cmdlets can be called to execute the desired operations. Note that some cmdlets require certain options in order to execute. These options can be passed directly in the cmdlet call or if none is provided the cmdlet will ask for the parameters one by one.
 

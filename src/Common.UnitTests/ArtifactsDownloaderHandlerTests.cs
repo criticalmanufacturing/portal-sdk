@@ -147,7 +147,5 @@ public class ArtifactsDownloaderHandlerTests(ITestOutputHelper testOutputHelper)
 
         // verify execution continues as expected with the correct ed.Id
         customerPortalClientMock.Verify(x => x.DownloadAttachmentStreaming(ed.Id), Times.Once);
-
-
     }
 }

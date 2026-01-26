@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO.Abstractions;
+﻿using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;

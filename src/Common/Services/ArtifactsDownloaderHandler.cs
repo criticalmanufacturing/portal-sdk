@@ -1,4 +1,5 @@
-﻿using System.IO.Abstractions;
+﻿using System;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,14 +16,15 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         public async Task<bool> Handle(EntityBase deployEntity, string outputPath)
         {
-            var entityTypePrefix =
-                deployEntity.GetType() == typeof(CustomerEnvironment) ? "CustomerEnvironment" : "App";
+            string filename = deployEntity is CustomerEnvironmentApplicationPackage app
+                ? $"App_{app.TargetEntity.Name}"
+                : $"CustomerEnvironment_{deployEntity.Name}";
 
             // get the attachments of the current customer environment or app
             var attachments = await customerPortalClient.GetAttachmentsForEntity(deployEntity) ?? [];
 
-            var attachmentToDownload = attachments
-                .Where(e => e.Filename.StartsWith($"{entityTypePrefix}_{deployEntity.Name}"))
+                var attachmentToDownload = attachments
+                    .Where(e => e.Filename.StartsWith(filename))
                 .OrderByDescending(e => e.CreatedOn)
                 .FirstOrDefault(); // default is null
 

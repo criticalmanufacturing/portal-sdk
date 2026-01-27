@@ -84,4 +84,68 @@ public class ArtifactsDownloaderHandlerTests(ITestOutputHelper testOutputHelper)
 
         testOutputHelper.WriteLine(file.FullName);
     }
+
+    [Fact]
+    public async void Check_GeneratedPrefix_App()
+    {
+        // Arrange
+        var appPackage = new CustomerEnvironmentApplicationPackage()
+        {
+            Name = "TestAppPackage",
+            Id = 1,
+            TargetEntity = new ApplicationPackage()
+            {
+                Name = "TestApp",
+                Id = 2
+            }
+        };
+
+        string expectedFilename = $"App_{appPackage.TargetEntity.Name}";
+
+        var ed = new EntityDocumentation
+        {
+            Filename = expectedFilename,
+            Id = 30,
+            CreatedOn = new DateTime(2025, 1, 1)
+        };
+
+
+        string attachmentFilePath = Path.Combine(
+            Directory.GetParent(Assembly.GetExecutingAssembly().Location)!.FullName,
+            "assets",
+            "archive.zip");
+        var entityDocumentationCollection = new EntityDocumentationCollection { ed };
+
+        var customerPortalClientMock = new Mock<ICustomerPortalClient>();
+        customerPortalClientMock.Setup(x => x.GetAttachmentsForEntity(It.IsAny<EntityBase>()))
+            .ReturnsAsync(entityDocumentationCollection);
+        customerPortalClientMock.Setup(x => x.DownloadAttachmentStreaming(It.IsAny<long>()))
+            .ReturnsAsync(attachmentFilePath);
+
+        var sessionMock = new Mock<ISession>();
+
+        var fileSystem = new MockFileSystem();
+
+        // Since we are mocking the filesystem, we have to add our *real* asset into it
+        fileSystem.AddFileFromEmbeddedResource(
+            attachmentFilePath,
+            Assembly.GetExecutingAssembly(),
+            "Common.UnitTests.assets.archive.zip"
+        );
+
+        var artifactsDownloaderHandler =
+            new ArtifactsDownloaderHandler(sessionMock.Object, fileSystem, customerPortalClientMock.Object);
+
+        // Act
+        const string outputPath = "/some/fake/directory";
+        bool result = await artifactsDownloaderHandler.Handle(appPackage, outputPath);
+
+        // Assert
+
+        // verify the correct log message with expected filename
+        sessionMock.Verify(x => x.LogDebug($"Downloading attachment {expectedFilename}"), Times.Once);
+
+        // verify execution continues as expected with the correct ed.Id
+        customerPortalClientMock.Verify(x => x.DownloadAttachmentStreaming(ed.Id), Times.Once);
+    }
 }

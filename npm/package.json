@@ -31,10 +31,10 @@
     ],
     "dependencies": {
         "adm-zip": "^0.5.5",
-        "proxy-agent": "^5.0.0",
         "axios": "^1.7.9",
         "node_modules-path": "^2.0.5",
+        "proxy-agent": "^6.5.0",
         "rimraf": "^3.0.2",
-        "tmp": "0.2.1"
+        "tmp": "^0.2.5"
     }
 }

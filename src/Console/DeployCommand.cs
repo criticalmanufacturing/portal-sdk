@@ -86,7 +86,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 parameters.Package,
                 (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TerminateOtherVersions, false,
-                parameters.DeploymentTimeoutMinutes, parameters.DeploymentTimeoutMinutesToGetSomeMBMessage ,parameters.TerminateOtherVersionsRemove, parameters.TerminateOtherVersionsRemoveVolumes);
+                parameters.DeploymentTimeoutMinutes, parameters.DeploymentTimeoutMinutesToGetSomeMBMsg ,parameters.TerminateOtherVersionsRemove, parameters.TerminateOtherVersionsRemoveVolumes);
         }
     }
 }

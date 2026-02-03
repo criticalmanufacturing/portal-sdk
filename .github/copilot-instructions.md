@@ -1,6 +1,6 @@
 # Copilot instructions for portal-sdk
 
-This is a .NET 8 multi-project solution that ships a Customer Portal SDK as:
+This is a .NET 10 multi-project solution that ships a Customer Portal SDK as:
 - Core library: `src/Common` (handlers, services, utilities)
 - Console CLI: `src/Console` (System.CommandLine commands)
 - PowerShell module: `src/Powershell` (cmdlets wrapping handlers)

@@ -16,7 +16,7 @@ namespace Common.UnitTests.Handlers
             var mockSession = mock.Mock<ISession>();
             var appInstallationHandler = mock.Create<EnvironmentDeploymentHandler>();
 
-            const string validJson = "{\"DeploymentOperation\":0,\"Data\":\"Queue Position: 1\n\"}";
+            const string validJson = "{\"Data\":\"Queue Position: 1\n\"}";
             var message = new MbMessage { Data = validJson };
 
             // Act

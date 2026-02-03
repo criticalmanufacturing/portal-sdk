@@ -17,7 +17,7 @@ namespace Common.UnitTests.Handlers
             var mockSession = mock.Mock<ISession>();
             
             var appInstallationHandler = mock.Create<AppInstallationHandler>();
-            var message = new MbMessage { Data = "{\"DeploymentOperation\":0,\"Data\":\"Queue Position: 1\n\"}" };
+            var message = new MbMessage { Data = "{\"Data\":\"Queue Position: 1\n\"}" };
 
             // Act
             appInstallationHandler.ProcessDeploymentMessage("someSubject", message);

@@ -2,6 +2,11 @@
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
+    /// <summary>
+    /// Parameters for the create infrastructure command.
+    /// NOTE: Property names must exactly match the option names defined in CreateInfrastructureCommand
+    /// for System.CommandLine to properly bind CLI arguments to these properties.
+    /// </summary>
     class CreateInfrastructureParameters
     {
         public bool Verbose { get; set; }

@@ -2,6 +2,11 @@
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
+    /// <summary>
+    /// Parameters for the deploy command.
+    /// NOTE: Property names must exactly match the option names defined in DeployCommand
+    /// for System.CommandLine to properly bind CLI arguments to these properties.
+    /// </summary>
     class DeployParameters
     {
 

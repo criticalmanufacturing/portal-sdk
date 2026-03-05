@@ -476,13 +476,31 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// </summary>
         /// <param name="customerEnvironmentId">customer Environment id</param>
         /// <returns></returns>
-        public async Task<CustomerEnvironment> GetCustomerEnvironmentById(long customerEnvironmentId)
+        public async Task<CustomerEnvironment> GetCustomerEnvironmentById(long customerEnvironmentId, int levelsToLoad = 0)
         {
             return (await new GetCustomerEnvironmentByIdInput()
             {
                 CustomerEnvironmentId = customerEnvironmentId,
-                IsToLoadParameters = true
+                IsToLoadParameters = true,
+                LevelsToLoad = levelsToLoad
             }.GetCustomerEnvironmentByIdAsync(true)).CustomerEnvironment;
+        }
+
+        /// <summary>
+        /// Starts the uninstallation of an application, given its id and the options to remove deployments and volumes.
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="removeDeployments"></param>
+        /// <param name="removeVolumes"></param>
+        /// <returns></returns>
+        public async Task StartAppUninstall(long appId, bool removeDeployments, bool removeVolumes)
+        {
+            await new StartAppUninstallInput
+            {
+                CustomerEnvironmentApplicationPackageId = appId,
+                RemoveDeployments = removeDeployments,
+                RemoveVolumes = removeVolumes,
+            }.StartAppUninstallAsync(true);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.AddCommand(new PublishCommand());
             rootCommand.AddCommand(new PublishPackageCommand());
             rootCommand.AddCommand(new UndeployCommand());
+            rootCommand.AddCommand(new UninstallAppCommand());
 
             return await rootCommand.InvokeAsync(args);
         }

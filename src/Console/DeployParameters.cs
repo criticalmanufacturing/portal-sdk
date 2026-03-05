@@ -8,6 +8,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
         public bool Verbose { get; set; }
         public string CustomerInfrastructureName { get; set; }
         public string Name { get; set; }
+        public string AppName { get; set; }
+        public string CustomerEnvironmentName { get; set; }
         public string AgentName { get; set; }
         public string Description { get; set; }
         public FileInfo Parameters { get; set; }

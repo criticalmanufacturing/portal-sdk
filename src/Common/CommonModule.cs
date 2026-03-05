@@ -27,6 +27,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<Handlers.InstallAppHandler>();
             serviceCollection.AddTransient<Handlers.DownloadArtifactsHandler>();
             serviceCollection.AddTransient<Handlers.UndeployEnvironmentHandler>();
+            serviceCollection.AddTransient<Handlers.UninstallAppHandler>();
         }
     }
 }

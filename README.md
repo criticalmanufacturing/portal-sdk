@@ -47,11 +47,12 @@ Commands:
   - <a href="#deployagent">```deployagent```</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#deploy">```deploy```</a> - Creates and deploys a new Customer Environment
   - <a href="#download-artifacts">```download-artifacts```</a> - Downloads all Deployment Artifacts of a specific Customer Environment from the Customer Portal
-  - <a href="#install-app">```install-app```</a> - Installs an App in a previous deployed Convergence Customer Environment
+  - <a href="#install-app">```install-app```</a> - Installs an App in a previous deployed Customer Environment
   - <a href="#login">```login```</a> - Log in to the CM Portal
   - <a href="#publish">```publish```</a> - Publishes one or more Deployment Manifests into Customer Portal
   - <a href="#publish-package">```publish-package```</a> - Publishes one or more Customization Packages into Customer Portal
-  - <a href="#undeploy">```undeploy```</a> - [Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+  - <a href="#undeploy">```undeploy```</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+  - <a href="#uninstall-app">```unistall-app```</a> - Uninstall an App in a previous deployed Customer Environment 
 
 
 Examples:
@@ -223,7 +224,7 @@ Options:
 
 ### undeploy
 
-[Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments. This feature is in preview and may change.
+Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments. This feature is in preview and may change.
 
 Equivalent to powershell cmdlet <a href="#undeploy-environment">Undeploy-Environment</a>
 
@@ -234,6 +235,23 @@ Options:
   - ```-n, --name <name>``` - **REQUIRED** - Name of the Customer Environment to be used
   - ```-tovrv, --terminateOtherVersionsRemoveVolumes``` - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.
   - ```-?, -h, --help``` - Show help and usage information
+
+### uninstall-app
+
+
+Uninstalls an App in a previous deployed Customer Environment.
+
+Usage: ```cmf-portal install-app [options]```
+
+Options:
+  - ```-v, --verbose``` - Show detailed logging.
+  - ```-n, --name <name>``` - **REQUIRED** - The name of the App to uninstall.
+  - ```-ce, --customer-environment <customer-environment>``` - **REQUIRED** - The name of a Customer Environment where the App is installed on. 
+  - ```-tovr, --terminateOtherVersionsRemove``` - Flag that controls if the app deployments installed in the cluster should be removed. Requires the terminateOtherVersions flag.
+  - ```-tovrv, --terminateOtherVersionsRemoveVolumes``` - Flag that controls if the volumes of the App that will be uninstalled should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.
+  - ```-to, --timeout <timeout>``` - Timeout, in minutes, to wait for an App to install. The default is 360 minutes.
+  - ```-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>``` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
+  - ```-?, -h, --help``` - Show help and usage information.
 
 ## Powershell
 
@@ -259,7 +277,8 @@ Cmdlets:
   - <a href="#new-infrastructure">```New-Infrastructure```</a> - Creates a customer Infrastructure
   - <a href="#new-infrastructureagent">```New-InfrastructureAgent```</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#set-login">```Set-Login```</a> - Log in to the CM Portal
-  - <a href="#undeploy-environment">```Undeploy-Environment```</a> - [Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+  - <a href="#undeploy-environment">```Undeploy-Environment```</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+    - <a href="#uninstall-app">```Undeploy-App```</a> - Uninstalls an app installed in a CustomerEnvironment's version
 
 
 Examples:
@@ -383,7 +402,7 @@ Options:
 
 ### Undeploy-Environment
 
-[Preview] Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments. This feature is in preview and may change.
+Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments. This feature is in preview and may change.
 
 Equivalent to the console command <a href="#undeploy">undeploy</a>
 
@@ -392,4 +411,22 @@ Usage: ```Undeploy-Environment [options]```
 Options:
   - ```-TerminateOtherVersionsRemoveVolumes``` - **Position 2** - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.
   - ```-Name <name>``` - Name of the Customer Environment to be used
+
+
+
+### Uninstall-App
+Uninstalls an app installed in a CustomerEnvironment's version
+
+Equivalent to the console command <a href="#uninstall-app">uninstall-app</a>
+
+Usage: ```Uninstall-App [options]```
+
+Options:
+  - ```-Name <name>``` - Name of the App to be uninstalled.
+  - ```-Customer Environment <name>``` - Name of the customer environment where the app is installed.
+  - ```-TerminateOtherVersionsRemove``` - Flag that controls if the deployments of the versions of the App that will be uninstalled should be removed.
+  - ```-TerminateOtherVersionsRemoveVolumes``` - Flag that controls if the volumes of the versions of the App that will be uninstalled should be removed.
+
+    - ```-DeploymentTimeoutMinutes <deploymentTimeoutMinutes>``` - Number of minutes that are allowed to wait for the uninstall to succeed. The default is 360 minutes.
+  - ```-DeploymentTimeoutMinutesToGetSomeMBMsg <DeploymentTimeoutMinutesToGetSomeMBMsg>``` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
   

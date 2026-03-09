@@ -122,7 +122,7 @@ public class NewEnvironmentHandlerTests
         List<CPSoftwareLicense> licenses = [cPSoftwareLicense];
         var ciName = "infrastructure Name";
 
-        var newEnvironmentUtilitiesMock = mock.Mock<INewEnvironmentUtilities>();
+        var newEnvironmentUtilitiesMock = mock.Mock<IEnvironmentUtilities>();
 
         var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
         customerEnvironmentServicesMock
@@ -170,7 +170,7 @@ public class NewEnvironmentHandlerTests
         string[] licenseNames = [licenseName];
         List<CPSoftwareLicense> licenses = [cPSoftwareLicense];
 
-        var newEnvironmentUtilitiesMock = mock.Mock<INewEnvironmentUtilities>();
+        var newEnvironmentUtilitiesMock = mock.Mock<IEnvironmentUtilities>();
 
         var customerPortalClientMock = mock.Mock<ICustomerPortalClient>();
         customerPortalClientMock
@@ -219,7 +219,7 @@ public class NewEnvironmentHandlerTests
     {
         // Arrange
         var mockClient = new Mock<ICustomerPortalClient>();
-        var mockUtils = new Mock<INewEnvironmentUtilities>();
+        var mockUtils = new Mock<IEnvironmentUtilities>();
         var mockEnvDeploymentHandler = new Mock<IEnvironmentDeploymentHandler>();
         var mockLicenseServices = new Mock<ILicenseServices>();
         var mockSession = new Mock<ISession>();
@@ -350,7 +350,7 @@ public class NewEnvironmentHandlerTests
             .Setup(x => x.CreateEnvironment(customerEnvironment))
             .ReturnsAsync(customerEnvironment);
 
-        mock.Mock<INewEnvironmentUtilities>()
+        mock.Mock<IEnvironmentUtilities>()
             .Setup(x => x.CheckEnvironmentConnection(customerEnvironment))
             .Returns(Task.CompletedTask);
 

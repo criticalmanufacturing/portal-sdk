@@ -10,7 +10,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         ICustomerPortalClient customerPortalClient,
         ISession session,
         IFileSystem fileSystem,
-        INewEnvironmentUtilities newEnvironmentUtilities,
+        IEnvironmentUtilities newEnvironmentUtilities,
         IAppInstallationHandler appInstallationHandler)
         : AbstractHandler(session, true)
     {

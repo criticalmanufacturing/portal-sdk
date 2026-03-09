@@ -14,7 +14,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         ICustomerPortalClient customerPortalClient,
         ISession session,
         IFileSystem fileSystem,
-        INewEnvironmentUtilities newEnvironmentUtilities,
+        IEnvironmentUtilities newEnvironmentUtilities,
         IEnvironmentDeploymentHandler environmentDeploymentHandler,
         ICustomerEnvironmentServices customerEnvironmentServices,
         ILicenseServices licenseService)

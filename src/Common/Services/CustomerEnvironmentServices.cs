@@ -15,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services;
 internal class CustomerEnvironmentServices(
     ICustomerPortalClient customerPortalClient,
     ISession session,
-    INewEnvironmentUtilities newEnvironmentUtilities,
+    IEnvironmentUtilities newEnvironmentUtilities,
     IEnvironmentDeploymentHandler environmentDeploymentHandler) : ICustomerEnvironmentServices
 {
     public async Task<CustomerEnvironment> GetCustomerEnvironment(string name)

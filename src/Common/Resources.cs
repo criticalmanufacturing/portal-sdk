@@ -45,7 +45,7 @@
         public const string REPLACETOKENS_HELP = "Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.";
 
         public const string CUSTOMER_ENVIRONMENT_NAME_HELP = "Name of the Customer Environment to be used.";
-        public const string CUSTOMER_ENVIRONMENT_APPLICATION_PACKAGE_NAME_HELP = "Name of the App to be uninstalled.";
+        public const string CUSTOMER_ENVIRONMENT_APPLICATION_PACKAGE_NAME_TO_UNINSTALL_HELP = "Name of the App to be uninstalled.";
 
         public const string VERBOSE_HELP = "Show detailed logging";
     }

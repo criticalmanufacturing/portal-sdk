@@ -1,25 +1,25 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
-using System;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
     public class UninstallAppHandler(
         ISession session,
-        ICustomerPortalClient customerPortalClient) : AbstractHandler(session, true)
+        ICustomerPortalClient customerPortalClient,
+        IEnvironmentUtilities environmentUtilities,
+        IAppUninstallationHandler appUninstallationHandler) : AbstractHandler(session, true)
     {
+
         public async Task Run(string appName, string customerEnvironmentName, bool terminateOtherVersionsRemove,
-            bool terminateOtherVersionsRemoveVolumes)
+            bool terminateOtherVersionsRemoveVolumes, double? timeout, double? timeoutToGetSomeMBMessage = null)
         {
             Session.LogInformation($"Starting uninstall operation for application '{appName}' in customer environment '{customerEnvironmentName}'.");
             await EnsureLogin();
             CustomerEnvironment? customerEnvironment = null;
             try
             {
-                customerEnvironment = await customerPortalClient.GetObjectByName<CustomerEnvironment>(customerEnvironmentName);
+                customerEnvironment = await environmentUtilities.GetLastNonNotDeployedCustomerEnvironmentVersion(customerEnvironmentName);
                 customerEnvironment = await customerPortalClient.GetCustomerEnvironmentById(customerEnvironment.Id, 1);
             }
             catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
@@ -59,13 +59,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Session.LogError($"Application '{appName}' is not installed in customer environment '{customerEnvironmentName}'. Aborting uninstall.");
                     return;
                 }
-
-                await customerPortalClient.StartAppUninstall(customerEnvironmentApplicationPackage.Id, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
-                Session.LogInformation($"Uninstall request submitted for application '{appName}' (relation id: {customerEnvironmentApplicationPackage.Id}) in environment '{customerEnvironmentName}'.");
+                await appUninstallationHandler.Handle(customerEnvironmentApplicationPackage, timeout, timeoutToGetSomeMBMessage);
             }
             else
             {
-                Session.LogError($"No installed applications found for customer environment '{customerEnvironmentName}'. Application '{appName}' is not installed.");
+                Session.LogError($"No installed apps found for customer environment '{customerEnvironmentName}'. App '{appName}' is not installed.");
             }
         }
     }

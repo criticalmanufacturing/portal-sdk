@@ -8,7 +8,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
     public class UndeployEnvironmentHandler(
         ISession session,
-        INewEnvironmentUtilities newEnvironmentUtilities,
+        IEnvironmentUtilities newEnvironmentUtilities,
         ICustomerEnvironmentServices customerEnvironmentServices) : AbstractHandler(session, true)
     {
         public async Task Run(string name, bool force)
@@ -33,8 +33,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // login
             await EnsureLogin();
 
-            // Feature preview notice
-            Session.LogInformation("[Preview] The 'undeploy' feature is currently in feature preview and may change.");
+            Session.LogInformation("The 'undeploy' feature is currently in feature preview and may change.");
 
             // check name
             if (string.IsNullOrWhiteSpace(name))
@@ -64,6 +63,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation($"Creating a new version of the Customer environment {name}...");
             environment = await customerEnvironmentServices.CreateEnvironment(environment);
 
+            
             await customerEnvironmentServices.TerminateOtherVersions(environment, true, true, true);
 
             Session.LogInformation($"Customer environment {name} undeploy succeeded...");

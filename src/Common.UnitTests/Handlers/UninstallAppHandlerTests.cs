@@ -1,9 +1,9 @@
-using Moq;
-using Cmf.CustomerPortal.Sdk.Common.Handlers;
-using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.Foundation.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Common.Services;
+using Cmf.Foundation.BusinessObjects;
+using Moq;
 
 namespace Common.UnitTests.Handlers
 {

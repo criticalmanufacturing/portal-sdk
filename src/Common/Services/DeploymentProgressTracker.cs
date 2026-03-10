@@ -11,13 +11,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
     public interface IDeploymentStatusAdapter
     {
-        // Parse DeploymentStatus token into a nullable enum-like object
         object? ParseStatus(JObject content);
-
-        // Returns true when the deployment is "started"
         bool IsStarted(object? status);
-
-        // Returns true when the deployment is "finished". Out param indicates if it finished as failed
         bool IsFinished(object? status, out bool isFailed);
     }
 

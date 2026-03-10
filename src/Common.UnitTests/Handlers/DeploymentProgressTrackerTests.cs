@@ -14,25 +14,17 @@ namespace Common.UnitTests.Services
         {
             var adapter = new EnvironmentDeploymentStatusAdapter();
 
-            // Deploying -> started
             Assert.True(adapter.IsStarted(DeploymentStatus.Deploying));
-
-            // Terminating -> started
             Assert.True(adapter.IsStarted(DeploymentStatus.Terminating));
-
-            // DeploymentSucceeded -> finished, not failed
             Assert.True(adapter.IsFinished(DeploymentStatus.DeploymentSucceeded, out bool failedSucc));
             Assert.False(failedSucc);
 
-            // DeploymentPartiallySucceeded -> finished, not failed
             Assert.True(adapter.IsFinished(DeploymentStatus.DeploymentPartiallySucceeded, out bool failedPart));
             Assert.False(failedPart);
 
-            // DeploymentFailed -> finished and failed
             Assert.True(adapter.IsFinished(DeploymentStatus.DeploymentFailed, out bool failedFail));
             Assert.True(failedFail);
 
-            // NotDeployed -> not started, not finished
             Assert.False(adapter.IsStarted(DeploymentStatus.NotDeployed));
             Assert.False(adapter.IsFinished(DeploymentStatus.NotDeployed, out _));
         }
@@ -41,22 +33,14 @@ namespace Common.UnitTests.Services
         public void AppInstallationAdapter_IsStartedAndIsFinished_Behavior()
         {
             var adapter = new AppInstallationStatusAdapter();
-
-            // Installing -> started
             Assert.True(adapter.IsStarted(AppInstallationStatus.Installing));
-
-            // Uninstalling -> started
             Assert.True(adapter.IsStarted(AppInstallationStatus.Uninstalling));
 
-            // InstallationSucceeded -> finished, not failed
             Assert.True(adapter.IsFinished(AppInstallationStatus.InstallationSucceeded, out bool failedSucc));
             Assert.False(failedSucc);
-
-            // InstallationFailed -> finished and failed
             Assert.True(adapter.IsFinished(AppInstallationStatus.InstallationFailed, out bool failedFail));
             Assert.True(failedFail);
 
-            // NotInstalled -> not started, not finished
             Assert.False(adapter.IsStarted(AppInstallationStatus.NotInstalled));
             Assert.False(adapter.IsFinished(AppInstallationStatus.NotInstalled, out _));
         }
@@ -66,18 +50,14 @@ namespace Common.UnitTests.Services
         {
             var adapter = new AppUninstallationStatusAdapter();
 
-            // Uninstalling -> started
             Assert.True(adapter.IsStarted(AppInstallationStatus.Uninstalling));
 
-            // UninstallationSucceeded -> finished, not failed
             Assert.True(adapter.IsFinished(AppInstallationStatus.UninstallationSucceeded, out bool failedSucc));
             Assert.False(failedSucc);
 
-            // UninstallationFailed -> finished and failed
             Assert.True(adapter.IsFinished(AppInstallationStatus.UninstallationFailed, out bool failedFail));
             Assert.True(failedFail);
 
-            // Installing -> not started for uninstallation adapter
             Assert.False(adapter.IsStarted(AppInstallationStatus.Installing));
             Assert.False(adapter.IsFinished(AppInstallationStatus.InstallationSucceeded, out _));
         }

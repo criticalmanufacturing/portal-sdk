@@ -402,7 +402,7 @@ Options:
 
 ### Undeploy-Environment
 
-Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments. This feature is in preview and may change.
+Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments.
 
 Equivalent to the console command <a href="#undeploy">undeploy</a>
 

@@ -33,8 +33,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // login
             await EnsureLogin();
 
-            Session.LogInformation("The 'undeploy' feature is currently in feature preview and may change.");
-
             // check name
             if (string.IsNullOrWhiteSpace(name))
             {

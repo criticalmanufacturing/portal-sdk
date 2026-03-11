@@ -251,14 +251,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     Name = "Status",
                     ObjectName = "CustomerEnvironment",
                     ObjectAlias = "CustomerEnvironment_1",
-                    Operator = Cmf.Foundation.Common.FieldOperator.NotIn,
+                    Operator = Cmf.Foundation.Common.FieldOperator.In,
                     Value = new int[] {
-                        (int)DeploymentStatus.NotDeployed,
-                        (int)DeploymentStatus.Terminated,
-                        (int)DeploymentStatus.QueuedDeployment,
-                        (int)DeploymentStatus.QueuedTermination,
-                        (int)DeploymentStatus.TerminationFailed,
-                        (int)DeploymentStatus.Terminating
+                        (int)DeploymentStatus.DeploymentFailed,
+                        (int)DeploymentStatus.DeploymentPartiallySucceeded,
+                        (int)DeploymentStatus.DeploymentSucceeded
                     },
                     LogicalOperator = Cmf.Foundation.Common.LogicalOperator.AND,
                     FilterType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,
@@ -291,8 +288,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
             DataSet dataSet = await _customerPortalClient.ExecuteQuery(query);
 
-            
-            if (dataSet?.Tables?.Count > 0)
+
+            if (dataSet?.Tables?.Count > 0 && dataSet?.Tables[0].Rows.Count >  0)
             {
                 var row = dataSet.Tables[0].Rows[0];
                 CustomerEnvironment customerEnvironment = new CustomerEnvironment()
@@ -301,7 +298,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 };
                 return customerEnvironment;
             }
-            return null;
+            else
+            {
+                return null;
+            }
 
         }
     }

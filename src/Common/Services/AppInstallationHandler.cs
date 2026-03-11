@@ -21,12 +21,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private bool _isInstallationFinished = false;
         private bool _hasInstallationFailed = false;
 
-        private DeploymentProgressTracker _progressTracker;
+        private DeploymentProgressTracker<AppInstallationStatus> _progressTracker;
 
-        public bool HasInstallationStarted
-        {
-            get { return _progressTracker?.HasStarted ?? false; }
-        }
 
         #region Private Methods
         private async Task ProcessAppInstallation(CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, string target, DirectoryInfo outputDir)
@@ -66,7 +62,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             session.LogDebug($"Subscribing messagebus subject {subject}");
 
             // initialize progress tracker for app installation
-            _progressTracker = new DeploymentProgressTracker(session, new AppInstallationStatusAdapter());
+            _progressTracker = new DeploymentProgressTracker<AppInstallationStatus>(session, new AppInstallationStatusAdapter());
 
             messageBus.Subscribe(subject, _progressTracker.ProcessDeploymentMessage);
 
@@ -122,7 +118,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                         if (cancellationTokenMBMessageReceived.Token.IsCancellationRequested)
                         {
-                            if (DeploymentProgressTracker.UtcOfLastMessageReceived == null || (DateTime.UtcNow - DeploymentProgressTracker.UtcOfLastMessageReceived.Value) >= timeoutToGetSomeMBMessageTask)
+                            if (DeploymentProgressTrackerBase.UtcOfLastMessageReceived == null || (DateTime.UtcNow - DeploymentProgressTrackerBase.UtcOfLastMessageReceived.Value) >= timeoutToGetSomeMBMessageTask)
                             {
                                 compositeTokenSource?.Dispose();
                                 cancellationTokenMBMessageReceived?.Dispose();
@@ -135,7 +131,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             {
                                 cancellationTokenMBMessageReceived.Dispose();
                                 compositeTokenSource.Dispose();
-                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - (DateTime.UtcNow - DeploymentProgressTracker.UtcOfLastMessageReceived.Value));
+                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - (DateTime.UtcNow - DeploymentProgressTrackerBase.UtcOfLastMessageReceived.Value));
                                 compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
 
                             }

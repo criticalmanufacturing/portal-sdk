@@ -65,7 +65,7 @@ namespace Common.UnitTests.Handlers
             await _handler.Run("missing-app", "env", false, false, null, null);
 
             // Assert
-            _sessionMock.Verify(s => s.LogError("No installed apps found for customer environment 'env'. App 'missing-app' is not installed."), Times.Once);
+            _sessionMock.Verify(s => s.LogError("App 'missing-app' is not installed in the latest deployed version of the customer environment 'env'."), Times.Once);
         }
 
         [Fact]

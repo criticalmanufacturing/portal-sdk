@@ -48,7 +48,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 {
                     if (item is CustomerEnvironmentApplicationPackage ceap && ceap.TargetEntity?.Name == appName)
                     {
-                        Session.LogInformation($"Application '{appName}' found in environment '{customerEnvironmentName}' (relation id: {ceap.Id}).");
+                        Session.LogInformation($"App '{appName}' found in environment '{customerEnvironmentName}' (relation id: {ceap.Id}).");
                         customerEnvironmentApplicationPackage = ceap;
                         break;
                     }
@@ -63,7 +63,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             }
             else
             {
-                Session.LogError($"No installed apps found for customer environment '{customerEnvironmentName}'. App '{appName}' is not installed.");
+                Session.LogError($"App '{appName}' is not installed in the latest deployed version of the customer environment '{customerEnvironmentName}'.");
             }
         }
     }

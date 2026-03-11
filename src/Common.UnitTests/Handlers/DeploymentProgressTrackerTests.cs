@@ -66,7 +66,7 @@ namespace Common.UnitTests.Services
         public void DeploymentProgressTracker_ProcessDeploymentMessage_QueuePositionAndStateTransitions()
         {
             var sessionMock = new Mock<ISession>();
-            var tracker = new DeploymentProgressTracker(sessionMock.Object, new EnvironmentDeploymentStatusAdapter());
+            var tracker = new DeploymentProgressTracker<DeploymentStatus>(sessionMock.Object, new EnvironmentDeploymentStatusAdapter());
 
             var payloadQueued = new
             {
@@ -80,7 +80,7 @@ namespace Common.UnitTests.Services
             sessionMock.Verify(s => s.LogInformation("Queue Position: 2"), Times.Once);
             Assert.False(tracker.HasStarted);
             Assert.False(tracker.HasFinished);
-            Assert.NotNull(DeploymentProgressTracker.UtcOfLastMessageReceived);
+            Assert.NotNull(DeploymentProgressTrackerBase.UtcOfLastMessageReceived);
 
             var payloadStarted = new
             {
@@ -113,7 +113,7 @@ namespace Common.UnitTests.Services
         public void DeploymentProgressTracker_ProcessDeploymentMessage_UnknownOrNullMessage_LogsUnknown()
         {
             var sessionMock = new Mock<ISession>();
-            var tracker = new DeploymentProgressTracker(sessionMock.Object, new EnvironmentDeploymentStatusAdapter());
+            var tracker = new DeploymentProgressTracker<DeploymentStatus>(sessionMock.Object, new EnvironmentDeploymentStatusAdapter());
 
             var messageNull = new MbMessage { Data = null };
             tracker.ProcessDeploymentMessage("subject", messageNull);

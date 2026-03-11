@@ -1,9 +1,6 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
-using Cmf.MessageBus.Messages;
-using Newtonsoft.Json;
 using System;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,23 +11,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         private bool _isUninstallationFinished = false;
         private bool _hasUninstallationFailed = false;
-        private readonly string[] _loadingChars = { "|", "/", "-", "\\" };
 
-        private DeploymentProgressTracker _progressTracker;
-
-        public bool HasUninstallationStarted
-        {
-            get { return _progressTracker?.HasStarted ?? false; }
-            private set { /* no-op */ }
-        }
+        private DeploymentProgressTracker<AppInstallationStatus> _progressTracker;
         public async Task Handle(CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, double? timeoutMinutesMainTask = null, double? timeoutMinutesToGetSomeMBMsg = null)
         {
-            // assign the timeout of main task to deploy
-            TimeSpan timeoutMainTask = TimeSpan.FromHours(6); // same timeout as RING (6 hours)
+              TimeSpan timeoutMainTask = timeoutMinutesMainTask > 0 ? TimeSpan.FromMinutes(timeoutMinutesMainTask.Value) : TimeSpan.FromHours(6); // same timeout as RING (6 hours)
 
             // assign the timeout of don't receive any message from portal by MB
-            TimeSpan timeoutToGetSomeMBMessageTask = TimeSpan.FromMinutes(30);
-
+            TimeSpan timeoutToGetSomeMBMessageTask = timeoutMinutesToGetSomeMBMsg > 0 ? TimeSpan.FromMinutes(timeoutMinutesToGetSomeMBMsg.Value) : TimeSpan.FromMinutes(30);
 
             var messageBus = await customerPortalClient.GetMessageBusTransport();
             var subject = $"CUSTOMERPORTAL.DEPLOYMENT.APP.{customerEnvironmentApplicationPackage.Id}";
@@ -38,7 +26,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
             session.LogDebug($"Subscribing messagebus subject {subject}");
 
             // initialize tracker with adapter for app uninstallation
-            _progressTracker = new DeploymentProgressTracker(session, new AppUninstallationStatusAdapter());
+            _progressTracker = new DeploymentProgressTracker<AppInstallationStatus>(session, new AppUninstallationStatusAdapter());
 
             messageBus.Subscribe(subject, _progressTracker.ProcessDeploymentMessage);
 
@@ -88,7 +76,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                         if (cancellationTokenMBMessageReceived.Token.IsCancellationRequested)
                         {
-                            if (DeploymentProgressTracker.UtcOfLastMessageReceived == null || (DateTime.UtcNow - DeploymentProgressTracker.UtcOfLastMessageReceived.Value) >= timeoutToGetSomeMBMessageTask)
+                            if (DeploymentProgressTrackerBase.UtcOfLastMessageReceived == null || (DateTime.UtcNow - DeploymentProgressTrackerBase.UtcOfLastMessageReceived.Value) >= timeoutToGetSomeMBMessageTask)
                             {
                                 compositeTokenSource?.Dispose();
                                 cancellationTokenMBMessageReceived?.Dispose();
@@ -101,7 +89,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             {
                                 cancellationTokenMBMessageReceived.Dispose();
                                 compositeTokenSource.Dispose();
-                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - (DateTime.UtcNow - DeploymentProgressTracker.UtcOfLastMessageReceived.Value));
+                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - (DateTime.UtcNow - DeploymentProgressTrackerBase.UtcOfLastMessageReceived.Value));
                                 compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
 
                             }

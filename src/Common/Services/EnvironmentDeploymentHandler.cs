@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.Foundation.Common.Base;
 using Cmf.LightBusinessObjects.Infrastructure;
-using Cmf.MessageBus.Messages;
-using Newtonsoft.Json;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
@@ -24,16 +21,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
     {
         private bool _isDeploymentFinished = false;
         private bool _hasDeploymentFailed = false;
-        private readonly string[] _loadingChars = { "|", "/", "-", "\\" };
 
-        private DeploymentProgressTracker _progressTracker;
-
-        public bool HasDeploymentStarted 
-        {
-            get { return _progressTracker?.HasStarted ?? false; }
-            private set { /* kept for compatibility - no-op */ }
-        }
-
+        private DeploymentProgressTracker<DeploymentStatus> _progressTracker;
 
         #region Private Methods
         private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputDir)
@@ -70,8 +59,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
             session.LogDebug($"Subscribing messagebus subject {subject}");
 
-            // initialize tracker with adapter for environment
-            _progressTracker = new DeploymentProgressTracker(session, new EnvironmentDeploymentStatusAdapter());
+            // initialize tracker (typed parsing built-in)
+            _progressTracker = new DeploymentProgressTracker<DeploymentStatus>(session, new EnvironmentDeploymentStatusAdapter());
 
             messageBus.Subscribe(subject, _progressTracker.ProcessDeploymentMessage);
 
@@ -138,7 +127,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                         if (cancellationTokenMBMessageReceived.Token.IsCancellationRequested)
                         {
-                            if (DeploymentProgressTracker.UtcOfLastMessageReceived == null || (DateTime.UtcNow - DeploymentProgressTracker.UtcOfLastMessageReceived.Value) >= timeoutToGetSomeMBMessageTask)
+                            if (DeploymentProgressTrackerBase.UtcOfLastMessageReceived == null || (DateTime.UtcNow - DeploymentProgressTrackerBase.UtcOfLastMessageReceived.Value) >= timeoutToGetSomeMBMessageTask)
                             {
                                 compositeTokenSource?.Dispose();
                                 cancellationTokenMBMessageReceived?.Dispose();
@@ -151,7 +140,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             {
                                 cancellationTokenMBMessageReceived.Dispose();
                                 compositeTokenSource.Dispose();
-                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - (DateTime.UtcNow - DeploymentProgressTracker.UtcOfLastMessageReceived.Value));
+                                cancellationTokenMBMessageReceived = new CancellationTokenSource(timeoutToGetSomeMBMessageTask - (DateTime.UtcNow - DeploymentProgressTrackerBase.UtcOfLastMessageReceived.Value));
                                 compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
                             }
                         }

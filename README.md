@@ -241,14 +241,14 @@ Options:
 
 Uninstalls an App in a previous deployed Customer Environment.
 
-Usage: ```cmf-portal install-app [options]```
+Usage: ```cmf-portal uninstall-app [options]```
 
 Options:
   - ```-v, --verbose``` - Show detailed logging.
   - ```-n, --name <name>``` - **REQUIRED** - The name of the App to uninstall.
   - ```-ce, --customer-environment <customer-environment>``` - **REQUIRED** - The name of a Customer Environment where the App is installed on. 
-  - ```-tovr, --terminateOtherVersionsRemove``` - Flag that controls if the app deployments installed in the cluster should be removed. Requires the terminateOtherVersions flag.
-  - ```-tovrv, --terminateOtherVersionsRemoveVolumes``` - Flag that controls if the volumes of the App that will be uninstalled should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.
+  - ```-tovr, --terminateOtherVersionsRemove``` - Flag that controls if the app deployments installed in the cluster should be removed.
+  - ```-tovrv, --terminateOtherVersionsRemoveVolumes``` - Flag that controls if the volumes of the App that will be uninstalled should be removed.
   - ```-to, --timeout <timeout>``` - Timeout, in minutes, to wait for an App to install. The default is 360 minutes.
   - ```-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>``` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
   - ```-?, -h, --help``` - Show help and usage information.

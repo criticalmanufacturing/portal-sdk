@@ -129,7 +129,7 @@ namespace Common.UnitTests.Handlers
             await _handler.Run("my-app", "env", true, true, null, null);
 
             // Assert
-            _sessionMock.Verify(s => s.LogInformation($"Application 'my-app' found in environment 'env' (relation id: {ceap.Id})."), Times.Once);
+            _sessionMock.Verify(s => s.LogInformation($"App 'my-app' found in environment 'env' (relation id: {ceap.Id})."), Times.Once);
             _appUninstallationHandler.Verify(c => c.Handle(ceap), Times.Once);
         }
     }

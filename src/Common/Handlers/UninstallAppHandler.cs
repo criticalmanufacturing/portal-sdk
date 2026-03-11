@@ -59,7 +59,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Session.LogError($"Application '{appName}' is not installed in customer environment '{customerEnvironmentName}'. Aborting uninstall.");
                     return;
                 }
-                await appUninstallationHandler.Handle(customerEnvironmentApplicationPackage, timeout, timeoutToGetSomeMBMessage);
+                await appUninstallationHandler.Handle(customerEnvironmentApplicationPackage, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes, timeout, timeoutToGetSomeMBMessage);
             }
             else
             {

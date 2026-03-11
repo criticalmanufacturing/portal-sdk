@@ -1,5 +1,4 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         private bool _hasUninstallationFailed = false;
 
         private DeploymentProgressTracker<AppInstallationStatus> _progressTracker;
-        public async Task Handle(CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, double? timeoutMinutesMainTask = null, double? timeoutMinutesToGetSomeMBMsg = null)
+        public async Task Handle(CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage, bool removeDeployments = false, bool removeVolumes = false, double? timeoutMinutesMainTask = null, double? timeoutMinutesToGetSomeMBMsg = null)
         {
               TimeSpan timeoutMainTask = timeoutMinutesMainTask > 0 ? TimeSpan.FromMinutes(timeoutMinutesMainTask.Value) : TimeSpan.FromHours(6); // same timeout as RING (6 hours)
 
@@ -30,8 +29,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
             messageBus.Subscribe(subject, _progressTracker.ProcessDeploymentMessage);
 
-            var startAppUninstallInput = new StartAppUninstallInput() { CustomerEnvironmentApplicationPackageId = customerEnvironmentApplicationPackage.Id };
-            var result = await startAppUninstallInput.StartAppUninstallAsync();
+            await customerPortalClient.StartAppUninstall(customerEnvironmentApplicationPackage.Id, removeDeployments, removeVolumes);
 
             // show progress from deployment
             using (CancellationTokenSource cancellationTokenMainTask = new CancellationTokenSource(timeoutMainTask))
@@ -44,16 +42,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                 // The compositeTokenSource will be a composed token between the cancellationTokenMainTask and the cancellationTokenMBMessageReceived. The first ending returns the exception.
                 CancellationTokenSource compositeTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token);
 
-                CancellationTokenSource _cancellationTokenUninstallationQeued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
-                CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, _cancellationTokenUninstallationQeued.Token);
+                CancellationTokenSource cancellationTokenUninstallationQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
+                CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, cancellationTokenUninstallationQueued.Token);
 
                 await Task.Run(() => _progressTracker.ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
 
                 while (!this._isUninstallationFinished)
                 {
-                    if (_progressTracker.HasStarted && _cancellationTokenUninstallationQeued != null && !_cancellationTokenUninstallationQeued.IsCancellationRequested)
+                    if (_progressTracker.HasStarted && cancellationTokenUninstallationQueued != null && !cancellationTokenUninstallationQueued.IsCancellationRequested)
                     {
-                        _cancellationTokenUninstallationQeued.Cancel();
+                        cancellationTokenUninstallationQueued.Cancel();
                         compositeTokenSourceWithDeploymentQueued.Dispose();
                     }
 
@@ -69,7 +67,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             cancellationTokenMBMessageReceived?.Dispose();
                             compositeTokenSource?.Dispose();
                             compositeTokenSourceWithDeploymentQueued?.Dispose();
-                            _cancellationTokenUninstallationQeued?.Dispose();
+                            cancellationTokenUninstallationQueued?.Dispose();
 
                             throw new TaskCanceledException($"Uninstallation Failed! The uninstallation timed out after waiting {timeoutMainTask.TotalMinutes} minutes to finish.");
                         }
@@ -80,7 +78,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                             {
                                 compositeTokenSource?.Dispose();
                                 cancellationTokenMBMessageReceived?.Dispose();
-                                _cancellationTokenUninstallationQeued?.Dispose();
+                                cancellationTokenUninstallationQueued?.Dispose();
                                 compositeTokenSourceWithDeploymentQueued?.Dispose();
 
                                 throw new TaskCanceledException($"Uninstallation Failed! The uninstallation timed out after {timeoutToGetSomeMBMessageTask.TotalMinutes} minutes because the SDK client did not receive additional expected messages on MessageBus from the portal and the installation is not finished.");
@@ -108,7 +106,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 
                 compositeTokenSource?.Dispose();
                 cancellationTokenMBMessageReceived?.Dispose();
-                _cancellationTokenUninstallationQeued?.Dispose();
+                cancellationTokenUninstallationQueued?.Dispose();
                 compositeTokenSourceWithDeploymentQueued?.Dispose();
             }
 

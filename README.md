@@ -52,7 +52,7 @@ Commands:
   - <a href="#publish">```publish```</a> - Publishes one or more Deployment Manifests into Customer Portal
   - <a href="#publish-package">```publish-package```</a> - Publishes one or more Customization Packages into Customer Portal
   - <a href="#undeploy">```undeploy```</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
-  - <a href="#uninstall-app">```unistall-app```</a> - Uninstall an App in a previous deployed Customer Environment 
+  - <a href="#uninstall-app">```uninstall-app```</a> - Uninstall an App in a previous deployed Customer Environment 
 
 
 Examples:
@@ -249,7 +249,7 @@ Options:
   - ```-ce, --customer-environment <customer-environment>``` - **REQUIRED** - The name of a Customer Environment where the App is installed on. 
   - ```-tovr, --terminateOtherVersionsRemove``` - Flag that controls if the app deployments installed in the cluster should be removed.
   - ```-tovrv, --terminateOtherVersionsRemoveVolumes``` - Flag that controls if the volumes of the App that will be uninstalled should be removed.
-  - ```-to, --timeout <timeout>``` - Timeout, in minutes, to wait for an App to install. The default is 360 minutes.
+  - ```-to, --timeout <timeout>``` - Timeout, in minutes, to wait for an App to uninstall. The default is 360 minutes.
   - ```-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>``` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
   - ```-?, -h, --help``` - Show help and usage information.
 
@@ -278,7 +278,7 @@ Cmdlets:
   - <a href="#new-infrastructureagent">```New-InfrastructureAgent```</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#set-login">```Set-Login```</a> - Log in to the CM Portal
   - <a href="#undeploy-environment">```Undeploy-Environment```</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
-    - <a href="#uninstall-app">```Undeploy-App```</a> - Uninstalls an app installed in a CustomerEnvironment's version
+    - <a href="#uninstall-app">```Uninstall-App```</a> - Uninstalls an app installed in a CustomerEnvironment's version
 
 
 Examples:

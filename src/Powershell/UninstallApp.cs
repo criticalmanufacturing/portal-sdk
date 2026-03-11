@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
-    [Cmdlet(VerbsCommon.Reset, "Environment")]
+    [Cmdlet(VerbsLifecycle.Uninstall, "App")]
     public class UninstallApp : BaseCmdlet<UninstallAppHandler>
     {
         [Parameter(
-            HelpMessage = Resources.APP_NAME_HELP,
+            HelpMessage = Resources.APP_UNINSTALL_NAME_HELP,
             Mandatory = true,
             Position = 1
         )]

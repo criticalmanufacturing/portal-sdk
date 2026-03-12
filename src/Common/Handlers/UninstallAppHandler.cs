@@ -20,6 +20,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             try
             {
                 customerEnvironment = await environmentUtilities.GetLastNonNotDeployedCustomerEnvironmentVersion(customerEnvironmentName);
+                if (customerEnvironment == null)
+                {
+                    Session.LogError($"Customer Environment '{customerEnvironmentName}' was not found or has no deployed versions. Aborting uninstall.");
+                    return;
+                }
                 customerEnvironment = await customerPortalClient.GetCustomerEnvironmentById(customerEnvironment.Id, 1);
             }
             catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())

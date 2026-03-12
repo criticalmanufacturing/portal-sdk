@@ -39,6 +39,6 @@
     "Uninstall App": {
       "commandName": "Project",
       "commandLineArgs": "uninstall-app --customer-environment \"env\" --name \"Dummy\""
-    },
+    }
   }
 }

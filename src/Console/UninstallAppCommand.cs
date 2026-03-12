@@ -26,8 +26,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
             Add(new Option<bool>(new[] { "--terminateOtherVersionsRemove", "-tovr" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP));
 
             Add(new Option<bool>(new[] { "--terminateOtherVersionsRemoveVolumes", "-tovrv" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP));
-            Add(new Option<double?>(new[] { "--timeout", "-to" }, Resources.APP_INSTALLATION_TIMEOUT)
-            { 
+            Add(new Option<double?>(new[] { "--timeout", "-to" }, Resources.APP_UNINSTALLATION_TIMEOUT)
+            {
                 IsRequired = false
             });
 
@@ -36,14 +36,14 @@ namespace Cmf.CustomerPortal.Sdk.Console
                 IsRequired = false
             });
 
-            Handler = CommandHandler.Create((DeployParameters x) => UninstallAppHandler(x));
+            Handler = CommandHandler.Create(typeof(UninstallAppCommand).GetMethod(nameof(UninstallAppCommand.UninstallHandler)), this);
         }
 
-        public async Task UninstallAppHandler(DeployParameters parameters)
+        public async Task UninstallHandler(bool verbose, string name, string customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes, double? timeout, double? timeoutToGetSomeMBMsg = null)
         {
-            CreateSession(parameters.Verbose);
+            CreateSession(verbose);
             UninstallAppHandler uninstallAppHandler = ServiceLocator.Get<UninstallAppHandler>();
-            await uninstallAppHandler.Run(parameters.Name, parameters.CustomerEnvironment, parameters.TerminateOtherVersionsRemove, parameters.TerminateOtherVersionsRemoveVolumes, parameters.DeploymentTimeoutMinutes, parameters.DeploymentTimeoutMinutesToGetSomeMBMsg);
+            await uninstallAppHandler.Run(name, customerEnvironment, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes, timeout, timeoutToGetSomeMBMsg);
         }
     }
 }

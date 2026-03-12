@@ -121,7 +121,7 @@ namespace Common.UnitTests.Handlers
                 .Setup(c => c.GetCustomerEnvironmentById(env.Id, 1))
                 .ReturnsAsync(env);
             _ = _appUninstallationHandler
-                .Setup(c => c.Handle(ceap))
+                .Setup(c => c.Handle(ceap, true, true, null, null))
                 .Returns(Task.CompletedTask);
 
 
@@ -130,7 +130,7 @@ namespace Common.UnitTests.Handlers
 
             // Assert
             _sessionMock.Verify(s => s.LogInformation($"App 'my-app' found in environment 'env' (relation id: {ceap.Id})."), Times.Once);
-            _appUninstallationHandler.Verify(c => c.Handle(ceap), Times.Once);
+            _appUninstallationHandler.Verify(c => c.Handle(ceap, true, true, null, null), Times.Once);
         }
     }
 }

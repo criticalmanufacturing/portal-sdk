@@ -35,6 +35,10 @@
     "Check Agent Connection": {
       "commandName": "Project",
       "commandLineArgs": "checkagentconnection -n \"sdkTestInfra\""
+    },
+    "Uninstall App": {
+      "commandName": "Project",
+      "commandLineArgs": "uninstall-app --customer-environment \"env\" --name \"Dummy\""
     }
   }
 }

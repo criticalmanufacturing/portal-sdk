@@ -60,7 +60,7 @@ public interface ICustomerEnvironmentServices
     /// Terminates other versions of the <paramref name="customerEnvironment"/>.
     /// </summary>
     /// <param name="session">The ISession to use.</param>
-    /// <param name="newEnvironmentUtilities">The INewEnvironmentUtilities to use.</param>
+    /// <param name="newEnvironmentUtilities">The IEnvironmentUtilities to use.</param>
     /// <param name="customerPortalClient">The ICustomerPortalClient to use.</param>
     /// <param name="environmentDeploymentHandler">The IEnvironmentDeploymentHandler to use.</param>
     /// <param name="customerEnvironment">Customer Environment to be used.</param>

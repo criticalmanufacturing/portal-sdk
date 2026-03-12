@@ -22,11 +22,15 @@
         public const string DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.";
         public const string UNDEPLOYMENT_FORCE_HELP = "Flag that controls if the confirmation message on whether to proceed with undeployment is skipped.";
         public const string APP_NAME_HELP = "The name of the App to install.";
+        public const string APP_UNINSTALL_NAME_HELP = "The name of the App to uninstall.";
         public const string APP_VERSION_HELP = "The version of the App to install.";
         public const string APP_CUSTOMER_ENVIRONMENT_HELP = "The name of a Convergence Customer Environment to install the App on.";
         public const string APP_LICENSE_HELP = "Name of the License to use for the App.";
         public const string APP_INSTALLATION_TIMEOUT = "Timeout, in minutes, to wait for an App to install. The default is 360 minutes (6 hours).";
+        public const string APP_UNINSTALLATION_TIMEOUT = "Timeout, in minutes, to wait for an App to uninstall. The default is 360 minutes (6 hours).";
         public const string APP_PARAMETERS_PATH_HELP = "Path to parameters file that describes the App in a Convergence Customer Environment.";
+        public const string APP_UNINSTALL_REMOVE_HELP = "Flag that controls if the deployments of the App that will be uninstalled should be removed.";
+        public const string APP_UNINSTALL_REMOVE_VOLUMES_HELP = "Flag that controls if the volumes of the App that will be uninstalled should be removed.";
         public const string INFRASTRUCTURE_NAME_HELP = "The name of the Customer Infrastructure to be created";
         public const string INFRASTRUCTURE_SITE_HELP = "(deprecated) Name of a Site used to match a Customer with the Customer Infrastructure";
         public const string INFRASTRUCTURE_CUSTOMER_HELP = "Name of the Customer associated with the Customer Infrastructure";

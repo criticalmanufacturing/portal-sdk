@@ -10,7 +10,7 @@ namespace Common.UnitTests.Handlers;
 public class UndeployEnvironmentHandlerTests
 {
     private readonly Mock<ISession> _sessionMock = new();
-    private readonly Mock<INewEnvironmentUtilities> _newEnvironmentUtilitiesMock = new();
+    private readonly Mock<IEnvironmentUtilities> _newEnvironmentUtilitiesMock = new();
     private readonly Mock<ICustomerEnvironmentServices> _customerEnvironmentServicesMock = new();
 
     private readonly UndeployEnvironmentHandler _handler;

@@ -9,13 +9,14 @@ namespace Cmf.CustomerPortal.Sdk.Common
         {
             // Add Services
             serviceCollection.AddSingleton<ICustomerPortalClient, CustomerPortalClient>();
-            serviceCollection.AddSingleton<INewEnvironmentUtilities, NewEnvironmentUtilities>();
+            serviceCollection.AddSingleton<IEnvironmentUtilities, EnvironmentUtilities>();
             serviceCollection.AddTransient<IEnvironmentDeploymentHandler, EnvironmentDeploymentHandler>();
             serviceCollection.AddTransient<IAppInstallationHandler, AppInstallationHandler>();
             serviceCollection.AddTransient<IArtifactsDownloaderHandler, ArtifactsDownloaderHandler>();
             serviceCollection.AddTransient<ICustomerEnvironmentServices, CustomerEnvironmentServices>();
             serviceCollection.AddTransient<ILicenseServices, LicenseServices>();
             serviceCollection.AddTransient<IQueryProxyService, QueryProxyService>();
+            serviceCollection.AddTransient<IAppUninstallationHandler, AppUninstallationHandler>();
 
             // Add Handlers
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();
@@ -27,6 +28,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<Handlers.InstallAppHandler>();
             serviceCollection.AddTransient<Handlers.DownloadArtifactsHandler>();
             serviceCollection.AddTransient<Handlers.UndeployEnvironmentHandler>();
+            serviceCollection.AddTransient<Handlers.UninstallAppHandler>();
         }
     }
 }

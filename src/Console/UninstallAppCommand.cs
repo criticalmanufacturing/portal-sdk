@@ -15,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         public UninstallAppCommand(string name, string description = null) : base(name, description)
         {
-            Add(new Option<string>(new[] { "--name", "-n" }, Resources.CUSTOMER_ENVIRONMENT_APPLICATION_PACKAGE_NAME_TO_UNINSTALL_HELP)
+            Add(new Option<string>(new[] { "--name", "-n" }, Resources.APP_UNINSTALL_NAME_HELP)
             {
                 IsRequired = true
             });

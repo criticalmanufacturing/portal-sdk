@@ -17,7 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
 
         public string Name { get; set; }
         [Parameter(
-            HelpMessage = Resources.CUSTOMER_ENVIRONMENT_NAME_HELP,
+            HelpMessage = Resources.APP_NAME_HELP,
             Mandatory = true,
             Position = 2
         )]

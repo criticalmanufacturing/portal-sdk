@@ -23,9 +23,9 @@ namespace Cmf.CustomerPortal.Sdk.Console
             {
                 IsRequired = true
             });
-            Add(new Option<bool>(new[] { "--terminateOtherVersionsRemove", "-tovr" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP));
+            Add(new Option<bool>(new[] { "--terminateOtherVersionsRemove", "-tovr" }, Resources.APP_UNINSTALL_REMOVE_HELP));
 
-            Add(new Option<bool>(new[] { "--terminateOtherVersionsRemoveVolumes", "-tovrv" }, Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP));
+            Add(new Option<bool>(new[] { "--terminateOtherVersionsRemoveVolumes", "-tovrv" }, Resources.APP_UNINSTALL_REMOVE_VOLUMES_HELP));
             Add(new Option<double?>(new[] { "--timeout", "-to" }, Resources.APP_UNINSTALLATION_TIMEOUT)
             {
                 IsRequired = false

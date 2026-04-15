@@ -20,6 +20,7 @@
         "cmf-portal": "./bin/cmf-portal"
     },
     "scripts": {
+        "prepare": "npm shrinkwrap",
         "postinstall": "node install.js"
     },
     "os": [

@@ -20,7 +20,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// Get's the MessageBus transport's configurations.
         /// </summary>
         /// <returns><see cref="Transport"/> configured</returns>
-        Task<Transport> GetMessageBusTransport();
+        Task<IMessageBusTransport> GetMessageBusTransport();
 
         /// <summary>
         /// Get's an object by its name.
@@ -152,7 +152,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="removeDeployments"></param>
         /// <param name="removeVolumes"></param>
         /// <returns></returns>
-        public Task StartAppUninstall(long appId, bool removeDeployments, bool removeVolumes);
+        public Task StartAppUninstall(long appId, bool removeDeployments, bool removeVolumes, bool undeploy);
 
     }
 }

@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -18,25 +16,21 @@ using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObject
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.OutputObjects;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
+using Cmf.Foundation.BusinessObjects.QueryObject.Enums;
 using Cmf.Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.EntityTypeManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
+using Cmf.Foundation.Common;
 using Cmf.Foundation.Common.Base;
 using Cmf.Foundation.Security;
-using Cmf.MessageBus.Client;
 using Cmf.Services.GenericServiceManagement;
-using Newtonsoft.Json;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
-    public class CustomerPortalClient(ISession session, IFileSystem fileSystem) : ICustomerPortalClient
+    public partial class CustomerPortalClient(ISession session, IFileSystem fileSystem)  : ICustomerPortalClient
     {
-        private static readonly SemaphoreSlim _transportLock = new SemaphoreSlim(1, 1);
-        private const string jwtTenantNameKey = "tenantName";
-
-        private Transport _transport;
-
+     
         #region Private Methods
 
         private static DataSet NgpDataSetToDataSet(NgpDataSet ngpDataSet)
@@ -174,10 +168,10 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     Name = "Id",
                     ObjectName = "CustomerEnvironment",
                     ObjectAlias = "CustomerEnvironment_1",
-                    Operator = Cmf.Foundation.Common.FieldOperator.In,
+                    Operator = FieldOperator.In,
                     Value = ids,
-                    LogicalOperator = Cmf.Foundation.Common.LogicalOperator.Nothing,
-                    FilterType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,
+                    LogicalOperator = LogicalOperator.Nothing,
+                    FilterType = FilterType.Normal,
                 }
             };
             query.Query.Fields = new FieldCollection() {
@@ -189,7 +183,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     IsUserAttribute = false,
                     Name = "Id",
                     Position = 0,
-                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                    Sort = FieldSort.NoSort
                 },
                 new Field()
                 {
@@ -199,7 +193,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     IsUserAttribute = false,
                     Name = "DefinitionId",
                     Position = 1,
-                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                    Sort = FieldSort.NoSort
                 },
                 new Field()
                 {
@@ -209,7 +203,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     IsUserAttribute = false,
                     Name = "Name",
                     Position = 2,
-                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                    Sort = FieldSort.NoSort
                 },
                 new Field()
                 {
@@ -219,7 +213,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     IsUserAttribute = false,
                     Name = "Status",
                     Position = 3,
-                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                    Sort = FieldSort.NoSort
                 },
                 new Field()
                 {
@@ -229,7 +223,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     IsUserAttribute = false,
                     Name = "UniversalState",
                     Position = 4,
-                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                    Sort = FieldSort.NoSort
                 }
             };
             query.Query.Relations = new RelationCollection();
@@ -253,101 +247,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             return customerEnvironments;
         }
 
-        /// <summary>
-        /// Setup Message Bus Transport
-        /// </summary>
-        /// <returns>An instance of Message Bus transport</returns>
-        public async Task<Transport> GetMessageBusTransport()
-        {
-            if (_transport != null)
-            {
-                return _transport;
-            }
-
-            await _transportLock.WaitAsync(TimeSpan.FromSeconds(30));
-
-            try
-            {
-                if (_transport != null)
-                {
-                    return _transport;
-                }
-
-                session.LogDebug($"Configuring message bus...");
-
-                // create new transport using the config
-                var applicationBootInformation = await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true);
-                TransportConfig transportConfig = JsonConvert.DeserializeObject<TransportConfig>(applicationBootInformation.TransportConfig);
-                transportConfig.ApplicationName = "Customer Portal Client (PortalSDK)";
-                transportConfig.TenantName = new JwtSecurityTokenHandler().ReadJwtToken(applicationBootInformation.MessageBusToken).Payload[jwtTenantNameKey].ToString();
-                transportConfig.SecurityToken = applicationBootInformation.MessageBusToken;
-                Transport messageBus = new Transport(transportConfig);
-                messageBus.SetDataGroupToken(applicationBootInformation.MessageBusDataGroupsToken);
-
-                // Register events
-                messageBus.Connected += () =>
-                {
-                    session.LogDebug("Message Bus Connect!");
-                };
-
-                messageBus.Disconnected += () =>
-                {
-                    session.LogDebug("Message Bus Disconnected!");
-                };
-
-                messageBus.InformationMessage += (string message) =>
-                {
-                    session.LogDebug(message);
-                };
-
-                messageBus.Exception += (string message) =>
-                {
-                    session.LogError(new Exception(message));
-                };
-
-                // start the message bus and ensure that it is connected
-                messageBus.Start();
-
-                bool failedConnection = false;
-                TimeSpan timeout = TimeSpan.FromSeconds(15);
-                using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
-                {
-                    failedConnection = await Task.Run(async () =>
-                    {
-                        while (!messageBus.IsConnected)
-                        {
-                            try
-                            {
-                                await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSource.Token);
-                            }
-                            catch (TaskCanceledException)
-                            {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-                }
-
-                // if we failed to setup the message bus, throw error
-                if (failedConnection)
-                {
-                    Exception error = new Exception("Timed out waiting for client to connect to MessageBus");
-                    session.LogError(error);
-                    throw error;
-                }
-
-                session.LogDebug("Message Bus connected with success!");
-
-                _transport = messageBus;
-            }
-            finally
-            {
-                _transportLock.Release();
-            }
-
-            return _transport;
-        }
+        
         /// Gets object by Id
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
@@ -372,7 +272,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <returns>Current user</returns>
         public async Task<User> GetCurrentUser()
         {
-            var result = await new Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects.GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true);
+            var result = await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true);
             return result.User;
         }
 
@@ -487,19 +387,16 @@ namespace Cmf.CustomerPortal.Sdk.Common
         }
 
         /// <summary>
-        /// Starts the uninstallation of an application, given its id and the options to remove deployments and volumes.
+        /// Starts the uninstallation of an application, given its id and options <see cref="StartAppUninstallInput"/>.
         /// </summary>
-        /// <param name="appId"></param>
-        /// <param name="removeDeployments"></param>
-        /// <param name="removeVolumes"></param>
-        /// <returns></returns>
-        public async Task StartAppUninstall(long appId, bool removeDeployments, bool removeVolumes)
+        public async Task StartAppUninstall(long appId, bool removeDeployments, bool removeVolumes, bool undeploy)
         {
             await new StartAppUninstallInput
             {
                 CustomerEnvironmentApplicationPackageId = appId,
                 RemoveDeployments = removeDeployments,
                 RemoveVolumes = removeVolumes,
+                Undeploy = undeploy,
             }.StartAppUninstallAsync(true);
         }
     }

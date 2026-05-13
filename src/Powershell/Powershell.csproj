@@ -9,7 +9,7 @@
     <None Include="..\Version.props" Link="Version.props" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0" />
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />

@@ -215,7 +215,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         }
     
 
-        public async Task<CustomerEnvironment> GetLastNonNotDeployedCustomerEnvironmentVersion(string customerEnvironmentName)
+        public async Task<CustomerEnvironment?> GetLastNonNotDeployedCustomerEnvironmentVersion(string customerEnvironmentName)
         {
 
             QueryObject query = new QueryObject

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Cmf.Foundation.BusinessOrchestration.ApplicationSettingManagement.InputObjects;
+using Cmf.MessageBus;
 using Cmf.MessageBus.Client;
 
 namespace Cmf.CustomerPortal.Sdk.Common;
@@ -75,37 +76,31 @@ public partial class CustomerPortalClient
 
             messageBus.Exception += message => { session.LogError(new Exception(message)); };
 
-            // start the message bus and ensure that it is connected
-            messageBus.Start();
+            // start the message bus and wait up to 15s for connection
+            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Connection.ConnectHandler onConnected = () => tcs.TrySetResult(true);
+            messageBus.Connected += onConnected;
 
-            bool failedConnection = false;
-            TimeSpan timeout = TimeSpan.FromSeconds(15);
-            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(timeout))
+            bool connected;
+            try
             {
-                failedConnection = await Task.Run(
-                    async () =>
-                    {
-                        while (!messageBus.IsConnected)
-                        {
-                            try
-                            {
-                                await Task.Delay(TimeSpan.FromSeconds(0.1), cancellationTokenSource.Token);
-                            }
-                            catch (TaskCanceledException)
-                            {
-                                return true;
-                            }
-                        }
+                messageBus.Start();
+                if (!messageBus.IsConnected)
+                {
+                    await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(15)));
+                }
 
-                        return false;
-                    }
-                );
+                connected = messageBus.IsConnected;
+            }
+            finally
+            {
+                messageBus.Connected -= onConnected;
             }
 
             // if we failed to setup the message bus, throw error
-            if (failedConnection)
+            if (!connected)
             {
-                Exception error = new Exception("Timed out waiting for client to connect to MessageBus");
+                var error = new TimeoutException("Timed out waiting for client to connect to MessageBus");
                 session.LogError(error);
                 throw error;
             }

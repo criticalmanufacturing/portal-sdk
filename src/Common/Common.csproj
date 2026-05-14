@@ -15,7 +15,11 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
-    <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.1.1" />
+    <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.1.1"/>
+
+    <!-- Runtime-only deps for Cmf.LightBusinessObjects.dll -->
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" ExcludeAssets="compile" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" ExcludeAssets="compile" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Cmf.LightBusinessObjects">
@@ -26,9 +30,6 @@
     </Reference>
     <Reference Include="Cmf.MessageBus.Client">
       <HintPath>libs\Cmf.MessageBus.Client.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>libs\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SuperSocket.ClientEngine">
       <HintPath>libs\SuperSocket.ClientEngine.dll</HintPath>

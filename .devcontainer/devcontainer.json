@@ -8,7 +8,13 @@
         "ghcr.io/devcontainers/features/node": {
             "version": "lts"
         },
-        "ghcr.io/devcontainers/features/github-cli": {}
+        "ghcr.io/devcontainers/features/github-cli": {},
+        "ghcr.io/nils-geistmann/devcontainers-features/zsh": {
+            "plugins": "git dotnet node npm dotenv"
+        }
+    },
+    "containerEnv": {
+        "ZSH_DOTENV_PROMPT": "false"
     },
     "customizations": {
         "vscode": {
@@ -16,6 +22,11 @@
                 "ms-dotnettools.csdevkit",
                 "ms-dotnettools.csharp"
             ]
+        },
+        "settings": {
+            "dotnet.solution.autoOpen": "Cmf.CustomerPortal.Sdk.sln",
+            "dotnet.projectsystem.cacheInProjectFolder": false,
+            "csharp.experimental.debug.hotReload": true
         }
     },
     "postCreateCommand": "echo \"alias 'cmf-portal=src/Console/bin/Debug/net10.0/cmf-portal'\" >> /home/vscode/.bashrc"

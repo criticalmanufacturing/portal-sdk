@@ -60,9 +60,8 @@ public class EnvironmentDeploymentHandler(
         session.LogDebug($"Subscribing messagebus subject {subject}");
 
         // initialize tracker (typed parsing built-in)
-        var _progressTracker = deploymentProgressTrackerFactory.CreateEnvironmentDeploymentTracker();
-
-        messageBus.Subscribe(subject, _progressTracker.ProcessDeploymentMessage);
+        var progressTracker = deploymentProgressTrackerFactory.CreateEnvironmentDeploymentTracker();
+        messageBus.Subscribe(subject, progressTracker.ProcessDeploymentMessage);
 
         // start deployment
         var startDeploymentInput = new StartDeploymentInput
@@ -97,11 +96,11 @@ public class EnvironmentDeploymentHandler(
             CancellationTokenSource _cancellationTokenDeploymentQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
             CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, _cancellationTokenDeploymentQueued.Token);
 
-            await Task.Run(() => _progressTracker.ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
+            await Task.Run(() => progressTracker.ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
 
             while (!this._isDeploymentFinished)
             {
-                if (_progressTracker.HasStarted && _cancellationTokenDeploymentQueued != null && !_cancellationTokenDeploymentQueued.IsCancellationRequested)
+                if (progressTracker.HasStarted && _cancellationTokenDeploymentQueued != null && !_cancellationTokenDeploymentQueued.IsCancellationRequested)
                 {
                     _cancellationTokenDeploymentQueued.Cancel();
                     compositeTokenSourceWithDeploymentQueued.Dispose();
@@ -146,9 +145,9 @@ public class EnvironmentDeploymentHandler(
                     }
                 }
 
-                if (_progressTracker.HasFinished)
+                if (progressTracker.HasFinished)
                 {
-                    if (_progressTracker.HasFailed)
+                    if (progressTracker.HasFailed)
                     {
                         _hasDeploymentFailed = true;
                     }

@@ -75,16 +75,16 @@ public class EnvironmentDeploymentStatusAdapter : IDeploymentStatusAdapter<Deplo
     public bool IsFinished(DeploymentStatus status, out bool isFailed)
     {
         isFailed = false;
-        if (status is DeploymentStatus.DeploymentFailed)
+        switch (status)
         {
-            isFailed = true;
-            return true;
+            case DeploymentStatus.DeploymentFailed:
+                isFailed = true;
+                return true;
+            case DeploymentStatus.DeploymentPartiallySucceeded or DeploymentStatus.DeploymentSucceeded:
+                return true;
+            default:
+                return false;
         }
-        if (status is DeploymentStatus.DeploymentPartiallySucceeded or DeploymentStatus.DeploymentSucceeded)
-        {
-            return true;
-        }
-        return false;
     }
 }
 

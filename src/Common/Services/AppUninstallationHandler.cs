@@ -29,10 +29,8 @@ public class AppUninstallationHandler(
         session.LogDebug($"Subscribing messagebus subject {subject}");
 
         // initialize tracker with adapter for app uninstallation
-        // var _progressTracker = new DeploymentProgressTracker<AppInstallationStatus>(session, new AppUninstallationStatusAdapter());
-        var _progressTracker = deploymentProgressTrackerFactory.CreateAppUninstallationTracker();
-
-        messageBus.Subscribe(subject, _progressTracker.ProcessDeploymentMessage);
+        var progressTracker = deploymentProgressTrackerFactory.CreateAppUninstallationTracker();
+        messageBus.Subscribe(subject, progressTracker.ProcessDeploymentMessage);
 
         await customerPortalClient.StartAppUninstall(customerEnvironmentApplicationPackage.Id, true, true, undeploy);
 
@@ -53,11 +51,11 @@ public class AppUninstallationHandler(
             CancellationTokenSource cancellationTokenUninstallationQueued = new CancellationTokenSource(timeoutToGetSomeMBMessageTask);
             CancellationTokenSource compositeTokenSourceWithDeploymentQueued = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenMainTask.Token, cancellationTokenMBMessageReceived.Token, cancellationTokenUninstallationQueued.Token);
 
-            await Task.Run(() => _progressTracker.ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
+            await Task.Run(() => progressTracker.ShowLoadingIndicator(compositeTokenSourceWithDeploymentQueued.Token));
 
             while (!isUninstallationFinished)
             {
-                if (_progressTracker.HasStarted && cancellationTokenUninstallationQueued != null && !cancellationTokenUninstallationQueued.IsCancellationRequested)
+                if (progressTracker.HasStarted && cancellationTokenUninstallationQueued != null && !cancellationTokenUninstallationQueued.IsCancellationRequested)
                 {
                     cancellationTokenUninstallationQueued.Cancel();
                     compositeTokenSourceWithDeploymentQueued.Dispose();
@@ -99,9 +97,9 @@ public class AppUninstallationHandler(
                     }
                 }
 
-                if (_progressTracker.HasFinished)
+                if (progressTracker.HasFinished)
                 {
-                    if (_progressTracker.HasFailed)
+                    if (progressTracker.HasFailed)
                     {
                         hasUninstallationFailed = true;
                     }

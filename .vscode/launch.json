@@ -60,6 +60,19 @@
             "stopAtEntry": false
         },
         {
+            "name": "Deploy",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/Console/bin/Debug/net10.0/cmf-portal.dll",
+            "envFile": "${workspaceFolder}/.env",
+            "args": [
+                "deploy",
+                "--name", ""
+            ]
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"

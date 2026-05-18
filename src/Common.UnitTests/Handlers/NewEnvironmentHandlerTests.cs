@@ -365,4 +365,161 @@ public class NewEnvironmentHandlerTests
         var verifyTimes = shouldCallCreate ? Times.Once() : Times.Never();
         customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(customerEnvironment), verifyTimes);
     }
+
+    [Fact]
+    public async Task Run_TargetIsNull_ThrowsArgumentNullExceptionWhenCreatingForInfrastructure()
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+        var ciName = "test-infrastructure";
+
+        var newEnvironmentHandler = mock.Create<NewEnvironmentHandler>();
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<ArgumentNullException>(() => newEnvironmentHandler.Run(
+            name: "test-env",
+            parameters: null,
+            environmentType: EnvironmentType.Development,
+            siteName: "test-site",
+            licensesNames: ["license1"],
+            deploymentPackageName: "package1",
+            target: null,  // null target
+            outputDir: outputDir,
+            replaceTokens: [],
+            interactive: false,
+            customerInfrastructureName: ciName,
+            description: null,
+            terminateOtherVersions: false,
+            isInfrastructureAgent: false,
+            minutesTimeoutMainTask: null,
+            minutesTimeoutToGetSomeMBMsg: null,
+            terminateOtherVersionsRemove: false,
+            terminateOtherVersionsRemoveVolumes: false
+        ));
+
+        Assert.Equal("target", ex.ParamName);
+        Assert.Contains("Deployment Target is mandatory", ex.Message);
+    }
+
+    [Fact]
+    public async Task Run_TargetIsNull_ThrowsArgumentNullExceptionWhenCreatingStandalone()
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+
+        var newEnvironmentHandler = mock.Create<NewEnvironmentHandler>();
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<ArgumentNullException>(() => newEnvironmentHandler.Run(
+            name: "test-env",
+            parameters: null,
+            environmentType: EnvironmentType.Development,
+            siteName: "test-site",
+            licensesNames: ["license1"],
+            deploymentPackageName: "package1",
+            target: null,  // null target
+            outputDir: outputDir,
+            replaceTokens: [],
+            interactive: false,
+            customerInfrastructureName: string.Empty,  // not creating for infrastructure
+            description: null,
+            terminateOtherVersions: false,
+            isInfrastructureAgent: false,
+            minutesTimeoutMainTask: null,
+            minutesTimeoutToGetSomeMBMsg: null,
+            terminateOtherVersionsRemove: false,
+            terminateOtherVersionsRemoveVolumes: false
+        ));
+
+        Assert.Equal("target", ex.ParamName);
+        Assert.Contains("Deployment Target is mandatory", ex.Message);
+    }
+
+    [Theory]
+    [InlineData("", "standalone")]
+    [InlineData("test-infrastructure", "customer infrastructure")]
+    public async Task Run_DeploymentPackageIsMissing_ThrowsArgumentNullExceptionWhenCreating(string infrastructureName, string _)
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+        var newEnvironmentHandler = mock.Create<NewEnvironmentHandler>();
+
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<ArgumentNullException>(() => newEnvironmentHandler.Run(
+            name: "test-env",
+            parameters: null,
+            environmentType: EnvironmentType.Development,
+            siteName: "test-site",
+            licensesNames: ["license1"],
+            deploymentPackageName: null,
+            target: DeploymentTarget.KubernetesOnPremisesTarget,
+            outputDir: outputDir,
+            replaceTokens: [],
+            interactive: false,
+            customerInfrastructureName: infrastructureName,
+            description: null,
+            terminateOtherVersions: false,
+            isInfrastructureAgent: false,
+            minutesTimeoutMainTask: null,
+            minutesTimeoutToGetSomeMBMsg: null,
+            terminateOtherVersionsRemove: false,
+            terminateOtherVersionsRemoveVolumes: false
+        ));
+
+        Assert.Equal("deploymentPackageName", ex.ParamName);
+        Assert.Contains("Deployment Package is mandatory", ex.Message);
+    }
+
+    [Fact]
+    public async Task Run_TargetIsNull_ThrowsNullReferenceExceptionWhenUpdatingExistingEnvironment()
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+
+        var existingEnvironment = new CustomerEnvironment
+        {
+            Name = "test-env",
+            UniversalState = UniversalState.Created,
+            Status = DeploymentStatus.DeploymentSucceeded
+        };
+
+        var customerEnvironmentServicesMock = mock.Mock<ICustomerEnvironmentServices>();
+        customerEnvironmentServicesMock
+            .Setup(x => x.GetCustomerEnvironment("test-env"))
+            .ReturnsAsync(existingEnvironment);
+        customerEnvironmentServicesMock
+            .Setup(x => x.UpdateEnvironment(It.IsAny<CustomerEnvironment>()))
+            .ReturnsAsync(existingEnvironment);
+
+        mock.Mock<IEnvironmentUtilities>()
+            .Setup(x => x.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()))
+            .Returns(Task.CompletedTask);
+
+        var newEnvironmentHandler = mock.Create<NewEnvironmentHandler>();
+
+        // Act & Assert - Should throw because target is null but required for environmentDeploymentHandler.Handle
+        var ex = await Assert.ThrowsAsync<NullReferenceException>(() => newEnvironmentHandler.Run(
+            name: "test-env",
+            parameters: null,
+            environmentType: EnvironmentType.Development,
+            siteName: null,
+            licensesNames: [],
+            deploymentPackageName: null,
+            target: null,  // null target
+            outputDir: outputDir,
+            replaceTokens: [],
+            interactive: false,
+            customerInfrastructureName: string.Empty,
+            description: null,
+            terminateOtherVersions: false,
+            isInfrastructureAgent: false,
+            minutesTimeoutMainTask: null,
+            minutesTimeoutToGetSomeMBMsg: null,
+            terminateOtherVersionsRemove: false,
+            terminateOtherVersionsRemoveVolumes: false
+        ));
+
+        // Verify that we got to the point where we tried to use target.Value
+        customerEnvironmentServicesMock.Verify(x => x.GetCustomerEnvironment("test-env"), Times.Once);
+    }
 }

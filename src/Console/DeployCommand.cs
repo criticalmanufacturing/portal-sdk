@@ -23,12 +23,12 @@ namespace Cmf.CustomerPortal.Sdk.Console
         {
             Add(new Option<string>(new[] { "--site", "-s", }, Resources.DEPLOYMENT_SITE_HELP)
             {
-                IsRequired = true
+                IsRequired = false
             });
 
             Add(new Option<string>(new[] { "--package", "-pck", }, Resources.DEPLOYMENT_PACKAGE_HELP)
             {
-                IsRequired = true
+                IsRequired = false
             });
 
             var licensesOpt = new Option<string[]>(
@@ -39,7 +39,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
                     return arg.Tokens.Single().Value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
                 })
             {
-                IsRequired = true
+                IsRequired = false
             };
             licensesOpt.AddSuggestions("License 1,License 2");
             licensesOpt.AddValidator(optionResult =>
@@ -81,10 +81,14 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
+            DeploymentTarget? target = string.IsNullOrWhiteSpace(parameters.Target)
+                ? null
+                : Enum.Parse<DeploymentTarget>(parameters.Target);
+
             await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site,
                 parameters.License,
                 parameters.Package,
-                (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
+                target, parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TerminateOtherVersions, false,
                 parameters.DeploymentTimeoutMinutes, parameters.DeploymentTimeoutMinutesToGetSomeMBMsg, parameters.TerminateOtherVersionsRemove, parameters.TerminateOtherVersionsRemoveVolumes);
         }

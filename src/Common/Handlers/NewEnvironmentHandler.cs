@@ -28,7 +28,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             string siteName,
             string[] licensesNames,
             string deploymentPackageName,
-            DeploymentTarget target,
+            DeploymentTarget? target,
             DirectoryInfo outputDir,
             string[] replaceTokens,
             bool interactive,
@@ -75,7 +75,10 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     environment.Description = description;
                 }
 
-                environment.DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target);
+                if (target.HasValue)
+                {
+                    environment.DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target.Value);
+                }
                 environment.ChangeSet = null;
 
                 // check environment connection
@@ -112,19 +115,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, check if we are creating a new environment for an infrastructure
             else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
             {
-                ProductSite environmentSite = null;
-                // If we are creating in an infrastructure, and we are not creating the agent, the user must define the site for the environment
-                if (!isInfrastructureAgent)
+                // if we are creating an environment, we need to validate that some options are provided
+                ValidateCustomerEnvironmentArgs(target, siteName, deploymentPackageName, isInfrastructureAgent);
+
+                ProductSite environmentSite = null;                
+                // If the user defined a site, load it
+                if (!string.IsNullOrEmpty(siteName))
                 {
-                    // If the user defined a site, load it
-                    if (!string.IsNullOrEmpty(siteName))
-                    {
-                        environmentSite = await customerPortalClient.GetObjectByName<ProductSite>(siteName);
-                    }
-                    else
-                    {
-                        throw new ArgumentNullException(nameof(siteName), "Name of the Site is mandatory to create a Customer Environment");
-                    }
+                    environmentSite = await customerPortalClient.GetObjectByName<ProductSite>(siteName);
                 }
 
                 environment = new CustomerEnvironment
@@ -133,7 +131,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Description = description,
                     Parameters = rawParameters,
                     EnvironmentType = environmentType.ToString(),
-                    DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target),
+                    DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target.Value),
                     Site = environmentSite,
                 };
 
@@ -155,6 +153,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, just create a new environment
             else
             {
+                ValidateCustomerEnvironmentArgs(target, siteName, deploymentPackageName, isInfrastructureAgent);
+
                 Session.LogInformation($"Creating customer environment {name}...");
 
                 environment = new CustomerEnvironment
@@ -162,7 +162,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     EnvironmentType = environmentType.ToString(),
                     Site = isInfrastructureAgent ? null : await customerPortalClient.GetObjectByName<ProductSite>(siteName),
                     Name = name,
-                    DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target),
+                    DeploymentTarget = newEnvironmentUtilities.GetDeploymentTargetValue(target.Value),
                     Parameters = rawParameters
                 };
 
@@ -196,6 +196,36 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             // check environment connection
             await newEnvironmentUtilities.CheckEnvironmentConnection(newEnvironment);
+        }
+
+        /// <summary>
+        /// Validate the arguments for the creation of a new environment
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="siteName"></param>
+        /// <param name="deploymentPackageName"></param>
+        /// <param name="licensesNames"></param>
+        /// <param name="isInfrastructureAgent"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        private void ValidateCustomerEnvironmentArgs(DeploymentTarget? target, string siteName, string deploymentPackageName, bool isInfrastructureAgent)
+        {
+            if (!target.HasValue)
+            {
+                throw new ArgumentNullException(nameof(target), "Deployment Target is mandatory to create a new Customer Environment.");
+            }
+
+            if (!isInfrastructureAgent)
+            {
+                if (string.IsNullOrEmpty(siteName))
+                {
+                    throw new ArgumentNullException(nameof(siteName), "Name of the Site is mandatory to create a Customer Environment");
+                }
+
+                if (string.IsNullOrEmpty(deploymentPackageName))
+                {
+                    throw new ArgumentNullException(nameof(deploymentPackageName), "Deployment Package is mandatory to create a new Customer Environment for a customer infrastructure.");
+                }
+            }
         }
     }
 }

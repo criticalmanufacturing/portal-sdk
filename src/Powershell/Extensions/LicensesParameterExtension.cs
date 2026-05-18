@@ -15,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
         {
             LicensesParamAttr = new ParameterAttribute
             {
-                Mandatory = true,
+                Mandatory = false,
                 HelpMessage = Resources.DEPLOYMENT_LICENSES_HELP
             };
         }

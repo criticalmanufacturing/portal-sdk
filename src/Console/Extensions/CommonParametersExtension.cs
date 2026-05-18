@@ -31,11 +31,10 @@ namespace Cmf.CustomerPortal.Sdk.Console.Extensions
             });
 
             var targetArgument = new Argument<string>().FromAmong(Enum.GetNames(typeof(DeploymentTarget)));
-            targetArgument.SetDefaultValue(DeploymentTarget.dockerswarm.ToString());
             command.Add(new Option<string>(new[] { "--target", "-trg", }, Resources.DEPLOYMENT_TARGET_HELP)
             {
                 Argument = targetArgument,
-                IsRequired = true
+                IsRequired = false
             });
 
             command.Add(new Option<DirectoryInfo>(new string[] { "--output", "-o" }, Resources.DEPLOYMENT_OUTPUTDIR_HELP));

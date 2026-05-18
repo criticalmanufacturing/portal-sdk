@@ -48,8 +48,12 @@ namespace Cmf.CustomerPortal.Sdk.Console
             // get new environment handler and run it
             CreateSession(parameters.Verbose);
             NewEnvironmentHandler newEnvironmentHandler = ServiceLocator.Get<NewEnvironmentHandler>();
+            DeploymentTarget? target = string.IsNullOrWhiteSpace(parameters.Target)
+                ? null
+                : Enum.Parse<DeploymentTarget>(parameters.Target);
+
             await newEnvironmentHandler.Run(parameters.Name, parameters.Parameters, (EnvironmentType)Enum.Parse(typeof(EnvironmentType), parameters.Type), parameters.Site, null, null,
-                (DeploymentTarget)Enum.Parse(typeof(DeploymentTarget), parameters.Target), parameters.Output,
+                target, parameters.Output,
                 parameters.ReplaceTokens, parameters.Interactive, parameters.CustomerInfrastructureName, parameters.Description, parameters.TerminateOtherVersions, true, parameters.DeploymentTimeoutMinutes,
                 parameters.DeploymentTimeoutMinutesToGetSomeMBMsg, parameters.TerminateOtherVersionsRemove, parameters.TerminateOtherVersionsRemoveVolumes);
         }

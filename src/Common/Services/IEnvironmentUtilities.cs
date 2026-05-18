@@ -36,6 +36,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
         /// </summary>
         /// <param name="customerEnvironmentName"></param>
         /// <returns></returns>
-        Task<CustomerEnvironment> GetLastNonNotDeployedCustomerEnvironmentVersion(string customerEnvironmentName);
+        Task<CustomerEnvironment?> GetLastNonNotDeployedCustomerEnvironmentVersion(string customerEnvironmentName);
     }
 }

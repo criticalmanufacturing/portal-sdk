@@ -17,6 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<ILicenseServices, LicenseServices>();
             serviceCollection.AddTransient<IQueryProxyService, QueryProxyService>();
             serviceCollection.AddTransient<IAppUninstallationHandler, AppUninstallationHandler>();
+            serviceCollection.AddTransient<IDeploymentProgressTrackerFactory, DeploymentProgressTrackerFactory>();
 
             // Add Handlers
             serviceCollection.AddTransient<Handlers.NewEnvironmentHandler>();

@@ -101,11 +101,9 @@ public class AppInstallationStatusAdapter : IDeploymentStatusAdapter<AppInstalla
         switch (status)
         {
             case AppInstallationStatus.InstallationFailed:
-            case AppInstallationStatus.UninstallationFailed:
                 isFailed = true;
                 return true;
             case AppInstallationStatus.InstallationSucceeded:
-            case AppInstallationStatus.UninstallationSucceeded:
                 return true;
             default:
                 return false;

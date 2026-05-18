@@ -13,6 +13,7 @@ public class AppUninstallationHandler(
 {
     public async Task Handle(
         CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage,
+        bool removeVolumes = false,
         bool undeploy = false,
         double? timeoutMinutesMainTask = null,
         double? timeoutMinutesToGetSomeMBMsg = null
@@ -32,7 +33,7 @@ public class AppUninstallationHandler(
         var progressTracker = deploymentProgressTrackerFactory.CreateAppUninstallationTracker();
         messageBus.Subscribe(subject, progressTracker.ProcessDeploymentMessage);
 
-        await customerPortalClient.StartAppUninstall(customerEnvironmentApplicationPackage.Id, true, true, undeploy);
+        await customerPortalClient.StartAppUninstall(customerEnvironmentApplicationPackage.Id, true, undeploy || removeVolumes, undeploy);
 
         var isUninstallationFinished = false;
         var hasUninstallationFailed = false;

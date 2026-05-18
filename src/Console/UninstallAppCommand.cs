@@ -23,6 +23,10 @@ class UninstallAppCommand : BaseCommand
         {
             IsRequired = true
         });
+        
+        Add(new Option<bool>(new[] { "--terminateOtherVersionsRemove", "-tovr" }, Resources.APP_UNINSTALL_REMOVE_HELP));
+
+        Add(new Option<bool>(new[] { "--terminateOtherVersionsRemoveVolumes", "-tovrv", "--removeVolumes" }, Resources.APP_UNINSTALL_REMOVE_VOLUMES_HELP));
 
         Add(new Option<bool>(["--undeploy"], Resources.APP_UNDEPLOY_HELP));
             
@@ -43,6 +47,7 @@ class UninstallAppCommand : BaseCommand
         bool verbose,
         string name,
         string customerEnvironment,
+        bool terminateOtherVersionsRemoveVolumes,
         bool undeploy,
         double? timeout,
         double? timeoutToGetSomeMBMsg = null
@@ -53,6 +58,7 @@ class UninstallAppCommand : BaseCommand
         await uninstallAppHandler.Run(
             name,
             customerEnvironment,
+            terminateOtherVersionsRemoveVolumes,
             undeploy,
             timeout,
             timeoutToGetSomeMBMsg

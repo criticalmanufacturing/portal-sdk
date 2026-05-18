@@ -15,6 +15,12 @@ public class UninstallApp : BaseCmdlet<UninstallAppHandler>
     [Parameter(HelpMessage = Resources.APP_NAME_HELP, Mandatory = true)]
     public string CustomerEnvironment { get; set; }
 
+    [Parameter(HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP)]
+    public SwitchParameter TerminateOtherVersionsRemove; // unused, kept for compatibility
+
+    [Parameter(HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP)]
+    public SwitchParameter TerminateOtherVersionsRemoveVolumes;
+    
     [Parameter(HelpMessage = Resources.APP_UNDEPLOY_HELP)]
     public SwitchParameter Undeploy { get; set; }
 
@@ -32,6 +38,7 @@ public class UninstallApp : BaseCmdlet<UninstallAppHandler>
         await uninstallAppHandler.Run(
             Name,
             CustomerEnvironment,
+            TerminateOtherVersionsRemoveVolumes,
             Undeploy,
             DeploymentTimeoutMinutes,
             DeploymentTimeoutMinutesToGetSomeMBMsg

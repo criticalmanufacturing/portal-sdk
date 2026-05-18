@@ -15,6 +15,7 @@ public class UninstallAppHandler(
     public async Task Run(
         string appName,
         string customerEnvironmentName,
+        bool removeVolumes,
         bool undeploy,
         double? timeout,
         double? timeoutToGetSomeMBMessage = null
@@ -97,6 +98,7 @@ public class UninstallAppHandler(
 
         await appUninstallationHandler.Handle(
             customerEnvironmentApplicationPackage,
+            removeVolumes,
             undeploy,
             timeout,
             timeoutToGetSomeMBMessage

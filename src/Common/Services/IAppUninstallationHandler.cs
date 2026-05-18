@@ -7,6 +7,7 @@ public interface IAppUninstallationHandler
 {
     Task Handle(
         CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage,
+        bool removeVolumes = false,
         bool undeploy = false,
         double? timeoutMinutesMainTask = null,
         double? timeoutMinutesToGetSomeMBMsg = null

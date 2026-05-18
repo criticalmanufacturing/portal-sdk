@@ -136,7 +136,7 @@ public class AppUninstallationHandlerTests
         );
 
         _customerPortalClientMock.Verify(
-            c => c.StartAppUninstall(ceap.Id, true, true, false),
+            c => c.StartAppUninstall(ceap.Id, true, false, false),
             Times.Once
         );
     }
@@ -209,7 +209,7 @@ public class AppUninstallationHandlerTests
             .Callback(() => calls.Add("subscribe"));
 
         _customerPortalClientMock
-            .Setup(c => c.StartAppUninstall(123, true, true, false))
+            .Setup(c => c.StartAppUninstall(123, true, false, false))
             .Callback(() => calls.Add("start-uninstall"))
             .Returns(Task.CompletedTask);
 
@@ -228,6 +228,7 @@ public class AppUninstallationHandlerTests
         // Act
         await _handler.Handle(
             ceap,
+            removeVolumes: false,
             undeploy: false,
             timeoutMinutesMainTask: null,
             timeoutMinutesToGetSomeMBMsg: null
@@ -248,6 +249,7 @@ public class AppUninstallationHandlerTests
         // Act
         await _handler.Handle(
             ceap,
+            removeVolumes: false,
             undeploy: undeploy,
             timeoutMinutesMainTask: null,
             timeoutMinutesToGetSomeMBMsg: null
@@ -258,7 +260,40 @@ public class AppUninstallationHandlerTests
             c => c.StartAppUninstall(
                 123,
                 removeDeployments: true,
-                removeVolumes: true,
+                removeVolumes: undeploy,
+                undeploy: undeploy
+            ),
+            Times.Once
+        );
+    }
+    
+    [Theory]
+    [InlineData(true,     false,         true)]   // forced by undeploy
+    [InlineData(false,    false,         false)]  // pass-through (false)
+    [InlineData(false,    true,          true)]   // pass-through (true)
+    public async Task Handle_RemoveVolumes_IsForcedByUndeploy_OtherwisePassthrough(
+        bool undeploy,
+        bool removeVolumes,
+        bool expectedRemoveVolumes)
+    {
+        // Arrange
+        var ceap = ArrangeHandler();
+
+        // Act
+        await _handler.Handle(
+            ceap,
+            removeVolumes: removeVolumes,
+            undeploy: undeploy,
+            timeoutMinutesMainTask: null,
+            timeoutMinutesToGetSomeMBMsg: null
+        );
+
+        // Assert
+        _customerPortalClientMock.Verify(
+            c => c.StartAppUninstall(
+                123,
+                removeDeployments: true,
+                removeVolumes: expectedRemoveVolumes,
                 undeploy: undeploy
             ),
             Times.Once

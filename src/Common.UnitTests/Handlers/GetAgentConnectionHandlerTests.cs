@@ -1,0 +1,70 @@
+using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Common.Handlers;
+using Cmf.CustomerPortal.Sdk.Common.Services;
+using Moq;
+
+namespace Common.UnitTests.Handlers;
+
+public class GetAgentConnectionHandlerTests
+{
+    private readonly Mock<ICustomerPortalClient> _customerPortalClientMock = new();
+    private readonly Mock<ISession> _sessionMock = new();
+    private readonly Mock<ICustomerEnvironmentServices> _customerEnvironmentServicesMock = new();
+
+    private readonly GetAgentConnectionHandler _handler;
+
+    public GetAgentConnectionHandlerTests()
+    {
+        _handler = new GetAgentConnectionHandler(
+            _customerPortalClientMock.Object,
+            _sessionMock.Object,
+            _customerEnvironmentServicesMock.Object);
+    }
+
+    [Fact]
+    public async Task Run_WhenAgentNameIsProvided_ChecksConnectionByAgent()
+    {
+        var agentName = "agent-a";
+        var definitionId = 1001010000060000044;
+        var agent = new CustomerEnvironment { DefinitionId = definitionId };
+
+        _customerPortalClientMock
+            .Setup(x => x.GetObjectByName<CustomerEnvironment>(agentName, 0))
+            .ReturnsAsync(agent);
+        _customerPortalClientMock
+            .Setup(x => x.CheckCustomerEnvironmentConnectionStatus(definitionId))
+            .ReturnsAsync(true);
+
+        var result = await _handler.Run(agentName, string.Empty);
+
+        Assert.True(result);
+        _sessionMock.Verify(x => x.RestoreSession(), Times.Once);
+        _customerPortalClientMock.Verify(x => x.GetObjectByName<CustomerEnvironment>(agentName, 0), Times.Once);
+        _customerPortalClientMock.Verify(x => x.GetCustomerInfrastructureAgentByCustomerEnvironment(It.IsAny<string>()), Times.Never);
+        _customerPortalClientMock.Verify(x => x.CheckCustomerEnvironmentConnectionStatus(definitionId), Times.Once);
+    }
+
+    [Fact]
+    public async Task Run_WhenCustomerEnvironmentNameIsProvided_ChecksConnectionByInfrastructureAgent()
+    {
+        var customerEnvironmentName = "dev-env";
+        var definitionId = 1001010000060000044;
+        var infrastructureAgent = new CustomerEnvironment { DefinitionId = definitionId };
+
+        _customerPortalClientMock
+            .Setup(x => x.GetCustomerInfrastructureAgentByCustomerEnvironment(customerEnvironmentName))
+            .ReturnsAsync(infrastructureAgent);
+        _customerPortalClientMock
+            .Setup(x => x.CheckCustomerEnvironmentConnectionStatus(definitionId))
+            .ReturnsAsync(false);
+
+        var result = await _handler.Run(string.Empty, customerEnvironmentName);
+
+        Assert.False(result);
+        _sessionMock.Verify(x => x.RestoreSession(), Times.Once);
+        _customerPortalClientMock.Verify(x => x.GetObjectByName<CustomerEnvironment>(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+        _customerPortalClientMock.Verify(x => x.GetCustomerInfrastructureAgentByCustomerEnvironment(customerEnvironmentName), Times.Once);
+        _customerPortalClientMock.Verify(x => x.CheckCustomerEnvironmentConnectionStatus(definitionId), Times.Once);
+    }
+}

@@ -45,7 +45,7 @@ public static class Resources
 
     public const string PUBLISHMANIFESTS_PATH_HELP = "Path to Deployment Package Manifest file, or folder to a folder containing multiple manifest files";
     public const string PUBLISHMANIFESTS_DATAGROUP_HELP = "Name of the datagroup to assign to the published deployment packages";
-
+    public const string GETAGENTCONNECTION_CUSTOMER_ENVIRONMENT_HELP = "The name of the Customer Environment associated with the Infrastructure Agent";
     public const string PUBLISHPACKAGE_PATH_HELP = "Path to Package zip file";
     public const string PUBLISHPACKAGE_DATAGROUP_HELP = "Name of the datagroup to assign to the published packages";
 

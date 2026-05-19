@@ -73,7 +73,7 @@ async function installPackage() {
     console.info(`Current platform / arch: ${process.platform} / ${process.arch}`);
 
     // Primary URL
-    const primaryUrl = new URL(`https://github.com/criticalmanufacturing/portal-sdk/releases/download/#{Version}#/Cmf.CustomerPortal.Sdk.Console-${process.env.npm_package_version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`);
+    const primaryUrl = new URL(`https://github.com/criticalmanufacturing/portal-sdk/releases/download/${process.env.npm_package_version}/Cmf.CustomerPortal.Sdk.Console-${process.env.npm_package_version}.${PLATFORM_MAPPING[process.platform]}-${ARCH_MAPPING[process.arch]}.zip`);
     
     // Fallback URLs
     const fallbackUrls = [

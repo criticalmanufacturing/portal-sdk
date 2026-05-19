@@ -77,12 +77,6 @@ jobs:
           
       - name: Add Console Linux64 to Nexus Repository
         run: curl -v --user "tfsproductbuild:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip https://criticalmanufacturing.io/repository/tools/Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip
-      # Replace Version token on NPM package.json
-      - name: Replace package.json Version token
-        run: cd npm && sed -i ''s/#{Version}#/${{ steps.getver.outputs.result }}/g'' package.json
-      # Replace Version token on NPM install.js
-      - name: Replace install.js Version token
-        run: cd npm && sed -i ''s/#{Version}#/${{ github.ref_name }}/g'' install.js
       # Setup Node.js environment
       - name: Setup Node.js environment
         uses: actions/setup-node@v2.4.1

@@ -25,7 +25,7 @@ public class EnvironmentDeploymentHandler(
     private bool _hasDeploymentFailed = false;
 
     #region Private Methods
-    private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget target, DirectoryInfo outputDir)
+    private async Task ProcessEnvironmentDeployment(CustomerEnvironment environment, DeploymentTarget? target, DirectoryInfo outputDir)
     {
         switch (target)
         {
@@ -45,7 +45,7 @@ public class EnvironmentDeploymentHandler(
     }
 
     #endregion
-    public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask, double? minutesTimeoutToGetSomeMBMsg = null)
+    public async Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget? deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask, double? minutesTimeoutToGetSomeMBMsg = null)
     {
         // assign the timeout of main task to deploy
         TimeSpan timeoutMainTask = minutesTimeoutMainTask > 0 ? TimeSpan.FromMinutes(minutesTimeoutMainTask.Value) : TimeSpan.FromHours(6); // same timeout as RING (6 hours)

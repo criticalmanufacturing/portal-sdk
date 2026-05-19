@@ -21,13 +21,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_SITE_HELP,
-            Mandatory = true
+            Mandatory = false
         )]
         public string SiteName { get; set; }
 
         [Parameter(
             HelpMessage = Resources.DEPLOYMENT_PACKAGE_HELP,
-            Mandatory = true
+            Mandatory = false
         )]
         public string DeploymentPackageName { get; set; }
 

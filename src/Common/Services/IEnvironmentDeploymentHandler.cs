@@ -7,7 +7,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
 {
     public interface IEnvironmentDeploymentHandler
     {
-        Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask = null, double? minutesTimeoutToGetSomeMBMsg = null);
+        Task Handle(bool interactive, CustomerEnvironment customerEnvironment, DeploymentTarget? deploymentTarget, DirectoryInfo outputDir, double? minutesTimeoutMainTask = null, double? minutesTimeoutToGetSomeMBMsg = null);
 
         /// <summary>
         /// Wait for the customer environments to finish termination (successfully or not) and return the ids of those that failed

@@ -99,6 +99,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 if (!isInfrastructureAgent && !string.IsNullOrWhiteSpace(deploymentPackageName))
                 {
                     // update Deployment Package
+                    // TODO: currently if package is specified licenses are mandatory,
+                    // we should allow updating the package without updating licenses,
+                    // in that case we would need to get the current licenses of the environment and pass them to the
                     await customerEnvironmentServices.UpdateDeploymentPackage(
                         environment,
                         await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),

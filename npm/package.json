@@ -1,6 +1,6 @@
 {
     "name": "@criticalmanufacturing/portal",
-    "version": "#{Version}#",
+    "version": "0.0.0",
     "description": "Critical Manufacturing Portal CLI",
     "author": "Critical Manufacturing, SA",
     "keywords": [
@@ -20,7 +20,10 @@
         "cmf-portal": "./bin/cmf-portal"
     },
     "scripts": {
-        "postinstall": "node install.js"
+        "postinstall": "node install.js",
+        "bump": "npm version \"$(grep -oPm1 '(?<=<Version>)[^<]+' ../src/Version.props)\"",
+        "prepublishOnly": "npm run bump && npm shrinkwrap",
+        "postpublish": "mv npm-shrinkwrap.json package-lock.json && npm version 0.0.0"
     },
     "os": [
         "win32",

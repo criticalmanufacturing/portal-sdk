@@ -352,3 +352,4 @@ MigrationBackup/
 .env
 *.lscache
 out/
+npm-shrinkwrap.json

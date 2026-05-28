@@ -287,6 +287,7 @@ Cmdlets:
 
 Examples:
 - `Get-AgentConnection <agent-name>` - Check if the Infrastructure Agent named <agent-name> is connected
+- `Get-AgentConnection -CustomerEnvironment <customer-environment>` - Check if the Infrastructure Agent associated with <customer-environment> is connected
 - `Get-AgentConnection` - Same as before but instead of inputting all the parameters upfront, the cmdlet will ask you to fill each parameter one by one. At any time you can type `!?` to get help for that parameter
 
 Below we will show the documentation for each cmdlet.
@@ -325,7 +326,9 @@ Equivalent to the console command <a href="#checkagentconnection">checkagentconn
 Usage: `Get-AgentConnection [options]`
 
 Options:  
-  - `-Name <agent-name>` - **REQUIRED** - The name of the Infrastructure Agent  
+  - `-Name <agent-name>` - The name of the Infrastructure Agent
+  - `-CustomerEnvironment <customer-environment>` - The name of the Customer Environment associated with the Infrastructure Agent
+  - Provide exactly one of `-Name` or `-CustomerEnvironment`
 
 ### New-Environment
 

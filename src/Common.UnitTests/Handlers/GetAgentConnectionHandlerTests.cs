@@ -18,8 +18,7 @@ public class GetAgentConnectionHandlerTests
     {
         _handler = new GetAgentConnectionHandler(
             _customerPortalClientMock.Object,
-            _sessionMock.Object,
-            _customerEnvironmentServicesMock.Object);
+            _sessionMock.Object);
     }
 
     [Fact]

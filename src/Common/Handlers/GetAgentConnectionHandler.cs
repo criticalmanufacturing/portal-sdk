@@ -1,19 +1,17 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
-using Cmf.CustomerPortal.Sdk.Common.Services;
 using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
     public class GetAgentConnectionHandler(
         ICustomerPortalClient customerPortalClient,
-        ISession session,
-        ICustomerEnvironmentServices customerEnvironmentServices)
+        ISession session)
         : AbstractHandler(session, true)
     {
-        public async Task<bool> Run(string agentName, string customerEnvironmentName = null)
+        public async Task<bool> Run(string agentName, string customerEnvironmentName = null!)
         {
             await EnsureLogin();
-             CustomerEnvironment agent = null;          
+            CustomerEnvironment agent = null!;          
 
             agent = !string.IsNullOrEmpty(agentName) 
                 ? await customerPortalClient.GetObjectByName<CustomerEnvironment>(agentName) 
@@ -23,8 +21,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             {
                 return false; // cases where environment exists but has no agent or infra associated
             }
-            return await customerPortalClient.CheckCustomerEnvironmentConnectionStatus(agent.DefinitionId); 
 
+            return await customerPortalClient.CheckCustomerEnvironmentConnectionStatus(agent.DefinitionId); 
         }
     }
 }

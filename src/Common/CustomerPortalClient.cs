@@ -542,11 +542,11 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     Name = "",
                     SourceEntity = "CustomerEnvironment",
                     SourceEntityAlias = "CustomerEnvironment_1",
-                    SourceJoinType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.JoinType.InnerJoin,
+                    SourceJoinType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.JoinType.LeftJoin,
                     SourceProperty = "CustomerInfrastructureId",
                     TargetEntity = "CustomerInfrastructure",
                     TargetEntityAlias = "CustomerEnvironment_CustomerInfrastructure_2",
-                    TargetJoinType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.JoinType.InnerJoin,
+                    TargetJoinType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.JoinType.LeftJoin,
                     TargetProperty = "Id"
                 }
                 ,
@@ -572,18 +572,43 @@ namespace Cmf.CustomerPortal.Sdk.Common
             if (dataSet?.Tables?.Count > 0 && dataSet?.Tables[0].Rows.Count > 0)
             {
                 var row = dataSet.Tables[0].Rows[0];
-                CustomerEnvironment infrastructureAgent = new()
+                CustomerEnvironment customerEnvironment = new()
                 {
-                    Id = (long)row["CustomerInfrastructureInfrastructureAgent_Id"],
-                    Name = (string)row["CustomerInfrastructureInfrastructureAgent_Name"],
-                    DefinitionId = (long)row["CustomerInfrastructureInfrastructureAgent_DefinitionId"],
-                    Revision = (string)row["CustomerInfrastructureInfrastructureAgent_Revision"],
+                    Id = (long)row["Id"],
+                    Name = (string)row["Name"],
+                    DefinitionId = (long)row["DefinitionId"],
+                    Revision = (string)row["Revision"]
                 };
-                return infrastructureAgent;
+                
+                if(!row.IsNull("CustomerInfrastructure_Id"))
+                {
+                    customerEnvironment.CustomerInfrastructure = new CustomerInfrastructure
+                    {
+                        Id = (long)row["CustomerInfrastructure_Id"],
+                    };
+                    
+                    if(!row.IsNull("CustomerInfrastructureInfrastructureAgent_Id"))
+                    {
+                        customerEnvironment.CustomerInfrastructure.InfrastructureAgent = new CustomerEnvironment
+                        {
+                            Id = (long)row["CustomerInfrastructureInfrastructureAgent_Id"],
+                            Name = (string)row["CustomerInfrastructureInfrastructureAgent_Name"],
+                            DefinitionId = (long)row["CustomerInfrastructureInfrastructureAgent_DefinitionId"],
+                            Revision = (string)row["CustomerInfrastructureInfrastructureAgent_Revision"],
+                        };
+                    }
+                }
+
+                if(customerEnvironment.CustomerInfrastructure == null || customerEnvironment.CustomerInfrastructure.InfrastructureAgent == null)
+                {
+                    return null!; // cases where environment exists but has no agent or infra associated
+                }
+
+                return customerEnvironment.CustomerInfrastructure.InfrastructureAgent;
             }
             else
             {
-                throw new NotFoundException($"No infrastructure agent found for customer environment with name {customerEnvironmentName}");
+                throw new NotFoundException($"No customer environment found for name {customerEnvironmentName}");
             }
         }
     }

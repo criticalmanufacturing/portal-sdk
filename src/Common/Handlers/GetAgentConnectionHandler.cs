@@ -18,7 +18,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             agent = !string.IsNullOrEmpty(agentName) 
                 ? await customerPortalClient.GetObjectByName<CustomerEnvironment>(agentName) 
                 : await customerPortalClient.GetCustomerInfrastructureAgentByCustomerEnvironment(customerEnvironmentName);
-
+            
+            if(agent == null )
+            {
+                return false; // cases where environment exists but has no agent or infra associated
+            }
             return await customerPortalClient.CheckCustomerEnvironmentConnectionStatus(agent.DefinitionId); 
 
         }

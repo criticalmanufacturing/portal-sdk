@@ -529,7 +529,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     ObjectName = "CustomerInfrastructure",
                     ObjectAlias = "CustomerEnvironment_CustomerInfrastructure_2",
                     IsUserAttribute = false,
-                    Name = "InfrastructureAgentId",
+                    Name = "CustomerInfrastructureId",
                     Position = 9,
                     Sort = Cmf.Foundation.Common.FieldSort.NoSort
                 }

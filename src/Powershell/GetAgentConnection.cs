@@ -6,19 +6,19 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
-    [Cmdlet(VerbsCommon.Get, "AgentConnection", DefaultParameterSetName = "ByName")]
+    [Cmdlet(VerbsCommon.Get, "AgentConnection")]
     public class GetAgentConnection : BaseCmdlet<GetAgentConnectionHandler>
     {
         [Parameter(
             Position = 0,
-            ParameterSetName = "ByName",
+            ParameterSetName = "Agent",
             Mandatory = true,
             HelpMessage = Resources.GETAGENTCONNECTION_NAME_HELP)]
         public string Name { get; set; }
 
         [Parameter(
             Position = 0,
-            ParameterSetName = "ByCustomerEnvironment",
+            ParameterSetName = "CustomerEnvironment",
             Mandatory = true,
             HelpMessage = Resources.GETAGENTCONNECTION_CUSTOMER_ENVIRONMENT_HELP)]
         public string CustomerEnvironment { get; set; }

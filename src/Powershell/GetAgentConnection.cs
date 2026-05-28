@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
-    [Cmdlet(VerbsCommon.Get, "AgentConnection")]
+    [Cmdlet(VerbsCommon.Get, "AgentConnection", DefaultParameterSetName = "Agent")]
     public class GetAgentConnection : BaseCmdlet<GetAgentConnectionHandler>
     {
         [Parameter(

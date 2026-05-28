@@ -28,9 +28,9 @@ using Cmf.Services.GenericServiceManagement;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
-    public partial class CustomerPortalClient(ISession session, IFileSystem fileSystem)  : ICustomerPortalClient
+    public partial class CustomerPortalClient(ISession session, IFileSystem fileSystem) : ICustomerPortalClient
     {
-     
+
         #region Private Methods
 
         private static DataSet NgpDataSetToDataSet(NgpDataSet ngpDataSet)
@@ -247,7 +247,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             return customerEnvironments;
         }
 
-        
+
         /// Gets object by Id
         /// </summary>
         /// <typeparam name="T">The object type</typeparam>
@@ -398,6 +398,218 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 RemoveVolumes = removeVolumes,
                 Undeploy = undeploy,
             }.StartAppUninstallAsync(true);
+        }
+
+        /// <summary>
+        /// Gets the infrastructure agent related to a customer environment, given the environment's name.
+        /// </summary>
+        /// <param name="customerEnvironmentName">Name of the customer environment.</param>
+        /// <returns>The infrastructure agent associated with the specified customer environment.</returns>
+        public async Task<CustomerEnvironment> GetCustomerInfrastructureAgentByCustomerEnvironment(string customerEnvironmentName)
+        {
+
+            QueryObject query = new QueryObject();
+            query.Description = "Gets the infrastructure agent related to a customer environment, given the environment's name.";
+            query.EntityTypeName = "CustomerEnvironment";
+            query.Name = "GetCustomerInfrastructureAgentByCustomerEnvironment";
+            query.Query = new Query();
+            query.Query.Distinct = false;
+            query.Query.Filters = new FilterCollection() {
+                new Filter()
+                {
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    Name = "Name",
+                    Value = customerEnvironmentName,
+                    Operator = FieldOperator.IsEqualTo
+                },
+                new Filter()
+                {
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    Name = "UniversalState",
+                    Value = UniversalState.Created,
+                    Operator = FieldOperator.IsEqualTo,
+                    LogicalOperator = LogicalOperator.AND
+                 },
+                new Filter()
+                {
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    Name = "Version",
+                    Value = 1,
+                    Operator = FieldOperator.GreaterThan,
+                    LogicalOperator = LogicalOperator.AND
+                 }
+            };
+            query.Query.Fields = new FieldCollection() {
+                new Field()
+                {
+                    Alias = "Id",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "Id",
+                    Position = 0,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "DefinitionId",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "DefinitionId",
+                    Position = 1,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "Revision",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "Revision",
+                    Position = 2,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "Name",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "Name",
+                    Position = 3,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "CustomerInfrastructureInfrastructureAgent_Id",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_CustomerInfrastructure_InfrastructureAgent",
+                    IsUserAttribute = false,
+                    Name = "Id",
+                    Position = 4,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "CustomerInfrastructureInfrastructureAgent_Name",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_CustomerInfrastructure_InfrastructureAgent",
+                    IsUserAttribute = false,
+                    Name = "Name",
+                    Position = 6,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "CustomerInfrastructureInfrastructureAgent_Revision",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_CustomerInfrastructure_InfrastructureAgent",
+                    IsUserAttribute = false,
+                    Name = "Revision",
+                    Position = 7,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "CustomerInfrastructureInfrastructureAgent_DefinitionId",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_CustomerInfrastructure_InfrastructureAgent",
+                    IsUserAttribute = false,
+                    Name = "DefinitionId",
+                    Position = 8,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "CustomerInfrastructure_Id",
+                    ObjectName = "CustomerInfrastructure",
+                    ObjectAlias = "CustomerEnvironment_CustomerInfrastructure_2",
+                    IsUserAttribute = false,
+                    Name = "CustomerInfrastructureId",
+                    Position = 9,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                }
+            };
+            query.Query.Relations = new RelationCollection() {
+                new Relation()
+                {
+                    Alias = "",
+                    IsRelation = false,
+                    Name = "",
+                    SourceEntity = "CustomerEnvironment",
+                    SourceEntityAlias = "CustomerEnvironment_1",
+                    SourceJoinType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.JoinType.LeftJoin,
+                    SourceProperty = "CustomerInfrastructureId",
+                    TargetEntity = "CustomerInfrastructure",
+                    TargetEntityAlias = "CustomerEnvironment_CustomerInfrastructure_2",
+                    TargetJoinType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.JoinType.LeftJoin,
+                    TargetProperty = "Id"
+                }
+                ,
+                new Relation()
+                {
+                    Alias = "",
+                    IsRelation = false,
+                    Name = "",
+                    SourceEntity = "CustomerInfrastructure",
+                    SourceEntityAlias = "CustomerEnvironment_CustomerInfrastructure_2",
+                    SourceJoinType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.JoinType.InnerJoin,
+                    SourceProperty = "InfrastructureAgentId",
+                    TargetEntity = "CustomerEnvironment",
+                    TargetEntityAlias = "CustomerEnvironment_CustomerInfrastructure_InfrastructureAgent",
+                    TargetJoinType = Cmf.Foundation.BusinessObjects.QueryObject.Enums.JoinType.InnerJoin,
+                    TargetProperty = "Id"
+                }
+            };
+
+
+            DataSet dataSet = await ExecuteQuery(query);
+
+            if (dataSet?.Tables?.Count > 0 && dataSet?.Tables[0].Rows.Count > 0)
+            {
+                var row = dataSet.Tables[0].Rows[0];
+                CustomerEnvironment customerEnvironment = new()
+                {
+                    Id = (long)row["Id"],
+                    Name = (string)row["Name"],
+                    DefinitionId = (long)row["DefinitionId"],
+                    Revision = (string)row["Revision"]
+                };
+                
+                if(!row.IsNull("CustomerInfrastructure_Id"))
+                {
+                    customerEnvironment.CustomerInfrastructure = new CustomerInfrastructure
+                    {
+                        Id = (long)row["CustomerInfrastructure_Id"],
+                    };
+                    
+                    if(!row.IsNull("CustomerInfrastructureInfrastructureAgent_Id"))
+                    {
+                        customerEnvironment.CustomerInfrastructure.InfrastructureAgent = new CustomerEnvironment
+                        {
+                            Id = (long)row["CustomerInfrastructureInfrastructureAgent_Id"],
+                            Name = (string)row["CustomerInfrastructureInfrastructureAgent_Name"],
+                            DefinitionId = (long)row["CustomerInfrastructureInfrastructureAgent_DefinitionId"],
+                            Revision = (string)row["CustomerInfrastructureInfrastructureAgent_Revision"],
+                        };
+                    }
+                }
+
+                if(customerEnvironment.CustomerInfrastructure == null || customerEnvironment.CustomerInfrastructure.InfrastructureAgent == null)
+                {
+                    return null!; // cases where environment exists but has no agent or infra associated
+                }
+
+                return customerEnvironment.CustomerInfrastructure.InfrastructureAgent;
+            }
+            else
+            {
+                throw new NotFoundException($"No customer environment found for name {customerEnvironmentName}");
+            }
         }
     }
 }

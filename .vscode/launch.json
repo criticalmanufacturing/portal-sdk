@@ -22,6 +22,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
+            "envFile": "${workspaceFolder}/.env",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/Console/bin/Debug/net10.0/cmf-portal.dll",
             "args": [
@@ -29,13 +30,6 @@
                 "-n", "myagent123",
                 "--verbose"
             ],
-            "env": {
-                "CM_PORTAL_TOKEN": ""
-            },
-            "cwd": "${workspaceFolder}/src/Console",
-            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-            "console": "internalConsole",
-            "stopAtEntry": false
         },
         {
             // Use IntelliSense to find out which attributes exist for C# debugging

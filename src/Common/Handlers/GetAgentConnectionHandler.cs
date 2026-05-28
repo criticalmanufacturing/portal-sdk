@@ -3,21 +3,26 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 {
-    public class GetAgentConnectionHandler : AbstractHandler
+    public class GetAgentConnectionHandler(
+        ICustomerPortalClient customerPortalClient,
+        ISession session)
+        : AbstractHandler(session, true)
     {
-        private readonly ICustomerPortalClient _customerPortalClient;
-
-        public GetAgentConnectionHandler(ICustomerPortalClient customerPortalClient, ISession session) : base(session, true)
-        {
-            _customerPortalClient = customerPortalClient;
-        }
-
-        public async Task<bool> Run(string agentName)
+        public async Task<bool> Run(string agentName, string customerEnvironmentName = null!)
         {
             await EnsureLogin();
+            CustomerEnvironment agent = null!;          
 
-            CustomerEnvironment agent = await _customerPortalClient.GetObjectByName<CustomerEnvironment>(agentName);
-            return await _customerPortalClient.CheckCustomerEnvironmentConnectionStatus(agent.DefinitionId);
+            agent = !string.IsNullOrEmpty(agentName) 
+                ? await customerPortalClient.GetObjectByName<CustomerEnvironment>(agentName) 
+                : await customerPortalClient.GetCustomerInfrastructureAgentByCustomerEnvironment(customerEnvironmentName);
+            
+            if(agent == null )
+            {
+                return false; // cases where environment exists but has no agent or infra associated
+            }
+
+            return await customerPortalClient.CheckCustomerEnvironmentConnectionStatus(agent.DefinitionId); 
         }
     }
 }

@@ -154,5 +154,12 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <returns></returns>
         public Task StartAppUninstall(long appId, bool removeDeployments, bool removeVolumes, bool undeploy);
 
+        /// <summary>
+        /// Gets the infrastructure agent related to a customer environment, given the environment's name.
+        /// </summary>
+        /// <param name="customerEnvironmentName">Name of the customer environment.</param>
+        /// <returns>The infrastructure agent associated with the specified customer environment.</returns>
+        public Task<CustomerEnvironment> GetCustomerInfrastructureAgentByCustomerEnvironment(string customerEnvironmentName);
+
     }
 }

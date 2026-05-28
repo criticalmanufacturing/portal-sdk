@@ -6,22 +6,28 @@ using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Powershell
 {
-    [Cmdlet(VerbsCommon.Get, "AgentConnection")]
+    [Cmdlet(VerbsCommon.Get, "AgentConnection", DefaultParameterSetName = "Agent")]
     public class GetAgentConnection : BaseCmdlet<GetAgentConnectionHandler>
     {
         [Parameter(
-            HelpMessage = Resources.GETAGENTCONNECTION_NAME_HELP,
-            Mandatory = true
-        )]
+            Position = 0,
+            ParameterSetName = "Agent",
+            Mandatory = true,
+            HelpMessage = Resources.GETAGENTCONNECTION_NAME_HELP)]
         public string Name { get; set; }
 
-        protected async override Task ProcessRecordAsync()
-        {
-            // get GetAgentConnectionHandler and run it
-            GetAgentConnectionHandler getAgentConnectionHandler = ServiceLocator.Get<GetAgentConnectionHandler>();
-            bool result = await getAgentConnectionHandler.Run(Name);
+        [Parameter(
+            Position = 0,
+            ParameterSetName = "CustomerEnvironment",
+            Mandatory = true,
+            HelpMessage = Resources.GETAGENTCONNECTION_CUSTOMER_ENVIRONMENT_HELP)]
+        public string CustomerEnvironment { get; set; }
 
-            WriteObject(result, false);
+        protected override async Task ProcessRecordAsync()
+        {
+            GetAgentConnectionHandler handler = ServiceLocator.Get<GetAgentConnectionHandler>();
+            var result = await handler.Run(Name ?? string.Empty, CustomerEnvironment ?? string.Empty);
+            WriteObject(result);
         }
     }
 }

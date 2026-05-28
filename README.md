@@ -56,9 +56,10 @@ Commands:
 
 
 Examples:
-  - `cmf-portal.exe -h` - displays help about the tool's usage, available flags and commands.
-  - `cmf-portal.exe checkagentconnection -n <agent-name>` - Check if the Infrastructure Agent named <agent-name> is connected
-  - `cmf-portal.exe checkagentconnection -h` - Displays help about the command checkagentconnection including a brief description of its function, how to use it and what options are available and/or required.
+  - ```cmf-portal.exe -h``` - displays help about the tool's usage, available flags and commands.
+  - ```cmf-portal.exe checkagentconnection -n <agent-name>``` - Check if the Infrastructure Agent named <agent-name> is connected
+  - ```cmf-portal.exe checkagentconnection -ce <customer-environment>``` - Check if the Infrastructure Agent associated with <customer-environment> is connected
+  - ```cmf-portal.exe checkagentconnection -h``` - Displays help about the command checkagentconnection including a brief description of its function, how to use it and what options are available and/or required.
 
 Below we will show the documentation for each command.
 
@@ -71,9 +72,11 @@ Equivalent to the Powershell cmdlet <a href="#get-agentconnection">Get-AgentConn
 Usage: `cmf-portal checkagentconnection [options]`
 
 Options:  
-  - `-v, --verbose` - Show detailed logging  
-  - `-n, --agent-name, --name <agent-name>` - **REQUIRED** - The name of the Infrastructure Agent  
-  - `-?, -h, --help` - Show help and usage information  
+  - ```-v, --verbose``` - Show detailed logging  
+  - ```-n, --agent-name, --name <agent-name>``` - The name of the Infrastructure Agent  
+  - ```-ce, --customer-environment, --customerEnvironmentName <customer-environment>``` - The name of the Customer Environment associated with the Infrastructure Agent
+  - Provide exactly one of ```--agent-name``` or ```--customer-environment```
+  - ```-?, -h, --help``` - Show help and usage information  
 
 ### createinfrastructure
 
@@ -284,6 +287,7 @@ Cmdlets:
 
 Examples:
 - `Get-AgentConnection <agent-name>` - Check if the Infrastructure Agent named <agent-name> is connected
+- `Get-AgentConnection -CustomerEnvironment <customer-environment>` - Check if the Infrastructure Agent associated with <customer-environment> is connected
 - `Get-AgentConnection` - Same as before but instead of inputting all the parameters upfront, the cmdlet will ask you to fill each parameter one by one. At any time you can type `!?` to get help for that parameter
 
 Below we will show the documentation for each cmdlet.
@@ -322,7 +326,9 @@ Equivalent to the console command <a href="#checkagentconnection">checkagentconn
 Usage: `Get-AgentConnection [options]`
 
 Options:  
-  - `-Name <agent-name>` - **REQUIRED** - The name of the Infrastructure Agent  
+  - `-Name <agent-name>` - The name of the Infrastructure Agent
+  - `-CustomerEnvironment <customer-environment>` - The name of the Customer Environment associated with the Infrastructure Agent
+  - Provide exactly one of `-Name` or `-CustomerEnvironment`
 
 ### New-Environment
 

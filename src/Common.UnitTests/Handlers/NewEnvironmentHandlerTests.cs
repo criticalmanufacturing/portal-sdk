@@ -248,20 +248,30 @@ public class NewEnvironmentHandlerTests
             .Returns("SomeTarget");
         mockUtils.Setup(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()))
             .Returns(Task.FromResult(new List<CustomerEnvironment>()));
+        // UpdateEnvironment returns the same environment so it flows unchanged into TerminateOtherVersions
+        mockClient.Setup(c => c.UpdateEnvironment(existingEnvironment))
+            .ReturnsAsync(existingEnvironment);
+
+        // GetEntityTypeByName is called internally when building termination operation attributes
+        var ceEntityType = new EntityType { Id = 1, Name = "CustomerEnvironment" };
+        mockClient.Setup(c => c.GetEntityTypeByName("CustomerEnvironment"))
+            .ReturnsAsync(ceEntityType);
+
         // Prepare other versions to terminate (non-empty list so termination logic runs)
         var otherEnv1 = new CustomerEnvironment { Id = 10, Name = "env-old-1" };
         var otherEnv2 = new CustomerEnvironment { Id = 20, Name = "env-old-2" };
         var toTerminate = new CustomerEnvironmentCollection { otherEnv1, otherEnv2 };
-        mockUtils.Setup(u => u.GetOtherVersionToTerminate(It.IsAny<CustomerEnvironment>()))
+        mockUtils.Setup(u => u.GetOtherVersionToTerminate(existingEnvironment))
             .ReturnsAsync(toTerminate);
 
-        // TerminateObjects should be called (we just return completed task)
-        mockClient.Setup(c => c.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(
-                It.IsAny<List<CustomerEnvironment>>(),
-                It.IsAny<OperationAttributeCollection>(),
-                /* cancellationToken: */ default
-            ))
-            .ReturnsAsync([]);
+        // TerminateCustomerEnvironments called with the exact IDs of the two stale environments;
+        // all attribute values are 0 because terminateOtherVersionsRemove=false and undeploy=false
+        mockClient.Setup(c => c.TerminateCustomerEnvironments(
+            It.Is<List<long>>(ids => ids.SequenceEqual(new List<long> { otherEnv1.Id, otherEnv2.Id })),
+            It.Is<OperationAttributeCollection>(attrs =>
+                attrs.Count == 6 &&
+                attrs.All(a => a.OperationName == "TerminateVersion" && (int)a.Value == 0 && a.EntityType == ceEntityType))
+        ));
 
         // Simulate that WaitForEnvironmentsToBeTerminated returns one failed id (20)
         mockEnvDeploymentHandler.Setup(h => h.WaitForEnvironmentsToBeTerminated(It.IsAny<CustomerEnvironmentCollection>()))

@@ -98,7 +98,15 @@ internal class CustomerEnvironmentServices(
 
         var customerEnvironmentsToTerminate = await newEnvironmentUtilities.GetOtherVersionToTerminate(customerEnvironment);
         OperationAttributeCollection terminateOperationAttributes = [];
+
+        // create a light ce et, because GetEntityTypeByName returns a huge object
         EntityType ceET = await customerPortalClient.GetEntityTypeByName("CustomerEnvironment");
+        ceET = new EntityType
+        {
+            Id = ceET.Id,
+            Name = ceET.Name
+        };
+
         foreach (var ce in customerEnvironmentsToTerminate)
         {
             OperationAttribute attributeRemove = new()
@@ -135,7 +143,7 @@ internal class CustomerEnvironmentServices(
 
         if (customerEnvironmentsToTerminate.Count > 0)
         {
-            await customerPortalClient.TerminateObjects<List<CustomerEnvironment>, CustomerEnvironment>(customerEnvironmentsToTerminate, terminateOperationAttributes);
+            await customerPortalClient.TerminateCustomerEnvironments([.. customerEnvironmentsToTerminate.Select(ce => ce.Id)], terminateOperationAttributes);
 
             // wait until they're terminated
             List<long> ceTerminationFailedIds = await environmentDeploymentHandler.WaitForEnvironmentsToBeTerminated(customerEnvironmentsToTerminate);

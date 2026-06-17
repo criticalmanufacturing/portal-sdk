@@ -48,16 +48,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
         Task<DataSet> ExecuteQuery(QueryObject queryObject);
 
         /// <summary>
-        /// Terminates a series of objects.
-        /// </summary>
-        /// <typeparam name="T">The type of the objects' list. Must inherit a <see cref="List{U}"/>.</typeparam>
-        /// <typeparam name="U">The objects' type</typeparam>
-        /// <param name="obj">The list of objects</param>
-        /// <param name="operationAttributes">Operation attributes to pass to the service</param>
-        /// <returns>The same list of objects</returns>
-        Task<T> TerminateObjects<T, U>(T obj, OperationAttributeCollection operationAttributes = null, bool isToTerminateAllVersions = false) where T : List<U>, new() where U : new();
-
-        /// <summary>
         /// Gets a collection of CustomerEnvironments.
         /// </summary>
         /// <param name="ids">Ids of the CustomerEnvironments</param>
@@ -161,5 +151,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <returns>The infrastructure agent associated with the specified customer environment.</returns>
         public Task<CustomerEnvironment> GetCustomerInfrastructureAgentByCustomerEnvironment(string customerEnvironmentName);
 
+        /// <summary>
+        /// Terminates a list of customer environments, given their ids and the operation attributes to be passed to the service
+        ///     to customize terminate behaviors, such as deleting workloads, volumes or performing an undeploy.
+        /// </summary>
+        /// <param name="customerEnvironmentIds"></param>
+        /// <param name="operationAttributes"></param>
+        /// <returns></returns>
+        public Task TerminateCustomerEnvironments(List<long> customerEnvironmentIds, OperationAttributeCollection operationAttributes);
     }
 }

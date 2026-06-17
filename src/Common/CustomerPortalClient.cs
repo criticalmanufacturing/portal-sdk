@@ -141,17 +141,6 @@ namespace Cmf.CustomerPortal.Sdk.Common
             }.ExecuteQueryAsync(true)).NgpDataSet);
         }
 
-        public async Task<T> TerminateObjects<T, U>(T obj, OperationAttributeCollection operationAttributes = null, bool isToTerminateAllVersions = false) where T : List<U>, new() where U : new()
-        {
-            return (await new TerminateObjectsInput
-            {
-                Objects = new Collection<object>(obj.ConvertAll(x => x as object)),
-                OperationAttributes = operationAttributes,
-                IgnoreLastServiceId = true,
-                OperationTarget = isToTerminateAllVersions ? EntityTypeSource.Revision : EntityTypeSource.Version
-            }.TerminateObjectsAsync(true)).Objects as T;
-        }
-
         public async Task<CustomerEnvironmentCollection> GetCustomerEnvironmentsById(long[] ids)
         {
             QueryObject query = new QueryObject
@@ -610,6 +599,15 @@ namespace Cmf.CustomerPortal.Sdk.Common
             {
                 throw new NotFoundException($"No customer environment found for name {customerEnvironmentName}");
             }
+        }
+
+        public async Task TerminateCustomerEnvironments(List<long> customerEnvironmentIds, OperationAttributeCollection operationAttributes)
+        {
+            await new TerminateCustomerEnvironmentsInput
+            {
+                CustomerEnvironmentIds = customerEnvironmentIds,
+                OperationAttributes = operationAttributes
+            }.TerminateCustomerEnvironmentsAsync(true);
         }
     }
 }

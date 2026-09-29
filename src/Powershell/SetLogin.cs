@@ -10,7 +10,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
     public class SetLogin : BaseCmdlet<LoginHandler>
     {
         [Parameter(
-            HelpMessage = Resources.LOGIN_PAT_HELP
+            HelpMessage = Resources.LoginPatHelp
         )]
         public string PAT
         {

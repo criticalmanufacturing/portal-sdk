@@ -10,12 +10,12 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
     public class UndeployEnvironment : BaseCmdlet<UndeployEnvironmentHandler>
     {
         [Parameter(
-            HelpMessage = Resources.CUSTOMER_ENVIRONMENT_NAME_HELP,
+            HelpMessage = Resources.CustomerEnvironmentNameHelp,
             Mandatory = true
         )]
         public string Name { get; set; }
 
-        [Parameter(Position = 1, HelpMessage = Resources.UNDEPLOYMENT_FORCE_HELP)]
+        [Parameter(Position = 1, HelpMessage = Resources.UndeploymentForceHelp)]
         public SwitchParameter Force;
 
         protected async override Task ProcessRecordAsync()

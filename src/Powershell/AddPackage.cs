@@ -11,13 +11,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
     public class AddPackage : BaseCmdlet<PublishPackageHandler>
     {
         [Parameter(
-            HelpMessage = Resources.PUBLISHPACKAGE_PATH_HELP,
+            HelpMessage = Resources.PublishPackagePathHelp,
             Mandatory = true
         )]
         public string Path { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.PUBLISHPACKAGE_DATAGROUP_HELP,
+            HelpMessage = Resources.PublishPackageDatagroupHelp,
             Mandatory = false
         )]
         public string Datagroup { get; set; }

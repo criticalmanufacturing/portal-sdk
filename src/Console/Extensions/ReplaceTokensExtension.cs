@@ -3,16 +3,21 @@ using System.CommandLine;
 
 namespace Cmf.CustomerPortal.Sdk.Console.Extensions
 {
+    /// <summary>
+    /// Adds the <c>--replace-tokens</c> option.
+    /// </summary>
     internal class ReplaceTokensExtension : IOptionExtension
     {
+        public Option<string[]> ReplaceTokens { get; } = new("--replace-tokens")
+        {
+            Description = Resources.ReplaceTokensHelp,
+            HelpName = "MyToken=value MyToken2=value2",
+            AllowMultipleArgumentsPerToken = true
+        };
+
         public void Use(Command command)
         {
-            var replaceTokensOption = new Option<string[]>(new[] { "--replace-tokens" }, Resources.REPLACETOKENS_HELP)
-            {
-                AllowMultipleArgumentsPerToken = true
-            };
-            replaceTokensOption.AddSuggestions(new string[] { "MyToken=value MyToken2=value2" });
-            command.Add(replaceTokensOption);
+            command.Options.Add(ReplaceTokens);
         }
     }
 }

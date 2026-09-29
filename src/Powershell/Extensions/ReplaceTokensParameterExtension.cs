@@ -15,7 +15,7 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
             ReplaceTokensParamAttr = new ParameterAttribute
             {
                 Mandatory = false,
-                HelpMessage = Resources.REPLACETOKENS_HELP
+                HelpMessage = Resources.ReplaceTokensHelp
             };
         }
 

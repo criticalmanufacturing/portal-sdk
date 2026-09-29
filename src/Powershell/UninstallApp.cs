@@ -9,25 +9,25 @@ namespace Cmf.CustomerPortal.Sdk.Powershell;
 [Cmdlet(VerbsLifecycle.Uninstall, "App")]
 public class UninstallApp : BaseCmdlet<UninstallAppHandler>
 {
-    [Parameter(HelpMessage = Resources.APP_UNINSTALL_NAME_HELP, Mandatory = true)]
+    [Parameter(HelpMessage = Resources.AppUninstallNameHelp, Mandatory = true)]
     public string Name { get; set; }
 
-    [Parameter(HelpMessage = Resources.APP_NAME_HELP, Mandatory = true)]
+    [Parameter(HelpMessage = Resources.AppNameHelp, Mandatory = true)]
     public string CustomerEnvironment { get; set; }
 
-    [Parameter(HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP)]
+    [Parameter(HelpMessage = Resources.DeploymentTerminateOtherVersionsRemoveHelp)]
     public SwitchParameter TerminateOtherVersionsRemove; // unused, kept for compatibility
 
-    [Parameter(HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP)]
+    [Parameter(HelpMessage = Resources.DeploymentTerminateOtherVersionsRemoveVolumesHelp)]
     public SwitchParameter TerminateOtherVersionsRemoveVolumes;
     
-    [Parameter(HelpMessage = Resources.APP_UNDEPLOY_HELP)]
+    [Parameter(HelpMessage = Resources.AppUndeployHelp)]
     public SwitchParameter Undeploy { get; set; }
 
-    [Parameter(HelpMessage = Resources.DEPLOYMENT_TIMEOUT_MINUTES)]
+    [Parameter(HelpMessage = Resources.DeploymentTimeoutMinutesHelp)]
     public double? DeploymentTimeoutMinutes { get; set; }
 
-    [Parameter(HelpMessage = Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE)]
+    [Parameter(HelpMessage = Resources.DeploymentTimeoutMinutesToGetSomeMBMessageHelp)]
     public double? DeploymentTimeoutMinutesToGetSomeMBMsg { get; set; }
 
 

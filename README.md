@@ -29,159 +29,51 @@ Below we will provide documentation on each version's usage and commands. This d
 
 - If you're not using the Release published on GitHub you'll have to first compile the solution and then run the output executable with a valid command and/or option(s). Note that some commands require certain options in order to execute.
 
+Commands follow a `verb noun [name] [options]` convention:
+
 Usage: 
   - Executable from Release or manually compiled:
     - `.\cmf-portal.exe [options]`
-    - `.\cmf-portal.exe [command] [commandOptions]`
+    - `.\cmf-portal.exe <verb> <noun> [name] [options]`
   - Installed from npm:  
     - `cmf-portal [options]`
-    - `cmf-portal [command] [commandOptions] `
+    - `cmf-portal <verb> <noun> [name] [options]`
 
 Options:
   - `--version`         Show version information
-  - `-?, -h, --help`    Show help and usage information
+  - `-?, -h, --help`    Show help and usage information. Works on every verb and noun, e.g. `cmf-portal deploy -h` or `cmf-portal deploy env -h`
 
 Commands:
-  - <a href="#checkagentconnection">`checkagentconnection`</a> - Check if an Infrastructure Agent is connected
-  - <a href="#createinfrastructure">`createinfrastructure`</a> - Creates a customer Infrastructure
-  - <a href="#deployagent">`deployagent`</a> - Creates and deploys a new Infrastructure Agent
-  - <a href="#deploy">`deploy`</a> - Creates and deploys a new Customer Environment
-  - <a href="#download-artifacts">`download-artifacts`</a> - Downloads all Deployment Artifacts of a specific Customer Environment from the Customer Portal
-  - <a href="#install-app">`install-app`</a> - Installs an App in a previous deployed Customer Environment
-  - <a href="#login">`login`</a> - Log in to the CM Portal
-  - <a href="#publish">`publish`</a> - Publishes one or more Deployment Manifests into Customer Portal
-  - <a href="#publish-package">`publish-package`</a> - Publishes one or more Customization Packages into Customer Portal
-  - <a href="#undeploy">`undeploy`</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
-  - <a href="#uninstall-app">`uninstall-app`</a> - Uninstall an App in a previous deployed Customer Environment 
 
+| Command | Description | Replaces |
+|---|---|---|
+| <a href="#login">`login`</a> | Log in to the CM Portal | |
+| <a href="#deploy-env">`deploy env [name]`</a> | Creates and deploys a new Customer Environment, or a new version of an existing one | `deploy` |
+| <a href="#deploy-agent">`deploy agent [name]`</a> | Creates and deploys a new Infrastructure Agent | `deployagent` |
+| <a href="#deploy-app">`deploy app <name>`</a> | Installs an App in a previously deployed Customer Environment | `install-app` |
+| <a href="#undeploy-env">`undeploy env <name>`</a> | Creates a new Customer Environment version and terminates the other versions, removing deployments | `undeploy` |
+| <a href="#undeploy-app">`undeploy app <name>`</a> | Uninstalls an App from a Customer Environment | `uninstall-app` |
+| <a href="#create-infrastructure">`create infrastructure [name]`</a> | Creates a Customer Infrastructure | `createinfrastructure` |
+| <a href="#healthcheck-agent">`healthcheck agent [agent-name]`</a> | Checks if an Infrastructure Agent is connected | `checkagentconnection` |
+| <a href="#publish-deploymentpackage">`publish deploymentpackage <path>`</a> | Publishes one or more Deployment Package manifests into the Customer Portal | `publish` |
+| <a href="#publish-installationpackage">`publish installationpackage <path>`</a> | Publishes one or more Installation Packages into the Customer Portal | `publish-package` |
+| <a href="#download-artifacts-name">`download artifacts <name>`</a> | Downloads all artifacts of a Customer Environment | `download-artifacts` |
+
+`<name>` is a required argument and `[name]` an optional one. For example, `deploy env` generates a name when it is omitted.
+
+Nouns have aliases: `env`/`environment`, `app`/`application` and `infrastructure`/`infra`.
+
+Put the name right after the noun, e.g. `deploy env my-env --replace-tokens A=1 B=2`, so it isn't read as one more value of a multi-value option.
 
 Examples:
-  - ```cmf-portal.exe -h``` - displays help about the tool's usage, available flags and commands.
-  - ```cmf-portal.exe checkagentconnection -n <agent-name>``` - Check if the Infrastructure Agent named <agent-name> is connected
-  - ```cmf-portal.exe checkagentconnection -ce <customer-environment>``` - Check if the Infrastructure Agent associated with <customer-environment> is connected
-  - ```cmf-portal.exe checkagentconnection -h``` - Displays help about the command checkagentconnection including a brief description of its function, how to use it and what options are available and/or required.
+  - `cmf-portal -h` - displays help about the tool's usage, available flags and commands.
+  - `cmf-portal deploy env my-env -params parameters.json -lic "License 1,License 2" -s "My Site" --package=@criticalmanufacturing\mes:11.0.0 -trg dockerswarm` - Creates and deploys the Customer Environment `my-env`
+  - `cmf-portal deploy app my-app -ce my-env -av 1.0.0 -lic "My License"` - Installs version 1.0.0 of `my-app` in `my-env`
+  - `cmf-portal healthcheck agent <agent-name>` - Check if the Infrastructure Agent named <agent-name> is connected
+  - `cmf-portal healthcheck agent -ce <customer-environment>` - Check if the Infrastructure Agent associated with <customer-environment> is connected
+  - `cmf-portal healthcheck agent -h` - Displays help about the command, including a brief description of its function, how to use it and what arguments and options are available and/or required.
 
-Below we will show the documentation for each command.
-
-### checkagentconnection
-
-Check if an Infrastructure Agent is connected
-
-Equivalent to the Powershell cmdlet <a href="#get-agentconnection">Get-AgentConnection</a>
-
-Usage: `cmf-portal checkagentconnection [options]`
-
-Options:  
-  - ```-v, --verbose``` - Show detailed logging  
-  - ```-n, --agent-name, --name <agent-name>``` - The name of the Infrastructure Agent  
-  - ```-ce, --customer-environment, --customerEnvironmentName <customer-environment>``` - The name of the Customer Environment associated with the Infrastructure Agent
-  - Provide exactly one of ```--agent-name``` or ```--customer-environment```
-  - ```-?, -h, --help``` - Show help and usage information  
-
-### createinfrastructure
-
-Creates a customer Infrastructure
-
-Equivalent to the Powershell cmdlet <a href="#new-infrastructure">New-Infrastructure</a>
-
-Usage: `cmf-portal createinfrastructure [options]`
-
-Options:
-  - `-v, --verbose` - Show detailed logging
-  - `-n, --name <name>` - The name of the Customer Infrastructure to be created
-  - `-s, --site <site>` - **deprecated** - Name of a Site used to match a Customer with the Customer Infrastructure
-  - `-c, --customer <customer>` - Name of the Customer associated with the Customer Infrastructure
-  - `--ignore-if-exists` - Flag that ignores a throw if an error of type 'Customer Infrastructure already exist' occurs
-  - `-params, --parameters <filePath>` - Path to parameters json file that includes parameters for the Customer Infrastructure
-  - `-?, -h, --help` - Show help and usage information
-
-### deployagent
-
-Creates and deploys a new Infrastructure Agent
-
-Equivalent to the Powershell cmdlet <a href="#new-infrastructureagent">New-InfrastructureAgent</a>
-
-Usage: `cmf-portal deployagent [options]`
-
-Options:
-  - `-v, --verbose` - Show detailed logging
-  - `--replace-tokens <MyToken=value MyToken2=value2>` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
-  - `-ci, --customer-infrastructure-name <customer-infrastructure-name>` - Name of the existing Customer Infrastructure
-  - `-n, --name <name>` - Name of the new Customer Environment. --name is also supported
-  - `-a, --alias <alias>` - Command Alias
-  - `-d, --description <description>` - Description of the new Customer Environment
-  - `-params, --parameters <parameters>` - Path to parameters file that describes the Customer Environment
-  - `-type <Development|Production|Staging|Testing>` - Type of the Customer Environment to deploy [default: Development]
-  - `-trg, --target <AzureKubernetesServiceTarget|dockerswarm|KubernetesOnPremisesTarget|KubernetesRemoteTarget|OpenShiftOnPremisesTarget|OpenShiftRemoteTarget|portainer>` - Name of the Deployment Target to use for the Customer Environment. **Required** when creating a new environment or infrastructure; optional when updating an existing environment.
-  - `-o, --output <output>` - Directory to place any artifacts generated by the deployment
-  - `-i, --interactive` - Flag that controls if the user should be prompted to go to the portal to initialize the installation manually
-  - `-tov, --terminateOtherVersions` - Flag that controls if all the other versions of the Customer Environment should be terminated
-  - `-to, --deploymentTimeoutMinutes <deploymentTimeoutMinutes>` - Number of minutes that are allowed to wait for the deployment to succeed. The default is 360 minutes.
-  - `-tombm, --deploymentTimeoutMinutesToGetSomeMBMsg <deploymentTimeoutMinutesToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
-  - `-tovr, --terminateOtherVersionsRemove` - Flag that controls if the deployments of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions flag.
-  - `-tovrv, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.
-  - `-?, -h, --help` - Show help and usage information
-
-### deploy
-
-Creates and deploys a new Customer Environment
-
-Equivalent to powershell cmdlet <a href="#new-environment">New-Environment</a>
-
-Usage: `cmf-portal deploy [options]`
-
-Options:
-  - `-v, --verbose` - Show detailed logging
-  - `--replace-tokens <MyToken=value MyToken2=value2>` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
-  - `-ci, --customer-infrastructure-name <customer-infrastructure-name>` - Name of the existing Customer Infrastructure
-  - `-n, --name <name>` - Name of the new Customer Environment. --name is also supported
-  - `-a, --alias <alias>` - Command Alias
-  - `-d, --description <description>` - Description of the new Customer Environment
-  - `-params, --parameters <parameters>` - Path to parameters file that describes the Customer Environment
-  - `-type <Development|Production|Staging|Testing>` - Type of the Customer Environment to deploy [default: Development]
-  - `-trg, --target <AzureKubernetesServiceTarget|dockerswarm|KubernetesOnPremisesTarget|KubernetesRemoteTarget|OpenShiftOnPremisesTarget|OpenShiftRemoteTarget|portainer>` - Name of the Deployment Target to use for the Customer Environment. **Required** when creating a new environment or customer infrastructure environment; optional when updating an existing environment.
-  - `-o, --output <output>` - Directory to place any artifacts generated by the deployment
-  - `-i, --interactive` - Flag that controls if the user should be prompted to go to the portal to initialize the installation manually
-  - `-s, --site <site>` - Name of the Site associated with the Customer **Required** when creating a new environment or infrastructure; optional when updating an existing environment.
-  - `-pck, --package <package>` - Name of the Deployment Package to use for the Customer Environment **Required** when creating a new environment or customer infrastructure environment; optional when updating an existing environment.
-  - `-lic, --license <license>` - Comma-separated names of the Licenses' Unique Name
-  - `-tov, --terminateOtherVersions` - Flag that controls if all the other versions of the Customer Environment should be terminated
-  - `-to, --deploymentTimeoutMinutes <deploymentTimeoutMinutes>` - Number of minutes that are allowed to wait for the deployment to succeed. The default is 360 minutes.
-  - `-tombm, --deploymentTimeoutMinutesToGetSomeMBMsg <deploymentTimeoutMinutesToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
-  - `-tovr, --terminateOtherVersionsRemove` - Flag that controls if the deployments of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions flag.
-  - `-tovrv, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.
-  - `-?, -h, --help` - Show help and usage information
-
-### download-artifacts
-
-Downloads all Deployment Artifacts of a specific Customer Environment from the Customer Portal.
-
-Usage: `cmf-portal download-artifacts [options]`
-
-Options:
-  - `-v, --verbose` - Show detailed logging
-  - `-n, --name <name>` - Name of the new Customer Environment. --name is also supported
-  - `-o, --output <output>` - Directory to place all artifacts downloaded from the Customer Portal.
-  - `-?, -h, --help` - Show help and usage information
-
-### install-app
-
-Installs an App in a previous deployed Convergence Customer Environment.
-
-Usage: `cmf-portal install-app [options]`
-
-Options:
-  - `-v, --verbose` - Show detailed logging.
-  - `--replace-tokens <MyToken=value MyToken2=value2>` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
-  - `-n, --name <name>` - **REQUIRED** - The name of the App to install.
-  - `-av, --app-version <app-version>` - **REQUIRED** - The version of the App to install.
-  - `-ce, --customer-environment <customer-environment>` - **REQUIRED** - The name of a Convergence Customer Environment to install the App on.
-  - `-lic, --license <license>` - **REQUIRED** - Name of the License to use for the App.
-  - `-params, --parameters <parameters>` - Path to parameters file that describes the App in a Convergence Customer Environment.
-  - `-o, --output <output>` - Directory to place any artifacts generated by the deployment.
-  - `-to, --timeout <timeout>` - Timeout, in minutes, to wait for an App to install. The default is 360 minutes.
-  - `-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
-  - `-?, -h, --help` - Show help and usage information.
+**Note:** npm package names start with `@`, which the parser reads as a response file when it's a separate argument. Pass them as `--package=@scope/name`.
 
 ### login
 
@@ -196,66 +88,288 @@ Options:
   - `-t, --pat, --token <token>` - Personal Access Token used to access the Customer Portal
   - `-?, -h, --help` - Show help and usage information
 
-### publish
+### deploy env
 
-Publishes one or more Deployment Manifests into Customer Portal
+Creates and deploys a new Customer Environment, or a new version of an existing one.
 
-Equivalent to powershell cmdlet <a href="#add-manifests">Add-Manifests</a>
+Equivalent to powershell cmdlet <a href="#new-environment">New-Environment</a>
 
-Usage: `cmf-portal publish [options]`
+Usage: `cmf-portal deploy env [name] [options]` (alias: `deploy environment`)
+
+Arguments:
+  - `name` - Name of the Customer Environment. A name is generated when omitted
 
 Options:
   - `-v, --verbose` - Show detailed logging
   - `--replace-tokens <MyToken=value MyToken2=value2>` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
-  - `-p, --path <path>` - **REQUIRED** - Path to the manifest file or path to a folder containing multiple manifest files
-  - `-dg, --datagroup <datagroup>` - Name of the existing datagroup to assign to the published manifests
+  - `-ci, --customer-infrastructure-name <customer-infrastructure-name>` - Name of the existing Customer Infrastructure
+  - `-a, --alias <alias>` - Command Alias
+  - `-d, --description <description>` - Description of the new Customer Environment
+  - `-params, --parameters <parameters>` - Path to parameters file that describes the Customer Environment
+  - `-type <Development|Production|Staging|Testing>` - Type of the Customer Environment to deploy [default: Development]
+  - `-trg, --target <AzureKubernetesServiceTarget|dockerswarm|KubernetesOnPremisesTarget|KubernetesRemoteTarget|OpenShiftOnPremisesTarget|OpenShiftRemoteTarget|portainer>` - Name of the Deployment Target to use for the Customer Environment. **Required** when creating a new environment or customer infrastructure environment; optional when updating an existing environment.
+  - `-o, --output <output>` - Directory to place any artifacts generated by the deployment
+  - `-i, --interactive` - Flag that controls if the user should be prompted to go to the portal to initialize the installation manually
+  - `-s, --site <site>` - Name of the Site associated with the Customer **Required** when creating a new environment or infrastructure; optional when updating an existing environment.
+  - `-pck, --package <package>` - Name of the Deployment Package to use for the Customer Environment **Required** when creating a new environment or customer infrastructure environment; optional when updating an existing environment.
+  - `-lic, --license <License 1,License 2>` - Comma-separated names of the Licenses' Unique Name
+  - `-tov, --terminateOtherVersions` - Flag that controls if all the other versions of the Customer Environment should be terminated
+  - `-to, --deploymentTimeoutMinutes <deploymentTimeoutMinutes>` - Number of minutes that are allowed to wait for the deployment to succeed. The default is 360 minutes.
+  - `-tombm, --deploymentTimeoutMinutesToGetSomeMBMsg <deploymentTimeoutMinutesToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
+  - `-tovr, --terminateOtherVersionsRemove` - Flag that controls if the deployments of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions flag.
+  - `-tovrv, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.
   - `-?, -h, --help` - Show help and usage information
 
-### publish-package
+### deploy agent
 
-Publishes one or more Customization Packages into Customer Portal
+Creates and deploys a new Infrastructure Agent.
 
-Equivalent to powershell cmdlet <a href="#add-package">Add-Package</a>
+Equivalent to the Powershell cmdlet <a href="#new-infrastructureagent">New-InfrastructureAgent</a>
 
-Usage: `cmf-portal publish-package [options]`
+Usage: `cmf-portal deploy agent [name] [options]`
+
+Arguments:
+  - `name` - Name of the Infrastructure Agent. A name is generated when omitted
 
 Options:
   - `-v, --verbose` - Show detailed logging
-  - `-p, --path <path>` - **REQUIRED** - Path to the package zip file or folder containing multiple package files
-  - `-dg, --datagroup <datagroup>` - Name of the existing datagroup to assign to the published packages
+  - `--replace-tokens <MyToken=value MyToken2=value2>` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
+  - `-ci, --customer-infrastructure-name <customer-infrastructure-name>` - Name of the existing Customer Infrastructure
+  - `-a, --alias <alias>` - Command Alias
+  - `-d, --description <description>` - Description of the new Infrastructure Agent
+  - `-params, --parameters <parameters>` - Path to parameters file that describes the Infrastructure Agent
+  - `-type <Development|Production|Staging|Testing>` - Type of the Infrastructure Agent to deploy [default: Development]
+  - `-trg, --target <AzureKubernetesServiceTarget|dockerswarm|KubernetesOnPremisesTarget|KubernetesRemoteTarget|OpenShiftOnPremisesTarget|OpenShiftRemoteTarget|portainer>` - Name of the Deployment Target to use for the Infrastructure Agent. **Required** when creating a new environment or infrastructure; optional when updating an existing environment.
+  - `-o, --output <output>` - Directory to place any artifacts generated by the deployment
+  - `-i, --interactive` - Flag that controls if the user should be prompted to go to the portal to initialize the installation manually
+  - `-tov, --terminateOtherVersions` - Flag that controls if all the other versions of the Infrastructure Agent should be terminated
+  - `-to, --deploymentTimeoutMinutes <deploymentTimeoutMinutes>` - Number of minutes that are allowed to wait for the deployment to succeed. The default is 360 minutes.
+  - `-tombm, --deploymentTimeoutMinutesToGetSomeMBMsg <deploymentTimeoutMinutesToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
+  - `-tovr, --terminateOtherVersionsRemove` - Flag that controls if the deployments of the versions that will be terminated should be removed. Requires the terminateOtherVersions flag.
+  - `-tovrv, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the versions that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.
   - `-?, -h, --help` - Show help and usage information
 
-### undeploy
+### deploy app
 
-Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments. This feature is in preview and may change.
+Installs an App in a previously deployed Convergence Customer Environment.
 
-Equivalent to powershell cmdlet <a href="#undeploy-environment">Undeploy-Environment</a>
+Usage: `cmf-portal deploy app <name> -ce <customer-environment> -av <app-version> -lic <license> [options]` (alias: `deploy application`)
 
-Usage: `cmf-portal undeploy [options]`
-
-Options:
-  - `-v, --verbose` - Show detailed logging
-  - `-n, --name <name>` - **REQUIRED** - Name of the Customer Environment to be used
-  - `-tovrv, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.
-  - `-?, -h, --help` - Show help and usage information
-
-### uninstall-app
-
-
-Uninstalls an App in a previous deployed Customer Environment.
-
-Usage: `cmf-portal uninstall-app [options]`
+Arguments:
+  - `name` - **REQUIRED** - The name of the App to install.
 
 Options:
   - `-v, --verbose` - Show detailed logging.
-  - `-n, --name <name>` - **REQUIRED** - The name of the App to uninstall.
-  - `-ce, --customer-environment <customer-environment>` - **REQUIRED** - The name of a Customer Environment where the App is installed on. 
-  - `-tovr, --terminateOtherVersionsRemove` - Flag that controls if the app deployments installed in the cluster should be removed.
-  - `-tovrv, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the App that will be uninstalled should be removed.
-  - `--undeploy` - Flag that controls if the app's undeploy procedures will be executed.
+  - `--replace-tokens <MyToken=value MyToken2=value2>` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
+  - `-av, --app-version <app-version>` - **REQUIRED** - The version of the App to install.
+  - `-ce, --customer-environment <customer-environment>` - **REQUIRED** - The name of a Convergence Customer Environment to install the App on.
+  - `-lic, --license <license>` - **REQUIRED** - Name of the License to use for the App.
+  - `-params, --parameters <parameters>` - Path to parameters file that describes the App in a Convergence Customer Environment.
+  - `-o, --output <output>` - Directory to place any artifacts generated by the deployment.
+  - `-to, --timeout <timeout>` - Timeout, in minutes, to wait for an App to install. The default is 360 minutes.
+  - `-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
+  - `-?, -h, --help` - Show help and usage information.
+
+### undeploy env
+
+Creates a new Customer Environment version and terminates the other versions, removing deployments. This feature is in preview and may change.
+
+Equivalent to powershell cmdlet <a href="#undeploy-environment">Undeploy-Environment</a>
+
+Usage: `cmf-portal undeploy env <name> [options]` (alias: `undeploy environment`)
+
+Arguments:
+  - `name` - **REQUIRED** - Name of the Customer Environment
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-f, --force` - Flag that controls if the confirmation message on whether to proceed with undeployment is skipped.
+  - `-?, -h, --help` - Show help and usage information
+
+### undeploy app
+
+Uninstalls an App from a previously deployed Customer Environment.
+
+Equivalent to powershell cmdlet <a href="#uninstall-app-1">Uninstall-App</a>
+
+Usage: `cmf-portal undeploy app <name> -ce <customer-environment> [options]` (alias: `undeploy application`)
+
+Arguments:
+  - `name` - **REQUIRED** - The name of the App to uninstall.
+
+Options:
+  - `-v, --verbose` - Show detailed logging.
+  - `-ce, --customer-environment <customer-environment>` - **REQUIRED** - The name of a Customer Environment where the App is installed on.
+  - `-tovr, --terminateOtherVersionsRemove` - Deprecated, always enabled. Flag that controls if the app deployments installed in the cluster should be removed.
+  - `-tovrv, --removeVolumes, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the App that will be uninstalled should be removed.
+  - `--undeploy` - Flag that controls if the app's undeploy procedures will be executed. Implies volume removal.
   - `-to, --timeout <timeout>` - Timeout, in minutes, to wait for an App to uninstall. The default is 360 minutes.
   - `-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
   - `-?, -h, --help` - Show help and usage information.
+
+### create infrastructure
+
+Creates a Customer Infrastructure.
+
+Equivalent to the Powershell cmdlet <a href="#new-infrastructure">New-Infrastructure</a>
+
+Usage: `cmf-portal create infrastructure [name] [options]` (alias: `create infra`)
+
+Arguments:
+  - `name` - The name of the Customer Infrastructure to be created
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-s, --site <site>` - **deprecated** - Name of a Site used to match a Customer with the Customer Infrastructure
+  - `-c, --customer <customer>` - Name of the Customer associated with the Customer Infrastructure
+  - `--ignore-if-exists` - Flag that ignores a throw if an error of type 'Customer Infrastructure already exist' occurs
+  - `-params, --parameters <filePath>` - Path to parameters json file that includes parameters for the Customer Infrastructure
+  - `-?, -h, --help` - Show help and usage information
+
+### healthcheck agent
+
+Checks if an Infrastructure Agent is connected.
+
+Equivalent to the Powershell cmdlet <a href="#get-agentconnection">Get-AgentConnection</a>
+
+Usage: `cmf-portal healthcheck agent [agent-name] [options]`
+
+Arguments:
+  - `agent-name` - The name of the Infrastructure Agent
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-ce, --customer-environment <customer-environment>` - The name of the Customer Environment associated with the Infrastructure Agent
+  - Provide exactly one of `agent-name` or `--customer-environment`
+  - `-?, -h, --help` - Show help and usage information
+
+### publish deploymentpackage
+
+Publishes one or more Deployment Package manifests into the Customer Portal.
+
+Equivalent to powershell cmdlet <a href="#add-manifests">Add-Manifests</a>
+
+Usage: `cmf-portal publish deploymentpackage <path> [options]`
+
+Arguments:
+  - `path` - **REQUIRED** - Path to the manifest file or path to a folder containing multiple manifest files
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `--replace-tokens <MyToken=value MyToken2=value2>` - Replace the tokens specified in the input files using the proper syntax (e.g. #{MyToken}#) with the specified values. E.g. MyToken=value MyToken2=value2.
+  - `-dg, --datagroup <datagroup>` - Name of the existing datagroup to assign to the published manifests
+  - `-?, -h, --help` - Show help and usage information
+
+### publish installationpackage
+
+Publishes one or more Installation Packages (zip) into the Customer Portal.
+
+Equivalent to powershell cmdlet <a href="#add-package">Add-Package</a>
+
+Usage: `cmf-portal publish installationpackage <path> [options]`
+
+Arguments:
+  - `path` - **REQUIRED** - Path to the package zip file or folder containing multiple package files
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-dg, --datagroup <datagroup>` - Name of the existing datagroup to assign to the published packages
+  - `-?, -h, --help` - Show help and usage information
+
+### download artifacts \<name\>
+
+Downloads all Deployment Artifacts of a specific Customer Environment from the Customer Portal.
+
+Usage: `cmf-portal download artifacts <name> [options]`
+
+Arguments:
+  - `name` - **REQUIRED** - Name of the Customer Environment
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-o, --output <output>` - Directory to place all artifacts downloaded from the Customer Portal.
+  - `-?, -h, --help` - Show help and usage information
+
+### Legacy commands (deprecated, still supported)
+
+> **Deprecated:** the commands below are the original flat commands and **will be removed in a future major version**. Migrate to the replacement listed for each one.
+
+They keep working as before. Both `cmf-portal -h` and their own `-h` list them marked `[Deprecated]`, together with the command to use instead. Each one takes the same options as its replacement, except that the name (or path) is an option instead of a positional argument.
+
+| Legacy command | Use instead | Difference |
+|---|---|---|
+| <a href="#checkagentconnection">`checkagentconnection`</a> | <a href="#healthcheck-agent">`healthcheck agent`</a> | `-n, --agent-name, --name <agent-name>` instead of `[agent-name]` |
+| <a href="#createinfrastructure">`createinfrastructure`</a> | <a href="#create-infrastructure">`create infrastructure`</a> | `-n, --name <name>` instead of `[name]` |
+| <a href="#deployagent">`deployagent`</a> | <a href="#deploy-agent">`deploy agent`</a> | `-n, --name <name>` instead of `[name]` |
+| <a href="#deploy">`deploy`</a> | <a href="#deploy-env">`deploy env`</a> | `-n, --name <name>` instead of `[name]` |
+| <a href="#download-artifacts">`download-artifacts`</a> | <a href="#download-artifacts-name">`download artifacts`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
+| <a href="#install-app">`install-app`</a> | <a href="#deploy-app">`deploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
+| <a href="#publish">`publish`</a> | <a href="#publish-deploymentpackage">`publish deploymentpackage`</a> | `-p, --path <path>` (**REQUIRED**) instead of `<path>` |
+| <a href="#publish-package">`publish-package`</a> | <a href="#publish-installationpackage">`publish installationpackage`</a> | `-p, --path <path>` (**REQUIRED**) instead of `<path>` |
+| <a href="#undeploy">`undeploy`</a> | <a href="#undeploy-env">`undeploy env`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
+| <a href="#uninstall-app">`uninstall-app`</a> | <a href="#undeploy-app">`undeploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
+
+`deploy`, `undeploy` and `publish` are also the verbs of the new commands, so only running them **without a subcommand** is deprecated (e.g. `deploy -n my-env`, instead of `deploy env my-env`). `cmf-portal deploy -h` shows the verb help; the legacy options are hidden there but still accepted.
+
+### checkagentconnection
+
+Usage: `cmf-portal checkagentconnection [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#healthcheck-agent">`healthcheck agent`</a> instead. This command takes the same options, except that the agent name is given by `-n, --agent-name, --name <agent-name>`. Provide exactly one of `--agent-name` or `--customer-environment`.
+
+### createinfrastructure
+
+Usage: `cmf-portal createinfrastructure [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#create-infrastructure">`create infrastructure`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>`.
+
+### deployagent
+
+Usage: `cmf-portal deployagent [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#deploy-agent">`deploy agent`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>`.
+
+### deploy
+
+Usage: `cmf-portal deploy [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#deploy-env">`deploy env`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>`.
+
+### download-artifacts
+
+Usage: `cmf-portal download-artifacts [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#download-artifacts-name">`download artifacts`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
+
+### install-app
+
+Usage: `cmf-portal install-app [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#deploy-app">`deploy app`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
+
+### publish
+
+Usage: `cmf-portal publish [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#publish-deploymentpackage">`publish deploymentpackage`</a> instead. This command takes the same options, except that the path is given by `-p, --path <path>` (**REQUIRED**).
+
+### publish-package
+
+Usage: `cmf-portal publish-package [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#publish-installationpackage">`publish installationpackage`</a> instead. This command takes the same options, except that the path is given by `-p, --path <path>` (**REQUIRED**).
+
+### undeploy
+
+Usage: `cmf-portal undeploy [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-env">`undeploy env`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
+
+### uninstall-app
+
+Usage: `cmf-portal uninstall-app [options]`
+
+**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-app">`undeploy app`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
 
 ## Powershell
 
@@ -282,7 +396,7 @@ Cmdlets:
   - <a href="#new-infrastructureagent">`New-InfrastructureAgent`</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#set-login">`Set-Login`</a> - Log in to the CM Portal
   - <a href="#undeploy-environment">`Undeploy-Environment`</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
-    - <a href="#uninstall-app">`Uninstall-App`</a> - Uninstalls an app installed in a CustomerEnvironment's version
+    - <a href="#uninstall-app-1">`Uninstall-App`</a> - Uninstalls an app installed in a CustomerEnvironment's version
 
 
 Examples:
@@ -296,7 +410,7 @@ Below we will show the documentation for each cmdlet.
 
 Publishes one or more Deployment Manifests into Customer Portal
 
-Equivalent to the console command <a href="#publish">publish</a>
+Equivalent to the console command <a href="#publish-deploymentpackage">publish deploymentpackage</a>
 
 Usage: `Add-Manifests [options]`
 
@@ -309,7 +423,7 @@ Options:
 
 Publishes one or more Customization Packages into Customer Portal
 
-Equivalent to the console command <a href="#publish-package">publish-package</a>
+Equivalent to the console command <a href="#publish-installationpackage">publish installationpackage</a>
 
 Usage: `Add-Package [options]`
 
@@ -321,7 +435,7 @@ Options:
 
 Check if an Infrastructure Agent is connected
 
-Equivalent to the console command <a href="#checkagentconnection">checkagentconnection</a>
+Equivalent to the console command <a href="#healthcheck-agent">healthcheck agent</a>
 
 Usage: `Get-AgentConnection [options]`
 
@@ -334,7 +448,7 @@ Options:
 
 Creates and deploys a new Customer Environment
 
-Equivalent to the console command <a href="#deploy">deploy</a>
+Equivalent to the console command <a href="#deploy-env">deploy env</a>
 
 Usage: `New-Environment [options]`
 
@@ -361,7 +475,7 @@ Options:
 
 Creates a customer Infrastructure
 
-Equivalent to the console command <a href="#createinfrastructure">createinfrastructure</a>
+Equivalent to the console command <a href="#create-infrastructure">create infrastructure</a>
 
 Usage: `New-Infrastructure [options]`
 
@@ -376,7 +490,7 @@ Options:
 
 Creates and deploys a new Infrastructure Agent
 
-Equivalent to the console command <a href="#deployagent">deployagent</a>
+Equivalent to the console command <a href="#deploy-agent">deploy agent</a>
 
 Usage: `New-InfrastructureAgent [options]`
 
@@ -411,7 +525,7 @@ Options:
 
 Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments.
 
-Equivalent to the console command <a href="#undeploy">undeploy</a>
+Equivalent to the console command <a href="#undeploy-env">undeploy env</a>
 
 Usage: `Undeploy-Environment [options]`
 
@@ -424,7 +538,7 @@ Options:
 ### Uninstall-App
 Uninstalls an app installed in a CustomerEnvironment's version
 
-Equivalent to the console command <a href="#uninstall-app">uninstall-app</a>
+Equivalent to the console command <a href="#undeploy-app">undeploy app</a>
 
 Usage: `Uninstall-App [options]`
 

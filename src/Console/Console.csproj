@@ -10,7 +10,10 @@
     <None Include="..\Version.props" Link="Version.props" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="System.CommandLine" Version="2.0.12" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Console.UnitTests" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />

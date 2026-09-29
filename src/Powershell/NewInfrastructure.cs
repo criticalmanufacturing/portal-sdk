@@ -10,19 +10,19 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
     [Cmdlet(VerbsCommon.New, "Infrastructure")]
     public class NewInfrastructure : BaseCmdlet<NewInfrastructureHandler>
     {
-        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_NAME_HELP)]
+        [Parameter(HelpMessage = Resources.InfrastructureNameHelp)]
         public string Name { get; set; }
 
-        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_SITE_HELP)]
+        [Parameter(HelpMessage = Resources.InfrastructureSiteHelp)]
         public string SiteName { get; set; }
 
-        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_CUSTOMER_HELP)]
+        [Parameter(HelpMessage = Resources.InfrastructureCustomerHelp)]
         public string CustomerName { get; set; }
 
-        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_PARAMETERSPATH_HELP)]
+        [Parameter(HelpMessage = Resources.InfrastructureParametersPathHelp)]
         public FileInfo ParametersPath { get; set; }
 
-        [Parameter(HelpMessage = Resources.INFRASTRUCTURE_IGNORE_IF_EXISTS_HELP)]
+        [Parameter(HelpMessage = Resources.InfrastructureIgnoreIfExistsHelp)]
         public SwitchParameter IgnoreIfExists;
 
         protected async override Task ProcessRecordAsync()

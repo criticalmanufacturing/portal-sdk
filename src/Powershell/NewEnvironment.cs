@@ -20,39 +20,39 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         private LicensesParameterExtension LicensesParameterExtension;
 
         [Parameter(
-            HelpMessage = Resources.DEPLOYMENT_SITE_HELP,
+            HelpMessage = Resources.DeploymentSiteHelp,
             Mandatory = false
         )]
         public string SiteName { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.DEPLOYMENT_PACKAGE_HELP,
+            HelpMessage = Resources.DeploymentPackageHelp,
             Mandatory = false
         )]
         public string DeploymentPackageName { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.DEPLOYMENT_TIMEOUT_MINUTES,
+            HelpMessage = Resources.DeploymentTimeoutMinutesHelp,
             Mandatory = false
         )]
         public double? DeploymentTimeoutMinutes { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.DEPLOYMENT_TIMEOUT_MINUTES_TO_GET_SOME_MB_MESSAGE,
+            HelpMessage = Resources.DeploymentTimeoutMinutesToGetSomeMBMessageHelp,
             Mandatory = false
         )]
         public double? DeploymentTimeoutMinutesToGetSomeMBMsg { get; set; }
 
-        [Parameter(Position = 2, HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_HELP)]
+        [Parameter(Position = 2, HelpMessage = Resources.DeploymentTerminateOtherVersionsHelp)]
         public SwitchParameter TerminateOtherVersions;
 
         [Parameter(Position = 1)]
         public SwitchParameter Interactive;
 
-        [Parameter(Position = 3, HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_HELP)]
+        [Parameter(Position = 3, HelpMessage = Resources.DeploymentTerminateOtherVersionsRemoveHelp)]
         public SwitchParameter TerminateOtherVersionsRemove;
 
-        [Parameter(Position = 4, HelpMessage = Resources.DEPLOYMENT_TERMINATE_OTHER_VERSIONS_REMOVE_VOLUMES_HELP)]
+        [Parameter(Position = 4, HelpMessage = Resources.DeploymentTerminateOtherVersionsRemoveVolumesHelp)]
         public SwitchParameter TerminateOtherVersionsRemoveVolumes;
 
         protected override IEnumerable<IParameterExtension> ExtendWithRange()

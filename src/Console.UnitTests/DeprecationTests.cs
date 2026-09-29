@@ -1,10 +1,11 @@
 using Cmf.CustomerPortal.Sdk.Console;
+using Cmf.CustomerPortal.Sdk.Console.Base;
 using System.CommandLine;
 
 namespace Console.UnitTests;
 
 /// <summary>
-/// Legacy commands flag their deprecation in their help description.
+/// Legacy commands flag their deprecation in their help description and warn about it when run.
 /// </summary>
 public class DeprecationTests
 {
@@ -49,5 +50,57 @@ public class DeprecationTests
 
         // Assert
         Assert.Equal(7, help.Split('\n').Count(line => line.Contains("[Deprecated]") && line.Contains("Use '")));
+    }
+
+    [Theory]
+    [InlineData("checkagentconnection", "healthcheck agent")]
+    [InlineData("createinfrastructure", "create infrastructure")]
+    [InlineData("deploy", "deploy env")]
+    [InlineData("deployagent", "deploy agent")]
+    [InlineData("download-artifacts", "download artifacts")]
+    [InlineData("install-app", "deploy app")]
+    [InlineData("publish", "publish deploymentpackage")]
+    [InlineData("publish-package", "publish installationpackage")]
+    [InlineData("undeploy", "undeploy env")]
+    [InlineData("uninstall-app", "undeploy app")]
+    public void LegacyCommand_WhenRun_WarnsThatItIsDeprecatedAndNamesItsReplacement(string commandName, string replacement)
+    {
+        // Arrange
+        var command = (BaseCommand)RootCommandFactory.Create().Subcommands.Single(c => c.Name == commandName);
+        using var error = new StringWriter();
+
+        // Act
+        command.WarnIfDeprecated(error);
+
+        // Assert
+        string warning = error.ToString().Trim();
+        Assert.StartsWith($"[Deprecated] '{commandName}' ", warning);
+        Assert.EndsWith($"Use '{replacement}' instead.", warning);
+    }
+
+    [Theory]
+    [InlineData("login")]
+    [InlineData("deploy env")]
+    [InlineData("deploy agent")]
+    [InlineData("deploy app")]
+    [InlineData("undeploy env")]
+    [InlineData("undeploy app")]
+    [InlineData("publish deploymentpackage")]
+    [InlineData("publish installationpackage")]
+    [InlineData("create infrastructure")]
+    [InlineData("healthcheck agent")]
+    [InlineData("download artifacts")]
+    public void NewCommand_WhenRun_DoesNotWarn(string commandLine)
+    {
+        // Arrange
+        var command = (BaseCommand)RootCommandFactory.Create().Parse(commandLine).CommandResult.Command;
+        using var error = new StringWriter();
+
+        // Act
+        command.WarnIfDeprecated(error);
+
+        // Assert
+        Assert.Null(command.DeprecationMessage);
+        Assert.Empty(error.ToString());
     }
 }

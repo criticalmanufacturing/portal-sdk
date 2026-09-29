@@ -1,6 +1,7 @@
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console.Extensions;
 using System.CommandLine;
+using System.IO;
 
 namespace Cmf.CustomerPortal.Sdk.Console.Base
 {
@@ -36,13 +37,34 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         }
 
         /// <summary>
-        /// Creates the session and service locator, honouring the <c>--verbose</c> option.
+        /// Message printed when the command runs, telling it is deprecated and naming its replacement.
+        /// <c>null</c> when the command is not deprecated.
+        /// </summary>
+        public virtual string DeprecationMessage => null;
+
+        /// <summary>
+        /// Warns that the command is deprecated, when it is, then creates the session and service locator,
+        /// honouring the <c>--verbose</c> option.
         /// </summary>
         /// <param name="parseResult">The parse result of the invocation.</param>
         protected void CreateSession(ParseResult parseResult)
         {
+            WarnIfDeprecated(parseResult.InvocationConfiguration.Error);
+
             Session session = new Session(parseResult.GetValue(VerboseOption));
             ServiceLocator = new ServiceLocator(session);
+        }
+
+        /// <summary>
+        /// Writes <see cref="DeprecationMessage"/>, if any. Standard error keeps the command's output unchanged for scripts.
+        /// </summary>
+        /// <param name="error">The standard error of the invocation.</param>
+        internal void WarnIfDeprecated(TextWriter error)
+        {
+            if (DeprecationMessage != null)
+            {
+                error.WriteLine(DeprecationMessage);
+            }
         }
     }
 }

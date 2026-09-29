@@ -17,6 +17,8 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
             Options.Add(pathOption);
         }
 
+        public override string DeprecationMessage => Resources.LegacyPublishPackageDeprecated;
+
         protected override FileSystemInfo GetPath(ParseResult parseResult) => parseResult.GetValue(pathOption);
     }
 }

@@ -13,6 +13,8 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
         {
         }
 
+        public override string DeprecationMessage => Resources.LegacyDeployDeprecated;
+
         protected override string GetName(ParseResult parseResult) => parseResult.GetValue(CommonParameters.Name);
     }
 }

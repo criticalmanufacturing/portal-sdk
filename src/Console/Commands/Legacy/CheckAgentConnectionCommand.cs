@@ -17,6 +17,8 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
             Options.Add(agentNameOption);
         }
 
+        public override string DeprecationMessage => Resources.LegacyCheckAgentConnectionDeprecated;
+
         protected override string AgentNameLabel => agentNameOption.Name;
 
         protected override SymbolResult GetAgentNameResult(CommandResult commandResult) => commandResult.GetResult(agentNameOption);

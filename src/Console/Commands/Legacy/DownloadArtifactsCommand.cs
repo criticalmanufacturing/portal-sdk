@@ -16,6 +16,8 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
             Options.Add(nameOption);
         }
 
+        public override string DeprecationMessage => Resources.LegacyDownloadArtifactsDeprecated;
+
         protected override string GetName(ParseResult parseResult) => parseResult.GetValue(nameOption);
     }
 }

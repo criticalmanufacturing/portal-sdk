@@ -1,6 +1,6 @@
 ---
 name: dotnet-best-practices
-description: 'How to write .NET/C# in the RemoteInstallationEngine (ring) solution. Use before writing, reviewing, or changing any C# code.'
+description: 'How to write .NET/C# in the Customer Portal SDK (portal-sdk) solution. Use before writing, reviewing, or changing any C# code.'
 user-invocable: false
 ---
 
@@ -16,20 +16,24 @@ user-invocable: false
 - XML documentation comments on all public classes, interfaces, methods, and properties, including
   parameter and return descriptions
 - Namespaces follow the folder depth
+- Use file-scoped namespaces (`namespace X.Y;`)
 
 ## Design Patterns & Architecture
 
 - Use primary constructor syntax for dependency injection (e.g., `public class MyClass(IDependency dependency)`)
 - Use interface segregation with clear naming conventions (prefix interfaces with 'I')
 - Follow the Factory pattern for complex object creation
-- DO NOT create interfaces for non-integration service classes.
+- DO NOT create an interface unless it is needed: the class integrates with an external system, there are
+  (or will be) multiple implementations, or its logic is complex enough to promote it to a first-class,
+  independently mockable service. Otherwise depend on the concrete class (e.g. handlers are registered
+  and resolved as concrete types)
 
 ## Dependency Injection & Services
 
 - Use constructor dependency injection with null checks via ArgumentNullException
 - Register services with appropriate lifetimes (Singleton, Scoped, Transient)
 - Use Microsoft.Extensions.DependencyInjection patterns
-- Implement service interfaces for testability
+- When a service has an interface, depend on the interface so it can be mocked
 
 ## Dependencies & Upgrades
 
@@ -56,7 +60,13 @@ user-invocable: false
 - Use MSTest or xUnit with **plain `Assert`**
 - Follow AAA pattern (Arrange, Act, Assert)
 - Use Moq for mocking dependencies, filesystem mocking with `MockFileSystem` (`System.IO.Abstractions.TestingHelpers`) and HTTP mocking with `RichardSzalay.MockHttp`
-- Test both success and failure scenarios
+- Write use-case tests: the happy path, each failure path, and specific edge cases
+- Assert on what the use case produces: the result, the exception, what was logged or written, and the calls
+  made across integration boundaries. Verifying calls to an external system is expected, whether it is an HTTP
+  request (MockHttp) or a call to an interface wrapping a library or external system, because that call is the
+  operation's effect
+- Don't make a test out of verifying calls to internal collaborators that are only implementation steps. A test that
+  only checks forwarding can pass while the use case is broken
 - Include null parameter validation tests
 
 ## Configuration & Settings
@@ -92,6 +102,8 @@ user-invocable: false
 - Use meaningful names that reflect domain concepts
 - Keep methods focused and cohesive
 - Implement proper disposal patterns for resources
+- Access the file system through `System.IO.Abstractions` (`IFileSystem`), never `System.IO.File`/`Directory`
+  directly, so the code stays testable with `MockFileSystem`
 - Prefer the conventions already established in the touched project over generic framework defaults
 - Reuse existing services, abstractions, and patterns before introducing new ones
 - If behavior crosses multiple projects, update only the affected path through the solution instead

@@ -292,7 +292,9 @@ Options:
 
 ### Legacy commands (deprecated, still supported)
 
-The commands below are the original flat commands. They keep working exactly as before but are hidden from `-h`; prefer the commands above. Each one takes the same options as its replacement, except that the name (or path) is an option instead of a positional argument.
+> **Deprecated:** the commands below are the original flat commands and **will be removed in a future major version**. Migrate to the replacement listed for each one.
+
+They keep working as before. Both `cmf-portal -h` and their own `-h` list them marked `[Deprecated]`, together with the command to use instead. Each one takes the same options as its replacement, except that the name (or path) is an option instead of a positional argument.
 
 | Legacy command | Use instead | Difference |
 |---|---|---|
@@ -307,67 +309,67 @@ The commands below are the original flat commands. They keep working exactly as 
 | <a href="#undeploy">`undeploy`</a> | <a href="#undeploy-env">`undeploy env`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
 | <a href="#uninstall-app">`uninstall-app`</a> | <a href="#undeploy-app">`undeploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
 
-`deploy`, `undeploy` and `publish` are also the verbs of the new commands, so `cmf-portal deploy -h` shows the verb help. Their legacy options are hidden there but still accepted.
+`deploy`, `undeploy` and `publish` are also the verbs of the new commands, so only running them **without a subcommand** is deprecated (e.g. `deploy -n my-env`, instead of `deploy env my-env`). `cmf-portal deploy -h` shows the verb help; the legacy options are hidden there but still accepted.
 
 ### checkagentconnection
 
 Usage: `cmf-portal checkagentconnection [options]`
 
-Same as <a href="#healthcheck-agent">`healthcheck agent`</a>, with the agent name given by `-n, --agent-name, --name <agent-name>`. Provide exactly one of `--agent-name` or `--customer-environment`.
+**Deprecated**, will be removed in a future major version. Use <a href="#healthcheck-agent">`healthcheck agent`</a> instead. This command takes the same options, except that the agent name is given by `-n, --agent-name, --name <agent-name>`. Provide exactly one of `--agent-name` or `--customer-environment`.
 
 ### createinfrastructure
 
 Usage: `cmf-portal createinfrastructure [options]`
 
-Same as <a href="#create-infrastructure">`create infrastructure`</a>, with the name given by `-n, --name <name>`.
+**Deprecated**, will be removed in a future major version. Use <a href="#create-infrastructure">`create infrastructure`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>`.
 
 ### deployagent
 
 Usage: `cmf-portal deployagent [options]`
 
-Same as <a href="#deploy-agent">`deploy agent`</a>, with the name given by `-n, --name <name>`.
+**Deprecated**, will be removed in a future major version. Use <a href="#deploy-agent">`deploy agent`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>`.
 
 ### deploy
 
 Usage: `cmf-portal deploy [options]`
 
-Same as <a href="#deploy-env">`deploy env`</a>, with the name given by `-n, --name <name>`.
+**Deprecated**, will be removed in a future major version. Use <a href="#deploy-env">`deploy env`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>`.
 
 ### download-artifacts
 
 Usage: `cmf-portal download-artifacts [options]`
 
-Same as <a href="#download-artifacts-name">`download artifacts`</a>, with the name given by `-n, --name <name>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#download-artifacts-name">`download artifacts`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
 
 ### install-app
 
 Usage: `cmf-portal install-app [options]`
 
-Same as <a href="#deploy-app">`deploy app`</a>, with the name given by `-n, --name <name>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#deploy-app">`deploy app`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
 
 ### publish
 
 Usage: `cmf-portal publish [options]`
 
-Same as <a href="#publish-deploymentpackage">`publish deploymentpackage`</a>, with the path given by `-p, --path <path>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#publish-deploymentpackage">`publish deploymentpackage`</a> instead. This command takes the same options, except that the path is given by `-p, --path <path>` (**REQUIRED**).
 
 ### publish-package
 
 Usage: `cmf-portal publish-package [options]`
 
-Same as <a href="#publish-installationpackage">`publish installationpackage`</a>, with the path given by `-p, --path <path>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#publish-installationpackage">`publish installationpackage`</a> instead. This command takes the same options, except that the path is given by `-p, --path <path>` (**REQUIRED**).
 
 ### undeploy
 
 Usage: `cmf-portal undeploy [options]`
 
-Same as <a href="#undeploy-env">`undeploy env`</a>, with the name given by `-n, --name <name>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-env">`undeploy env`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
 
 ### uninstall-app
 
 Usage: `cmf-portal uninstall-app [options]`
 
-Same as <a href="#undeploy-app">`undeploy app`</a>, with the name given by `-n, --name <name>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-app">`undeploy app`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
 
 ## Powershell
 

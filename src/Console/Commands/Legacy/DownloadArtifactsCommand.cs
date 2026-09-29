@@ -11,7 +11,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     {
         private readonly Option<string> nameOption = new("--name", "-n") { Description = Resources.DeploymentNameHelp, Required = true };
 
-        public DownloadArtifactsCommand() : base("download-artifacts", "Downloads all artifacts of a specific Customer Environment")
+        public DownloadArtifactsCommand() : base("download-artifacts", Resources.LegacyDownloadArtifactsHelp)
         {
             Options.Add(nameOption);
         }

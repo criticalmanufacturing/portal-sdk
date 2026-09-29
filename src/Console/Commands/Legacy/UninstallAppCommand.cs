@@ -11,7 +11,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     {
         private readonly Option<string> nameOption = new("--name", "-n") { Description = Resources.AppUninstallNameHelp, Required = true };
 
-        public UninstallAppCommand() : base("uninstall-app", "Uninstalls an app from a customer environment version")
+        public UninstallAppCommand() : base("uninstall-app", Resources.LegacyUninstallAppHelp)
         {
             Options.Add(nameOption);
         }

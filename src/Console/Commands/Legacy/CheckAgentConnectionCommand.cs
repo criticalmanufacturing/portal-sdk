@@ -12,7 +12,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     {
         private readonly Option<string> agentNameOption = new("--agent-name", "--name", "-n") { Description = Resources.GetAgentConnectionNameHelp };
 
-        public CheckAgentConnectionCommand() : base("checkagentconnection", "Check if an Infrastructure Agent is connected")
+        public CheckAgentConnectionCommand() : base("checkagentconnection", Resources.LegacyCheckAgentConnectionHelp)
         {
             Options.Add(agentNameOption);
         }

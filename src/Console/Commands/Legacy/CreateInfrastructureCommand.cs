@@ -11,7 +11,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     {
         private readonly Option<string> nameOption = new("--name", "-n") { Description = Resources.InfrastructureNameHelp };
 
-        public CreateInfrastructureCommand() : base("createinfrastructure", "Creates a customer Infrastructure")
+        public CreateInfrastructureCommand() : base("createinfrastructure", Resources.LegacyCreateInfrastructureHelp)
         {
             Options.Add(nameOption);
         }

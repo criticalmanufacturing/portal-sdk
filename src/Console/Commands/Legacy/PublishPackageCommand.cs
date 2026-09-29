@@ -12,7 +12,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     {
         private readonly Option<FileSystemInfo> pathOption = new Option<FileSystemInfo>("--path", "-p") { Description = Resources.PublishPackagePathHelp, Required = true }.AcceptExistingOnly();
 
-        public PublishPackageCommand() : base("publish-package", "Publishes a Deployment Package into Customer Portal")
+        public PublishPackageCommand() : base("publish-package", Resources.LegacyPublishPackageHelp)
         {
             Options.Add(pathOption);
         }

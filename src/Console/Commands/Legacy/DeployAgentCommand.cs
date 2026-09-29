@@ -1,3 +1,4 @@
+using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Deploy;
 using System.CommandLine;
 
@@ -8,7 +9,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     /// </summary>
     class DeployAgentCommand : DeployEnvironmentCommandBase
     {
-        public DeployAgentCommand() : base("deployagent", "Creates and deploys a new Infrastructure Agent", isInfrastructureAgent: true, includeNameOption: true)
+        public DeployAgentCommand() : base("deployagent", Resources.LegacyDeployAgentHelp, isInfrastructureAgent: true, includeNameOption: true)
         {
         }
 

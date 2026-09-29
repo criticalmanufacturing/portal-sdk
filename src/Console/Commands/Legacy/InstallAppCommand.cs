@@ -11,7 +11,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     {
         private readonly Option<string> nameOption = new("--name", "-n") { Description = Resources.AppNameHelp, Required = true };
 
-        public InstallAppCommand() : base("install-app", "Install an App in a previously deployed Convergence environment.")
+        public InstallAppCommand() : base("install-app", Resources.LegacyInstallAppHelp)
         {
             Options.Add(nameOption);
         }

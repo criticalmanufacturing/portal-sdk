@@ -4,18 +4,21 @@ using System.CommandLine;
 namespace Console.UnitTests;
 
 /// <summary>
-/// Help shows only the verb-noun commands, and every verb and noun documents itself.
+/// Help lists the verbs and the deprecated legacy commands, and every command documents itself.
 /// </summary>
 public class HelpTests
 {
     [Fact]
-    public void RootHelp_ListsOnlyVerbs()
+    public void RootHelp_ListsVerbsFollowedByDeprecatedLegacyCommands()
     {
         // Act
         string help = CommandLineFixture.Help("-h");
 
         // Assert
-        Assert.Equal(["create", "deploy", "download", "healthcheck", "login", "publish", "undeploy"], ListedCommands(help).Order());
+        Assert.Equal(
+            ["login", "deploy", "undeploy", "publish", "create", "healthcheck", "download",
+             "checkagentconnection", "createinfrastructure", "deployagent", "download-artifacts", "install-app", "publish-package", "uninstall-app"],
+            ListedCommands(help));
     }
 
     [Theory]
@@ -42,7 +45,7 @@ public class HelpTests
     [InlineData("install-app", "--app-version")]
     [InlineData("publish-package", "--path")]
     [InlineData("uninstall-app", "--removeVolumes")]
-    public void HiddenLegacyCommandHelp_StillListsItsOptions(string commandName, string expectedOption)
+    public void LegacyCommandHelp_ListsItsOptions(string commandName, string expectedOption)
     {
         // Act
         string help = CommandLineFixture.Help($"{commandName} -h");
@@ -64,19 +67,19 @@ public class HelpTests
     }
 
     [Fact]
-    public void EveryVisibleCommandAndArgument_HasADescription()
+    public void EveryCommandAndArgument_HasADescription()
     {
         // Arrange
         RootCommand root = RootCommandFactory.Create();
 
         // Act
-        var visibleCommands = root.Subcommands.Where(c => !c.Hidden)
+        var commands = root.Subcommands
             .SelectMany(verb => verb.Subcommands.Prepend(verb))
             .ToList();
 
         // Assert
-        Assert.All(visibleCommands, c => Assert.False(string.IsNullOrWhiteSpace(c.Description), $"{c.Name} has no description"));
-        Assert.All(visibleCommands.SelectMany(c => c.Arguments), a => Assert.False(string.IsNullOrWhiteSpace(a.Description), $"{a.Name} has no description"));
+        Assert.All(commands, c => Assert.False(string.IsNullOrWhiteSpace(c.Description), $"{c.Name} has no description"));
+        Assert.All(commands.SelectMany(c => c.Arguments), a => Assert.False(string.IsNullOrWhiteSpace(a.Description), $"{a.Name} has no description"));
     }
 
     private static IEnumerable<string> ListedCommands(string help)

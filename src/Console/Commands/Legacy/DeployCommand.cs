@@ -1,3 +1,4 @@
+using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Deploy;
 using System.CommandLine;
 
@@ -8,7 +9,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     /// </summary>
     class DeployCommand : DeployEnvironmentCommandBase
     {
-        public DeployCommand() : base("deploy", "Creates and deploys a new Customer Environment", isInfrastructureAgent: false, includeNameOption: true)
+        public DeployCommand() : base("deploy", Resources.LegacyDeployHelp, isInfrastructureAgent: false, includeNameOption: true)
         {
         }
 

@@ -8,16 +8,13 @@ using Cmf.CustomerPortal.Sdk.Console.Commands.Healthcheck;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Publish;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy;
 using System.CommandLine;
-using System.CommandLine.Help;
-using System.CommandLine.Invocation;
-using System.Linq;
 using Legacy = Cmf.CustomerPortal.Sdk.Console.Commands.Legacy;
 
 namespace Cmf.CustomerPortal.Sdk.Console
 {
     /// <summary>
     /// Builds the <c>cmf-portal</c> command tree: the <c>verb noun [name] [options]</c> commands, plus the
-    /// legacy flat commands, which keep working but are hidden from help.
+    /// deprecated legacy flat commands, which keep working and are listed in help with their replacement.
     /// </summary>
     static class RootCommandFactory
     {
@@ -42,26 +39,14 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.Subcommands.Add(Verb("healthcheck", Resources.VerbHealthcheckHelp, new HealthcheckAgentCommand()));
             rootCommand.Subcommands.Add(Verb("download", Resources.VerbDownloadHelp, new DownloadArtifactsCommand()));
 
-            // legacy commands without a matching verb
-            Command[] legacyCommands =
-            [
-                new Legacy.CheckAgentConnectionCommand(),
-                new Legacy.CreateInfrastructureCommand(),
-                new Legacy.DeployAgentCommand(),
-                new Legacy.DownloadArtifactsCommand(),
-                new Legacy.InstallAppCommand(),
-                new Legacy.PublishPackageCommand(),
-                new Legacy.UninstallAppCommand(),
-            ];
-            foreach (Command legacyCommand in legacyCommands)
-            {
-                legacyCommand.Hidden = true;
-                rootCommand.Subcommands.Add(legacyCommand);
-            }
-
-            // hidden legacy commands must still print their own help
-            HelpOption helpOption = rootCommand.Options.OfType<HelpOption>().Single();
-            helpOption.Action = new HiddenCommandHelpAction((SynchronousCommandLineAction)helpOption.Action);
+            // deprecated legacy commands without a matching verb, listed after the verbs so their help points to the replacement
+            rootCommand.Subcommands.Add(new Legacy.CheckAgentConnectionCommand());
+            rootCommand.Subcommands.Add(new Legacy.CreateInfrastructureCommand());
+            rootCommand.Subcommands.Add(new Legacy.DeployAgentCommand());
+            rootCommand.Subcommands.Add(new Legacy.DownloadArtifactsCommand());
+            rootCommand.Subcommands.Add(new Legacy.InstallAppCommand());
+            rootCommand.Subcommands.Add(new Legacy.PublishPackageCommand());
+            rootCommand.Subcommands.Add(new Legacy.UninstallAppCommand());
 
             return rootCommand;
         }

@@ -144,13 +144,13 @@ public class LegacyCommandTests(CommandLineFixture fixture) : IClassFixture<Comm
     [InlineData("install-app")]
     [InlineData("publish-package")]
     [InlineData("uninstall-app")]
-    public void LegacyOnlyCommand_IsHiddenFromHelp(string commandName)
+    public void LegacyOnlyCommand_IsListedInHelp(string commandName)
     {
         // Act
         Command command = RootCommandFactory.Create().Subcommands.Single(c => c.Name == commandName);
 
         // Assert
-        Assert.True(command.Hidden);
+        Assert.False(command.Hidden);
     }
 
     [Theory]

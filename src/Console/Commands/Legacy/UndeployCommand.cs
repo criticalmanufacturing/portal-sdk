@@ -11,7 +11,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
     {
         private readonly Option<string> nameOption = new("--name", "-n") { Description = Resources.CustomerEnvironmentNameHelp, Required = true };
 
-        public UndeployCommand() : base("undeploy", "Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments")
+        public UndeployCommand() : base("undeploy", Resources.LegacyUndeployHelp)
         {
             Options.Add(nameOption);
         }

@@ -39,6 +39,7 @@ C# coding standards live in the `dotnet-best-practices` skill; repo skills are i
 - Shared option sets are `IOptionExtension`s in `src/Console/Extensions`, added with `BaseCommand.Use(...)`.
 - Legacy flat commands live in `src/Console/Commands/Legacy`. They are deprecated (`DeprecationMessage`, printed to stderr)
   but keep working; legacy commands that share a verb name (`deploy`, `undeploy`, `publish`) become the verb via `AsVerb`.
+  Their options only parse without a noun: before a noun they are rejected, as on any other verb.
 
 ### PowerShell entry point
 - Cmdlets derive from `BaseCmdlet<THandler>` (`src/Powershell/Base/BaseCmdlet.cs`, built on `AsyncCmdlet`), override

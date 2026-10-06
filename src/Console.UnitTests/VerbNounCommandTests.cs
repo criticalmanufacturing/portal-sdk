@@ -127,6 +127,16 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     }
 
     [Fact]
+    public void VerbOptionBeforeNoun_IsUnrecognized()
+    {
+        // Act
+        ParseResult result = fixture.Parse("undeploy -f env my-env");
+
+        // Assert
+        Assert.Equal("Unrecognized command or argument '-f'.", Assert.Single(result.Errors).Message);
+    }
+
+    [Fact]
     public void HealthcheckAgent_WithoutAgent_ReportsWhichOptionsAreMissing()
     {
         // Act

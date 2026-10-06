@@ -157,14 +157,14 @@ public class LegacyCommandTests(CommandLineFixture fixture) : IClassFixture<Comm
     [InlineData("deploy")]
     [InlineData("undeploy")]
     [InlineData("publish")]
-    public void LegacyCommandUsedAsVerb_HidesLegacyOptionsExceptVerbose(string commandName)
+    public void LegacyCommandUsedAsVerb_HidesLegacyOptions(string commandName)
     {
         // Act
         Command command = RootCommandFactory.Create().Subcommands.Single(c => c.Name == commandName);
 
         // Assert
         Assert.False(command.Hidden);
-        Assert.All(command.Options, o => Assert.Equal(o.Name != "--verbose", o.Hidden));
+        Assert.All(command.Options, o => Assert.True(o.Hidden, $"{o.Name} is listed in help"));
     }
 
     private static string Normalize(IEnumerable<string> aliases, bool required)

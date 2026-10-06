@@ -8,6 +8,8 @@ using Cmf.CustomerPortal.Sdk.Console.Commands.Healthcheck;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Publish;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy;
 using System.CommandLine;
+using System.CommandLine.Parsing;
+using System.Linq;
 using Legacy = Cmf.CustomerPortal.Sdk.Console.Commands.Legacy;
 
 namespace Cmf.CustomerPortal.Sdk.Console
@@ -64,25 +66,36 @@ namespace Cmf.CustomerPortal.Sdk.Console
 
         /// <summary>
         /// Turns a legacy command into a verb: adds the nouns and hides the legacy options from help.
-        /// The legacy options still parse, so existing invocations keep working.
+        /// The legacy options still parse without a noun, so existing invocations keep working, but are rejected
+        /// before a noun, so the verb behaves like the ones without a legacy command.
         /// </summary>
         private static Command AsVerb(BaseCommand legacyCommand, string description, params Command[] nouns)
         {
             legacyCommand.Description = description;
             foreach (Option option in legacyCommand.Options)
             {
-                if (option != legacyCommand.VerboseOption)
-                {
-                    option.Hidden = true;
-                }
+                option.Hidden = true;
             }
 
             foreach (Command noun in nouns)
             {
+                noun.Validators.Add(RejectVerbOptions);
                 legacyCommand.Subcommands.Add(noun);
             }
 
             return legacyCommand;
+        }
+
+        private static void RejectVerbOptions(CommandResult nounResult)
+        {
+            // options given before the noun were parsed by the verb (the legacy command) and would be ignored
+            if (nounResult.Parent is CommandResult verbResult)
+            {
+                foreach (OptionResult optionResult in verbResult.Children.OfType<OptionResult>().Where(o => !o.Implicit))
+                {
+                    nounResult.AddError($"Unrecognized command or argument '{optionResult.IdentifierToken.Value}'.");
+                }
+            }
         }
     }
 }

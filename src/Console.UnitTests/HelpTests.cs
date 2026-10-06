@@ -62,7 +62,7 @@ public class HelpTests
         string help = CommandLineFixture.Help("deploy -h");
 
         // Assert
-        Assert.Contains("--verbose", help);
+        Assert.DoesNotContain("--verbose", help);
         Assert.DoesNotContain("--license", help);
     }
 

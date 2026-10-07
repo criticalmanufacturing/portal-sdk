@@ -15,13 +15,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell.Extensions
         {
             parameters = new List<RuntimeDefinedParameter>();
             parametersValue = new Dictionary<string, object>();
-            CreateRuntimeParameter("CustomerInfrastructureName", Resources.INFRASTRUCTURE_EXISTING_NAME_HELP, typeof(string), true);
-            CreateRuntimeParameter("Name", Resources.DEPLOYMENT_NAME_HELP, typeof(string), true);
-            CreateRuntimeParameter("Description", Resources.DEPLOYMENT_DESCRIPTION_HELP, typeof(string));
-            CreateRuntimeParameter("ParametersPath", Resources.DEPLOYMENT_PARAMETERSPATH_HELP, typeof(FileInfo));
-            CreateRuntimeParameter("EnvironmentType", Resources.DEPLOYMENT_ENVIRONMENTTYPE_HELP, typeof(EnvironmentType), defaultValue: EnvironmentType.Development);
-            CreateRuntimeParameter("DeploymentTargetName", Resources.DEPLOYMENT_TARGET_HELP, typeof(DeploymentTarget), mandatory: true);
-            CreateRuntimeParameter("OutputDir", Resources.DEPLOYMENT_OUTPUTDIR_HELP, typeof(DirectoryInfo));
+            CreateRuntimeParameter("CustomerInfrastructureName", Resources.InfrastructureExistingNameHelp, typeof(string), true);
+            CreateRuntimeParameter("Name", Resources.DeploymentNameHelp, typeof(string), true);
+            CreateRuntimeParameter("Description", Resources.DeploymentDescriptionHelp, typeof(string));
+            CreateRuntimeParameter("ParametersPath", Resources.DeploymentParametersPathHelp, typeof(FileInfo));
+            CreateRuntimeParameter("EnvironmentType", Resources.DeploymentEnvironmentTypeHelp, typeof(EnvironmentType), defaultValue: EnvironmentType.Development);
+            CreateRuntimeParameter("DeploymentTargetName", Resources.DeploymentTargetHelp, typeof(DeploymentTarget), mandatory: true);
+            CreateRuntimeParameter("OutputDir", Resources.DeploymentOutputDirHelp, typeof(DirectoryInfo));
         }
 
         public IEnumerable<RuntimeDefinedParameter> GetParameters()

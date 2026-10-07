@@ -13,14 +13,14 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
             Position = 0,
             ParameterSetName = "Agent",
             Mandatory = true,
-            HelpMessage = Resources.GETAGENTCONNECTION_NAME_HELP)]
+            HelpMessage = Resources.GetAgentConnectionNameHelp)]
         public string Name { get; set; }
 
         [Parameter(
             Position = 0,
             ParameterSetName = "CustomerEnvironment",
             Mandatory = true,
-            HelpMessage = Resources.GETAGENTCONNECTION_CUSTOMER_ENVIRONMENT_HELP)]
+            HelpMessage = Resources.GetAgentConnectionCustomerEnvironmentHelp)]
         public string CustomerEnvironment { get; set; }
 
         protected override async Task ProcessRecordAsync()

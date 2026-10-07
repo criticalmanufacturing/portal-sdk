@@ -1,0 +1,20 @@
+using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Console.Commands.Deploy;
+using System.CommandLine;
+
+namespace Cmf.CustomerPortal.Sdk.Console.Commands.Legacy
+{
+    /// <summary>
+    /// Legacy <c>deploy</c> command. Superseded by <c>deploy env</c>.
+    /// </summary>
+    class DeployCommand : DeployEnvironmentCommandBase
+    {
+        public DeployCommand() : base("deploy", Resources.LegacyDeployHelp, isInfrastructureAgent: false, includeNameOption: true)
+        {
+        }
+
+        public override string DeprecationMessage => Resources.LegacyDeployDeprecated;
+
+        protected override string GetName(ParseResult parseResult) => parseResult.GetValue(CommonParameters.Name);
+    }
+}

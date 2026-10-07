@@ -14,13 +14,13 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         private ReplaceTokensParameterExtension ReplaceTokensExtension;
 
         [Parameter(
-            HelpMessage = Resources.PUBLISHMANIFESTS_PATH_HELP,
+            HelpMessage = Resources.PublishManifestsPathHelp,
             Mandatory = true
         )]
         public string Path { get; set; }
 
         [Parameter(
-            HelpMessage = Resources.PUBLISHMANIFESTS_DATAGROUP_HELP,
+            HelpMessage = Resources.PublishManifestsDatagroupHelp,
             Mandatory = false
         )]
         public string Datagroup { get; set; }

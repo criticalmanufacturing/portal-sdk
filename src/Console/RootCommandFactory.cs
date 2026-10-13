@@ -1,6 +1,7 @@
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.CustomerPortal.Sdk.Console.Commands;
+using Cmf.CustomerPortal.Sdk.Console.Commands.Cancel;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Create;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Deploy;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Download;
@@ -37,6 +38,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.Subcommands.Add(AsVerb(new Legacy.PublishCommand(), Resources.VerbPublishHelp,
                 new PublishDeploymentPackageCommand(), new PublishInstallationPackageCommand()));
 
+            rootCommand.Subcommands.Add(Verb("cancel", Resources.VerbCancelHelp, new CancelEnvironmentCommand(), new CancelAppCommand()));
             rootCommand.Subcommands.Add(Verb("create", Resources.VerbCreateHelp, new CreateInfrastructureCommand()));
             rootCommand.Subcommands.Add(Verb("healthcheck", Resources.VerbHealthcheckHelp, new HealthcheckAgentCommand()));
             rootCommand.Subcommands.Add(Verb("download", Resources.VerbDownloadHelp, new DownloadArtifactsCommand()));

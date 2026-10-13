@@ -16,7 +16,7 @@ public class HelpTests
 
         // Assert
         Assert.Equal(
-            ["login", "deploy", "undeploy", "publish", "create", "healthcheck", "download",
+            ["login", "deploy", "undeploy", "publish", "cancel", "create", "healthcheck", "download",
              "checkagentconnection", "createinfrastructure", "deployagent", "download-artifacts", "install-app", "publish-package", "uninstall-app"],
             ListedCommands(help));
     }
@@ -25,6 +25,7 @@ public class HelpTests
     [InlineData("deploy -h", new[] { "agent", "app, application", "env, environment" })]
     [InlineData("undeploy -h", new[] { "app, application", "env, environment" })]
     [InlineData("publish -h", new[] { "deploymentpackage", "installationpackage" })]
+    [InlineData("cancel -h", new[] { "app, application", "env, environment" })]
     [InlineData("create -h", new[] { "infra, infrastructure" })]
     [InlineData("healthcheck -h", new[] { "agent" })]
     [InlineData("download -h", new[] { "artifacts" })]

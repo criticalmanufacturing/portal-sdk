@@ -68,6 +68,8 @@ public partial class CustomerPortalClient
             messageBus.SetDataGroupToken(applicationBootInformation.MessageBusDataGroupsToken);
 
             // The transport reuses its security token on every reconnect, so keep it valid
+            // TODO: once DevOps Center is updated to v12, the MessageBus uses the same access token as the LBOs, so it is
+            // enough to update the MessageBus security token with that same value, and MessageBusTokenRefresher can be dropped.
             var tokenRefresher = new MessageBusTokenRefresher(session, FetchMessageBusTokens, tokens =>
             {
                 messageBus.SetSecurityToken(tokens.SecurityToken);

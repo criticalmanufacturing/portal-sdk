@@ -67,7 +67,7 @@ public partial class CustomerPortalClient
             Transport messageBus = new Transport(transportConfig);
             messageBus.SetDataGroupToken(applicationBootInformation.MessageBusDataGroupsToken);
 
-            // The transport reuses its security token on every reconnect, so keep it valid
+            // The transport reuses its security token on every reconnect, so refresh it when the MessageBus rejects it
             // TODO: once DevOps Center is updated to v12, the MessageBus uses the same access token as the LBOs, so it is
             // enough to update the MessageBus security token with that same value, and MessageBusTokenRefresher can be dropped.
             var tokenRefresher = new MessageBusTokenRefresher(session, FetchMessageBusTokens, tokens =>
@@ -120,7 +120,6 @@ public partial class CustomerPortalClient
 
             session.LogDebug("Message Bus connected with success!");
 
-            tokenRefresher.Start(applicationBootInformation.MessageBusToken);
             _transport = new MessageBusTransportAdapter(messageBus);
         }
         finally

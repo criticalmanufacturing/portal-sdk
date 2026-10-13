@@ -67,6 +67,13 @@ public partial class CustomerPortalClient
             Transport messageBus = new Transport(transportConfig);
             messageBus.SetDataGroupToken(applicationBootInformation.MessageBusDataGroupsToken);
 
+            // The transport reuses its security token on every reconnect, so keep it valid
+            var tokenRefresher = new MessageBusTokenRefresher(session, FetchMessageBusTokens, tokens =>
+            {
+                messageBus.SetSecurityToken(tokens.SecurityToken);
+                messageBus.SetDataGroupToken(tokens.DataGroupsToken);
+            });
+
             // Register events
             messageBus.Connected += () => { session.LogDebug("Message Bus Connect!"); };
 
@@ -74,7 +81,11 @@ public partial class CustomerPortalClient
 
             messageBus.InformationMessage += session.LogDebug;
 
-            messageBus.Exception += message => { session.LogError(new Exception(message)); };
+            messageBus.Exception += message =>
+            {
+                session.LogError(new Exception(message));
+                tokenRefresher.OnTransportException(message);
+            };
 
             // start the message bus and wait up to 15s for connection
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -107,6 +118,7 @@ public partial class CustomerPortalClient
 
             session.LogDebug("Message Bus connected with success!");
 
+            tokenRefresher.Start(applicationBootInformation.MessageBusToken);
             _transport = new MessageBusTransportAdapter(messageBus);
         }
         finally
@@ -115,5 +127,12 @@ public partial class CustomerPortalClient
         }
 
         return _transport;
+    }
+
+    private static async Task<MessageBusTokens> FetchMessageBusTokens()
+    {
+        var applicationBootInformation =
+            await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true);
+        return new MessageBusTokens(applicationBootInformation.MessageBusToken, applicationBootInformation.MessageBusDataGroupsToken);
     }
 }

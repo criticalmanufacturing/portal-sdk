@@ -67,6 +67,15 @@ public partial class CustomerPortalClient
             Transport messageBus = new Transport(transportConfig);
             messageBus.SetDataGroupToken(applicationBootInformation.MessageBusDataGroupsToken);
 
+            // The transport reuses its security token on every reconnect, so refresh it when the MessageBus rejects it
+            // TODO: once DevOps Center is updated to v12, the MessageBus uses the same access token as the LBOs, so it is
+            // enough to update the MessageBus security token with that same value, and MessageBusTokenRefresher can be dropped.
+            var tokenRefresher = new MessageBusTokenRefresher(session, FetchMessageBusTokens, tokens =>
+            {
+                messageBus.SetSecurityToken(tokens.SecurityToken);
+                messageBus.SetDataGroupToken(tokens.DataGroupsToken);
+            });
+
             // Register events
             messageBus.Connected += () => { session.LogDebug("Message Bus Connect!"); };
 
@@ -74,7 +83,11 @@ public partial class CustomerPortalClient
 
             messageBus.InformationMessage += session.LogDebug;
 
-            messageBus.Exception += message => { session.LogError(new Exception(message)); };
+            messageBus.Exception += message =>
+            {
+                session.LogError(new Exception(message));
+                tokenRefresher.OnTransportException(message);
+            };
 
             // start the message bus and wait up to 15s for connection
             var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -115,5 +128,12 @@ public partial class CustomerPortalClient
         }
 
         return _transport;
+    }
+
+    private static async Task<MessageBusTokens> FetchMessageBusTokens()
+    {
+        var applicationBootInformation =
+            await new GetApplicationBootInformationInput().GetApplicationBootInformationAsync(true);
+        return new MessageBusTokens(applicationBootInformation.MessageBusToken, applicationBootInformation.MessageBusDataGroupsToken);
     }
 }

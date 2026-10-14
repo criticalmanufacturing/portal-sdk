@@ -16,7 +16,7 @@ public class HelpTests
 
         // Assert
         Assert.Equal(
-            ["login", "deploy", "undeploy", "publish", "create", "healthcheck", "download",
+            ["login", "deploy", "undeploy", "publish", "create", "healthcheck", "download", "get", "logs",
              "checkagentconnection", "createinfrastructure", "deployagent", "download-artifacts", "install-app", "publish-package", "uninstall-app"],
             ListedCommands(help));
     }
@@ -28,6 +28,8 @@ public class HelpTests
     [InlineData("create -h", new[] { "infra, infrastructure" })]
     [InlineData("healthcheck -h", new[] { "agent" })]
     [InlineData("download -h", new[] { "artifacts" })]
+    [InlineData("get -h", new[] { "env, environment" })]
+    [InlineData("logs -h", new[] { "env, environment" })]
     public void VerbHelp_ListsNouns(string commandLine, string[] expectedNouns)
     {
         // Act

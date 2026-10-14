@@ -4,7 +4,9 @@ using Cmf.CustomerPortal.Sdk.Console.Commands;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Create;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Deploy;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Download;
+using Cmf.CustomerPortal.Sdk.Console.Commands.Get;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Healthcheck;
+using Cmf.CustomerPortal.Sdk.Console.Commands.Logs;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Publish;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy;
 using System.CommandLine;
@@ -40,6 +42,8 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.Subcommands.Add(Verb("create", Resources.VerbCreateHelp, new CreateInfrastructureCommand()));
             rootCommand.Subcommands.Add(Verb("healthcheck", Resources.VerbHealthcheckHelp, new HealthcheckAgentCommand()));
             rootCommand.Subcommands.Add(Verb("download", Resources.VerbDownloadHelp, new DownloadArtifactsCommand()));
+            rootCommand.Subcommands.Add(Verb("get", Resources.VerbGetHelp, new GetEnvironmentCommand()));
+            rootCommand.Subcommands.Add(Verb("logs", Resources.VerbLogsHelp, new LogsEnvironmentCommand()));
 
             // deprecated legacy commands without a matching verb, listed after the verbs so their help points to the replacement
             rootCommand.Subcommands.Add(new Legacy.CheckAgentConnectionCommand());

@@ -115,6 +115,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
         Task<string> GetCustomerEnvironmentTerminationLogs(long ceId);
 
         /// <summary>
+        /// Loads the deployment (installation) logs for a particular customer environment.
+        /// </summary>
+        /// <param name="ceId">Id of the Customer Environment.</param>
+        /// <returns>The deployment logs, as returned by the portal.</returns>
+        Task<string> GetCustomerEnvironmentDeploymentLogs(long ceId);
+
+        /// <summary>
         /// Loads an entity type by its name.
         /// </summary>
         /// <param name="name">Name of the entity type.</param>

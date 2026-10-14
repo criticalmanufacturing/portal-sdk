@@ -1,0 +1,15 @@
+namespace Cmf.CustomerPortal.Sdk.Common;
+
+/// <summary>
+/// Help texts and messages for getting the details and the logs of Customer Environments.
+/// </summary>
+public static partial class Resources
+{
+    public const string EnvironmentVersionHelp = "Version number of the Customer Environment version to use. The current version is used when omitted";
+    public const string OutputFormatHelp = "Format of the output: a readable table, or JSON for scripts";
+    public const string LogTypeHelp = "Type of logs to get: the installation logs, the termination logs, or both";
+
+    public const string EnvironmentNotFoundMessage = "Customer Environment '{0}' does not exist";
+    public const string EnvironmentVersionNotFoundMessage = "Customer Environment '{0}' has no version {1}";
+    public const string EnvironmentVersionInvalidMessage = "The version must be a positive number";
+}

@@ -15,6 +15,15 @@ public interface ICustomerEnvironmentServices
     Task<CustomerEnvironment> GetCustomerEnvironment(string name);
 
     /// <summary>
+    /// Gets a version of a customer environment, with its parameters loaded.
+    /// </summary>
+    /// <param name="name">The customer environment name.</param>
+    /// <param name="version">The version number of the version to get, or <c>null</c> for the current version.</param>
+    /// <returns>The customer environment version.</returns>
+    /// <exception cref="NotFoundException">The customer environment, or the requested version, does not exist.</exception>
+    Task<CustomerEnvironment> GetCustomerEnvironmentVersion(string name, int? version);
+
+    /// <summary>
     /// Creates the environment or a new version if it already exists.
     /// </summary>
     /// <param name="customerEnvironment">The customer environment.</param>

@@ -1,10 +1,12 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.Foundation.BusinessObjects;
+using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -34,6 +36,86 @@ internal class CustomerEnvironmentServices(
         }
 
         return environment;
+    }
+
+    public async Task<CustomerEnvironment> GetCustomerEnvironmentVersion(string name, int? version)
+    {
+        long id;
+        if (version is null)
+        {
+            try
+            {
+                id = (await customerPortalClient.GetObjectByName<CustomerEnvironment>(name)).Id;
+            }
+            catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
+            {
+                throw new NotFoundException(string.Format(Resources.EnvironmentNotFoundMessage, name));
+            }
+        }
+        else
+        {
+            id = await GetCustomerEnvironmentVersionId(name, version.Value)
+                ?? throw new NotFoundException(string.Format(Resources.EnvironmentVersionNotFoundMessage, name, version));
+        }
+
+        session.LogDebug($"Loading customer environment {name} (Id {id})");
+        return await customerPortalClient.GetCustomerEnvironmentById(id);
+    }
+
+    /// <summary>
+    /// Queries the Id of the given version of a customer environment.
+    /// </summary>
+    /// <returns>The Id of the version, or <c>null</c> when there is no such version.</returns>
+    private async Task<long?> GetCustomerEnvironmentVersionId(string name, int version)
+    {
+        QueryObject query = new QueryObject
+        {
+            EntityTypeName = "CustomerEnvironment",
+            Name = "GetCustomerEnvironmentVersion",
+            Query = new Query()
+        };
+        query.Query.Distinct = false;
+        query.Query.Filters = new FilterCollection() {
+            new Filter()
+            {
+                Name = "Name",
+                ObjectName = "CustomerEnvironment",
+                ObjectAlias = "CustomerEnvironment_1",
+                Operator = Foundation.Common.FieldOperator.IsEqualTo,
+                Value = name,
+                LogicalOperator = Foundation.Common.LogicalOperator.AND,
+                FilterType = Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,
+            },
+            new Filter()
+            {
+                Name = "Version",
+                ObjectName = "CustomerEnvironment",
+                ObjectAlias = "CustomerEnvironment_1",
+                Operator = Foundation.Common.FieldOperator.IsEqualTo,
+                Value = version,
+                LogicalOperator = Foundation.Common.LogicalOperator.Nothing,
+                FilterType = Foundation.BusinessObjects.QueryObject.Enums.FilterType.Normal,
+            }
+        };
+        query.Query.Fields = new FieldCollection() {
+            new Field()
+            {
+                Alias = "Id",
+                ObjectName = "CustomerEnvironment",
+                ObjectAlias = "CustomerEnvironment_1",
+                IsUserAttribute = false,
+                Name = "Id",
+                Position = 0,
+                Sort = Foundation.Common.FieldSort.NoSort
+            }
+        };
+        query.Query.Relations = new RelationCollection();
+
+        DataSet dataSet = await customerPortalClient.ExecuteQuery(query);
+
+        return dataSet?.Tables?.Count > 0 && dataSet.Tables[0].Rows.Count > 0
+            ? (long)dataSet.Tables[0].Rows[0]["Id"]
+            : null;
     }
 
     public async Task<CustomerEnvironment> CreateEnvironment(CustomerEnvironment customerEnvironment)

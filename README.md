@@ -74,7 +74,7 @@ Examples:
   - `cmf-portal healthcheck agent <agent-name>` - Check if the Infrastructure Agent named <agent-name> is connected
   - `cmf-portal healthcheck agent -ce <customer-environment>` - Check if the Infrastructure Agent associated with <customer-environment> is connected
   - `cmf-portal get env my-env -ver 3 -f json` - Shows the details of version 3 of `my-env` as JSON
-  - `cmf-portal logs env my-env --type termination > termination.json` - Saves the termination logs of the current version of `my-env`
+  - `cmf-portal logs env my-env --type termination -o termination.json` - Saves the termination logs of the current version of `my-env`
   - `cmf-portal healthcheck agent -h` - Displays help about the command, including a brief description of its function, how to use it and what arguments and options are available and/or required.
 
 **Note:** npm package names start with `@`, which the parser reads as a response file when it's a separate argument. Pass them as `--package=@scope/name`.
@@ -328,6 +328,7 @@ Options:
   - `-v, --verbose` - Show detailed logging
   - `-ver, --version <version>` - Version number of the Customer Environment version to use. The current version is used when omitted
   - `--type <All|Installation|Termination>` - Type of logs to get. Defaults to `All`
+  - `-o, --output <path>` - File to write the logs to, or a directory to write them to as `<name>-logs.json` (`<name>-v<version>-logs.json` with `--version`). Missing directories are created. The logs are written to the standard output when omitted
   - `-?, -h, --help` - Show help and usage information
 
 ### Legacy commands (deprecated, still supported)

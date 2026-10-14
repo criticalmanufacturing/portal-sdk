@@ -1,6 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-
 namespace Cmf.CustomerPortal.Sdk.Console.Base;
 
 /// <summary>
@@ -17,20 +14,4 @@ enum OutputFormat
     /// Indented JSON, for scripts.
     /// </summary>
     Json
-}
-
-/// <summary>
-/// Settings for the JSON written to the standard output.
-/// </summary>
-static class JsonOutput
-{
-    /// <summary>
-    /// Indented, camelCase JSON. Characters are not escaped beyond what JSON requires, so logs stay readable.
-    /// </summary>
-    public static JsonSerializerOptions Options { get; } = new()
-    {
-        WriteIndented = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    };
 }

@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 namespace Cmf.CustomerPortal.Sdk.Console.Commands.Logs;
 
 /// <summary>
-/// <c>logs env &lt;name&gt; [--version &lt;version&gt;] [--type All|Installation|Termination]</c>: writes the
-/// logs of a Customer Environment version as one JSON object, keyed by log type.
+/// <c>logs env &lt;name&gt; [--version &lt;version&gt;] [--type All|Installation|Termination] [--output &lt;path&gt;]</c>:
+/// writes the logs of a Customer Environment version as one JSON object, keyed by log type, to the standard output or
+/// to a file.
 /// </summary>
 class LogsEnvironmentCommand : BaseCommand
 {
@@ -22,6 +23,12 @@ class LogsEnvironmentCommand : BaseCommand
         DefaultValueFactory = _ => EnvironmentLogType.All
     };
 
+    private readonly Option<string> outputOption = new("--output", "-o")
+    {
+        Description = Resources.LogsOutputHelp,
+        HelpName = "path"
+    };
+
     private readonly EnvironmentVersionExtension version;
 
     public LogsEnvironmentCommand() : base("env", Resources.NounLogsEnvironmentHelp)
@@ -30,6 +37,7 @@ class LogsEnvironmentCommand : BaseCommand
         Arguments.Add(nameArgument);
         version = Use(new EnvironmentVersionExtension());
         Options.Add(typeOption);
+        Options.Add(outputOption);
 
         SetAction(GetLogs);
     }
@@ -38,10 +46,21 @@ class LogsEnvironmentCommand : BaseCommand
 
     private async Task GetLogs(ParseResult parseResult)
     {
+        string name = parseResult.GetValue(nameArgument);
+        int? versionNumber = parseResult.GetValue(version.Version);
+
         CreateSession(parseResult);
         GetEnvironmentLogsHandler handler = ServiceLocator.Get<GetEnvironmentLogsHandler>();
-        JsonObject logs = await handler.Run(parseResult.GetValue(nameArgument), parseResult.GetValue(version.Version), parseResult.GetValue(typeOption));
+        JsonObject logs = await handler.Run(name, versionNumber, parseResult.GetValue(typeOption));
 
-        parseResult.InvocationConfiguration.Output.WriteLine(logs.ToJsonString(JsonOutput.Options));
+        string output = parseResult.GetValue(outputOption);
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            parseResult.InvocationConfiguration.Output.WriteLine(logs.ToJsonString(JsonOutput.Options));
+        }
+        else
+        {
+            handler.WriteLogs(logs, output, name, versionNumber);
+        }
     }
 }

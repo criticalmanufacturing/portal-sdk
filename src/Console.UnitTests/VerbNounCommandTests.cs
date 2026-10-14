@@ -42,6 +42,8 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         { "get env my-env --version 3 --format Table -v", typeof(GetEnvironmentCommand) },
         { "logs env my-env", typeof(LogsEnvironmentCommand) },
         { "logs environment my-env -ver 3 --type termination -v", typeof(LogsEnvironmentCommand) },
+        { "logs env my-env -o logs.json", typeof(LogsEnvironmentCommand) },
+        { "logs env my-env --output \"{dir}\" --type installation", typeof(LogsEnvironmentCommand) },
     };
 
     [Theory]
@@ -199,6 +201,18 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         // Assert
         Assert.Empty(result.Errors);
         Assert.Equal(EnvironmentLogType.All, result.GetValue<EnvironmentLogType>("--type"));
+        Assert.Null(result.GetValue<string>("--output"));
+    }
+
+    [Fact]
+    public void LogsEnvironment_ReadsTheOutputPath()
+    {
+        // Act
+        ParseResult result = fixture.Parse("logs env my-env -o out/logs.json");
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal("out/logs.json", result.GetValue<string>("--output"));
     }
 
     [Fact]

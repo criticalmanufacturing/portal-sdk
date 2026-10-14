@@ -159,5 +159,19 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="operationAttributes"></param>
         /// <returns></returns>
         public Task TerminateCustomerEnvironments(List<long> customerEnvironmentIds, OperationAttributeCollection operationAttributes);
+
+        /// <summary>
+        /// Cancels the in-progress deployment of a customer environment.
+        /// </summary>
+        /// <param name="customerEnvironmentId">Id of the Customer Environment.</param>
+        /// <returns></returns>
+        public Task CancelEnvironmentDeployment(long customerEnvironmentId);
+
+        /// <summary>
+        /// Cancels the in-progress deployment of an app installed in a customer environment.
+        /// </summary>
+        /// <param name="customerEnvironmentApplicationPackageId">Id of the CustomerEnvironmentApplicationPackage relation.</param>
+        /// <returns></returns>
+        public Task CancelAppDeployment(long customerEnvironmentApplicationPackageId);
     }
 }

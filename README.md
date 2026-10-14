@@ -53,6 +53,8 @@ Commands:
 | <a href="#deploy-app">`deploy app <name>`</a> | Installs an App in a previously deployed Customer Environment | `install-app` |
 | <a href="#undeploy-env">`undeploy env <name>`</a> | Creates a new Customer Environment version and terminates the other versions, removing deployments | `undeploy` |
 | <a href="#undeploy-app">`undeploy app <name>`</a> | Uninstalls an App from a Customer Environment | `uninstall-app` |
+| <a href="#cancel-env">`cancel env <name>`</a> | Cancels the in-progress deployment of a Customer Environment | |
+| <a href="#cancel-app">`cancel app <name>`</a> | Cancels the in-progress installation of an App in a Customer Environment | |
 | <a href="#create-infrastructure">`create infrastructure [name]`</a> | Creates a Customer Infrastructure | `createinfrastructure` |
 | <a href="#healthcheck-agent">`healthcheck agent [agent-name]`</a> | Checks if an Infrastructure Agent is connected | `checkagentconnection` |
 | <a href="#publish-deploymentpackage">`publish deploymentpackage <path>`</a> | Publishes one or more Deployment Package manifests into the Customer Portal | `publish` |
@@ -206,6 +208,33 @@ Options:
   - `-to, --timeout <timeout>` - Timeout, in minutes, to wait for an App to uninstall. The default is 360 minutes.
   - `-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
   - `-?, -h, --help` - Show help and usage information.
+
+### cancel env
+
+Cancels the in-progress deployment of a Customer Environment. Fails if the Customer Environment does not exist.
+
+Usage: `cmf-portal cancel env <name> [options]` (alias: `cancel environment`)
+
+Arguments:
+  - `name` - **REQUIRED** - Name of the Customer Environment
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-?, -h, --help` - Show help and usage information
+
+### cancel app
+
+Cancels the in-progress installation of an App in a Customer Environment. Fails if the Customer Environment does not exist or the App is not installed in it.
+
+Usage: `cmf-portal cancel app <name> -ce <customer-environment> [options]` (alias: `cancel application`)
+
+Arguments:
+  - `name` - **REQUIRED** - Name of the App
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-ce, --customer-environment <customer-environment>` - **REQUIRED** - Name of the Customer Environment where the App is installed.
+  - `-?, -h, --help` - Show help and usage information
 
 ### create infrastructure
 

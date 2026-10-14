@@ -13,6 +13,7 @@ public static partial class Resources
     public const string VerbHealthcheckHelp = "Checks the health of a resource";
     public const string VerbPublishHelp = "Publishes Deployment Packages or Installation Packages into the Customer Portal";
     public const string VerbDownloadHelp = "Downloads resources from the Customer Portal";
+    public const string VerbCancelHelp = "Cancels an in-progress deployment of a Customer Environment or an App";
 
     public const string NounDeployEnvironmentHelp = "Creates and deploys a new Customer Environment, or a new version of an existing one";
     public const string NounDeployAgentHelp = "Creates and deploys a new Infrastructure Agent";
@@ -24,8 +25,11 @@ public static partial class Resources
     public const string NounPublishDeploymentPackageHelp = "Publishes one or more Deployment Package manifests into the Customer Portal";
     public const string NounPublishInstallationPackageHelp = "Publishes one or more Installation Packages (zip) into the Customer Portal";
     public const string NounDownloadArtifactsHelp = "Downloads all artifacts of a Customer Environment";
+    public const string NounCancelEnvironmentHelp = "Cancels the in-progress deployment of a Customer Environment";
+    public const string NounCancelAppHelp = "Cancels the in-progress installation of an App in a Customer Environment";
 
     public const string ArgEnvironmentNameHelp = "Name of the Customer Environment. A name is generated when omitted";
     public const string ArgAgentNameHelp = "Name of the Infrastructure Agent. A name is generated when omitted";
     public const string ArgExistingEnvironmentNameHelp = "Name of the Customer Environment";
+    public const string ArgAppNameHelp = "Name of the App";
 }

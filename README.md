@@ -58,8 +58,8 @@ Commands:
 | <a href="#publish-deploymentpackage">`publish deploymentpackage <path>`</a> | Publishes one or more Deployment Package manifests into the Customer Portal | `publish` |
 | <a href="#publish-installationpackage">`publish installationpackage <path>`</a> | Publishes one or more Installation Packages into the Customer Portal | `publish-package` |
 | <a href="#download-artifacts-name">`download artifacts <name>`</a> | Downloads all artifacts of a Customer Environment | `download-artifacts` |
-| <a href="#get-env">`get env <name>`</a> | Shows the details of a Customer Environment, or of one of its versions | |
-| <a href="#logs-env">`logs env <name>`</a> | Shows the installation and termination logs of a Customer Environment, or of one of its versions, as JSON | |
+| <a href="#get-env">`get env <name>`</a> | **[Preview]** Shows the details of a Customer Environment, or of one of its versions | |
+| <a href="#logs-env">`logs env <name>`</a> | **[Preview]** Shows the installation and termination logs of a Customer Environment, or of one of its versions, as JSON | |
 
 `<name>` is a required argument and `[name]` an optional one. For example, `deploy env` generates a name when it is omitted.
 
@@ -298,6 +298,8 @@ Options:
 
 Shows the details of a Customer Environment, or of one of its versions.
 
+> **Preview:** this command is a preview, so its options and output may change in a future version. When it runs, it says so on standard error, so its output is unchanged for scripts.
+
 Usage: `cmf-portal get env <name> [options]` (alias: `get environment`)
 
 Arguments:
@@ -314,6 +316,8 @@ Options:
 Shows the installation and termination logs of a Customer Environment, or of one of its versions. The logs are written as one
 JSON object keyed by log type (`installation`, `termination`), so they can be redirected to a file or piped to `jq`. A log that
 doesn't exist is `null`.
+
+> **Preview:** this command is a preview, so its options and output may change in a future version. When it runs, it says so on standard error, so its output is unchanged for scripts.
 
 Usage: `cmf-portal logs env <name> [options]` (alias: `logs environment`)
 

@@ -12,4 +12,8 @@ public static partial class Resources
     public const string EnvironmentNotFoundMessage = "Customer Environment '{0}' does not exist";
     public const string EnvironmentVersionNotFoundMessage = "Customer Environment '{0}' has no version {1}";
     public const string EnvironmentVersionInvalidMessage = "The version must be a positive number";
+
+    // messages printed when a preview command runs
+    public const string GetEnvironmentPreview = "[Preview] 'get env' is a preview: its options and output may change in a future version.";
+    public const string LogsEnvironmentPreview = "[Preview] 'logs env' is a preview: its options and output may change in a future version.";
 }

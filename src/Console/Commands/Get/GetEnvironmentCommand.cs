@@ -37,6 +37,8 @@ class GetEnvironmentCommand : BaseCommand
         SetAction(GetEnvironment);
     }
 
+    public override string PreviewMessage => Resources.GetEnvironmentPreview;
+
     private async Task GetEnvironment(ParseResult parseResult)
     {
         CreateSession(parseResult);
@@ -55,42 +57,41 @@ class GetEnvironmentCommand : BaseCommand
     }
 
     /// <summary>
-    /// Writes the details as <c>Label: value</c> lines with aligned values, skipping the empty ones.
+    /// Value shown for an empty field.
+    /// </summary>
+    internal const string EmptyValue = "-";
+
+    /// <summary>
+    /// Writes the details as <c>Label: value</c> lines with aligned values: one line per field of the JSON output,
+    /// with <see cref="EmptyValue"/> for the empty ones.
     /// </summary>
     internal static void WriteTable(TextWriter output, CustomerEnvironmentDetails details)
     {
-        (string Label, string? Value)[] rows =
+        (string Label, string Value)[] rows =
         [
-            ("Name", details.Name),
             ("Id", details.Id.ToString()),
+            ("Name", details.Name),
             ("Version", details.Version.ToString()),
             ("Description", details.Description),
-            ("Type", details.EnvironmentType),
+            ("Environment Type", details.EnvironmentType),
             ("Status", details.Status),
             ("Universal State", details.UniversalState),
             ("Site", details.Site),
             ("Customer Infrastructure", details.CustomerInfrastructure),
             ("Deployment Package", details.DeploymentPackage),
             ("Deployment Target", details.DeploymentTarget),
-            ("Created", Audit(details.CreatedOn, details.CreatedBy)),
-            ("Modified", Audit(details.ModifiedOn, details.ModifiedBy))
+            ("Created By", details.CreatedBy),
+            ("Created On", FormatDate(details.CreatedOn)),
+            ("Modified By", details.ModifiedBy),
+            ("Modified On", FormatDate(details.ModifiedOn))
         ];
 
         int width = rows.Max(row => row.Label.Length) + 1;
-        foreach ((string label, string? value) in rows.Where(row => row.Value != null))
+        foreach ((string label, string value) in rows)
         {
-            output.WriteLine($"{(label + ":").PadRight(width)} {value}");
+            output.WriteLine($"{(label + ":").PadRight(width)} {value ?? EmptyValue}");
         }
     }
 
-    private static string? Audit(DateTime on, string? by)
-    {
-        if (on == default)
-        {
-            return by;
-        }
-
-        string date = on.ToString("yyyy-MM-dd HH:mm:ss");
-        return by == null ? date : $"{date} by {by}";
-    }
+    private static string FormatDate(DateTime date) => date == default ? null : date.ToString("yyyy-MM-dd HH:mm:ss");
 }

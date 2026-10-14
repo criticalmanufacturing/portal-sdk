@@ -43,13 +43,20 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         public virtual string DeprecationMessage => null;
 
         /// <summary>
-        /// Warns that the command is deprecated, when it is, then creates the session and service locator,
+        /// Message printed when the command runs, telling it is a preview whose options and output may change.
+        /// <c>null</c> when the command is not a preview.
+        /// </summary>
+        public virtual string PreviewMessage => null;
+
+        /// <summary>
+        /// Warns that the command is deprecated or a preview, when it is, then creates the session and service locator,
         /// honouring the <c>--verbose</c> option.
         /// </summary>
         /// <param name="parseResult">The parse result of the invocation.</param>
         protected void CreateSession(ParseResult parseResult)
         {
             WarnIfDeprecated(parseResult.InvocationConfiguration.Error);
+            WarnIfPreview(parseResult.InvocationConfiguration.Error);
 
             Session session = new Session(parseResult.GetValue(VerboseOption));
             ServiceLocator = new ServiceLocator(session);
@@ -64,6 +71,18 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
             if (DeprecationMessage != null)
             {
                 error.WriteLine(DeprecationMessage);
+            }
+        }
+
+        /// <summary>
+        /// Writes <see cref="PreviewMessage"/>, if any. Standard error keeps the command's output unchanged for scripts.
+        /// </summary>
+        /// <param name="error">The standard error of the invocation.</param>
+        internal void WarnIfPreview(TextWriter error)
+        {
+            if (PreviewMessage != null)
+            {
+                error.WriteLine(PreviewMessage);
             }
         }
     }

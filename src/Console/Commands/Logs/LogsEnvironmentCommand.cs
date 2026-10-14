@@ -34,6 +34,8 @@ class LogsEnvironmentCommand : BaseCommand
         SetAction(GetLogs);
     }
 
+    public override string PreviewMessage => Resources.LogsEnvironmentPreview;
+
     private async Task GetLogs(ParseResult parseResult)
     {
         CreateSession(parseResult);

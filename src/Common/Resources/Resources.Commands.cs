@@ -27,7 +27,7 @@ public static partial class Resources
     public const string NounPublishInstallationPackageHelp = "Publishes one or more Installation Packages (zip) into the Customer Portal";
     public const string NounDownloadArtifactsHelp = "Downloads all artifacts of a Customer Environment";
     public const string NounGetEnvironmentHelp = "[Preview] Shows the details of a Customer Environment, or of one of its versions";
-    public const string NounLogsEnvironmentHelp = "[Preview] Shows the installation and termination logs of a Customer Environment, or of one of its versions, as JSON";
+    public const string NounLogsEnvironmentHelp = "[Preview] Shows the installation and termination logs of a Customer Environment, or of one of its versions";
 
     public const string ArgEnvironmentNameHelp = "Name of the Customer Environment. A name is generated when omitted";
     public const string ArgAgentNameHelp = "Name of the Infrastructure Agent. A name is generated when omitted";

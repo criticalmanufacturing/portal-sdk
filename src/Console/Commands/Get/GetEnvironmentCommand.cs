@@ -19,20 +19,15 @@ class GetEnvironmentCommand : BaseCommand
 {
     private readonly Argument<string> nameArgument = new("name") { Description = Resources.ArgExistingEnvironmentNameHelp };
 
-    private readonly Option<OutputFormat> formatOption = new("--format", "-f")
-    {
-        Description = Resources.OutputFormatHelp,
-        DefaultValueFactory = _ => OutputFormat.Table
-    };
-
     private readonly EnvironmentVersionExtension version;
+    private readonly OutputFormatExtension format;
 
     public GetEnvironmentCommand() : base("env", Resources.NounGetEnvironmentHelp)
     {
         Aliases.Add("environment");
         Arguments.Add(nameArgument);
         version = Use(new EnvironmentVersionExtension());
-        Options.Add(formatOption);
+        format = Use(new OutputFormatExtension());
 
         SetAction(GetEnvironment);
     }
@@ -46,7 +41,7 @@ class GetEnvironmentCommand : BaseCommand
         CustomerEnvironmentDetails details = await handler.Run(parseResult.GetValue(nameArgument), parseResult.GetValue(version.Version));
 
         TextWriter output = parseResult.InvocationConfiguration.Output;
-        if (parseResult.GetValue(formatOption) == OutputFormat.Json)
+        if (parseResult.GetValue(format.Format) == OutputFormat.Json)
         {
             output.WriteLine(JsonSerializer.Serialize(details, JsonOutput.Options));
         }
@@ -57,13 +52,8 @@ class GetEnvironmentCommand : BaseCommand
     }
 
     /// <summary>
-    /// Value shown for an empty field.
-    /// </summary>
-    internal const string EmptyValue = "-";
-
-    /// <summary>
     /// Writes the details as <c>Label: value</c> lines with aligned values: one line per field of the JSON output,
-    /// with <see cref="EmptyValue"/> for the empty ones.
+    /// with <see cref="TableOutput.EmptyValue"/> for the empty ones.
     /// </summary>
     internal static void WriteTable(TextWriter output, CustomerEnvironmentDetails details)
     {
@@ -89,7 +79,7 @@ class GetEnvironmentCommand : BaseCommand
         int width = rows.Max(row => row.Label.Length) + 1;
         foreach ((string label, string value) in rows)
         {
-            output.WriteLine($"{(label + ":").PadRight(width)} {value ?? EmptyValue}");
+            output.WriteLine($"{(label + ":").PadRight(width)} {value ?? TableOutput.EmptyValue}");
         }
     }
 

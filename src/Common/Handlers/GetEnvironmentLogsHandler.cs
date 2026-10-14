@@ -63,22 +63,24 @@ public class GetEnvironmentLogsHandler(
     }
 
     /// <summary>
-    /// Writes logs got with <see cref="Run"/> to a file, as indented JSON.
+    /// Writes logs got with <see cref="Run"/>, already formatted, to a file.
     /// </summary>
-    /// <param name="logs">The logs.</param>
+    /// <param name="contents">The formatted logs.</param>
     /// <param name="output">
     /// Path of the file to write, or of a directory (an existing one, or a path ending in a separator) where the file is
-    /// named <c>&lt;name&gt;-logs.json</c>, or <c>&lt;name&gt;-v&lt;version&gt;-logs.json</c> for a specific version.
-    /// Missing directories are created and an existing file is overwritten.
+    /// named <c>&lt;name&gt;-logs&lt;extension&gt;</c>, or <c>&lt;name&gt;-v&lt;version&gt;-logs&lt;extension&gt;</c> for
+    /// a specific version. Missing directories are created and an existing file is overwritten.
     /// </param>
     /// <param name="name">Name of the Customer Environment.</param>
     /// <param name="version">Version number of the version, or <c>null</c> for the current version.</param>
+    /// <param name="extension">Extension of the file named after the Customer Environment, e.g. <c>.json</c>.</param>
     /// <returns>The full path of the written file.</returns>
-    public string WriteLogs(JsonObject logs, string output, string name, int? version)
+    public string WriteLogs(string contents, string output, string name, int? version, string extension)
     {
-        ArgumentNullException.ThrowIfNull(logs);
+        ArgumentNullException.ThrowIfNull(contents);
         ArgumentException.ThrowIfNullOrWhiteSpace(output);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentException.ThrowIfNullOrWhiteSpace(extension);
 
         string path = fileSystem.Path.GetFullPath(output);
         bool isDirectory = fileSystem.Directory.Exists(path)
@@ -86,7 +88,7 @@ public class GetEnvironmentLogsHandler(
             || output.EndsWith(fileSystem.Path.AltDirectorySeparatorChar);
         if (isDirectory)
         {
-            path = fileSystem.Path.Combine(path, version is null ? $"{name}-logs.json" : $"{name}-v{version}-logs.json");
+            path = fileSystem.Path.Combine(path, version is null ? $"{name}-logs{extension}" : $"{name}-v{version}-logs{extension}");
         }
 
         string? directory = fileSystem.Path.GetDirectoryName(path);
@@ -95,7 +97,7 @@ public class GetEnvironmentLogsHandler(
             fileSystem.Directory.CreateDirectory(directory);
         }
 
-        fileSystem.File.WriteAllText(path, logs.ToJsonString(JsonOutput.Options));
+        fileSystem.File.WriteAllText(path, contents);
         Session.LogInformation(string.Format(Resources.LogsWrittenMessage, path));
 
         return path;

@@ -44,6 +44,8 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         { "logs environment my-env -ver 3 --type termination -v", typeof(LogsEnvironmentCommand) },
         { "logs env my-env -o logs.json", typeof(LogsEnvironmentCommand) },
         { "logs env my-env --output \"{dir}\" --type installation", typeof(LogsEnvironmentCommand) },
+        { "logs env my-env -f json -o logs.json", typeof(LogsEnvironmentCommand) },
+        { "logs environment my-env --format Table", typeof(LogsEnvironmentCommand) },
     };
 
     [Theory]
@@ -134,6 +136,7 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("logs env")]
     [InlineData("logs env my-env --type other")]
     [InlineData("logs env my-env --version -1")]
+    [InlineData("logs env my-env -f xml")]
     [InlineData("get")]
     [InlineData("logs")]
     [InlineData("create")]
@@ -193,7 +196,7 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     }
 
     [Fact]
-    public void LogsEnvironment_DefaultsToAllLogs()
+    public void LogsEnvironment_DefaultsToAllLogsAsATable()
     {
         // Act
         ParseResult result = fixture.Parse("logs env my-env");
@@ -201,7 +204,19 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         // Assert
         Assert.Empty(result.Errors);
         Assert.Equal(EnvironmentLogType.All, result.GetValue<EnvironmentLogType>("--type"));
+        Assert.Equal(OutputFormat.Table, result.GetValue<OutputFormat>("--format"));
         Assert.Null(result.GetValue<string>("--output"));
+    }
+
+    [Fact]
+    public void LogsEnvironment_ReadsTheFormat()
+    {
+        // Act
+        ParseResult result = fixture.Parse("logs env my-env -f json");
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal(OutputFormat.Json, result.GetValue<OutputFormat>("--format"));
     }
 
     [Fact]

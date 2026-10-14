@@ -6,7 +6,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base;
 enum OutputFormat
 {
     /// <summary>
-    /// Readable <c>Label: value</c> lines.
+    /// Readable text: <c>Label: value</c> lines or aligned columns, with <see cref="TableOutput.EmptyValue"/> for empty values.
     /// </summary>
     Table,
 

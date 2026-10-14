@@ -106,66 +106,60 @@ public class GetEnvironmentLogsHandlerTests
     }
 
     [Fact]
-    public async Task WriteLogs_ToAFilePath_WritesTheIndentedJsonCreatingMissingDirectories()
+    public void WriteLogs_ToAFilePath_WritesTheContentsCreatingMissingDirectories()
     {
         // Arrange
-        JsonObject logs = await _handler.Run("env", null, EnvironmentLogType.All);
         string expectedPath = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine("out", "logs", "my-logs.json"));
 
         // Act
-        string path = _handler.WriteLogs(logs, _fileSystem.Path.Combine("out", "logs", "my-logs.json"), "env", null);
+        string path = _handler.WriteLogs("the logs", _fileSystem.Path.Combine("out", "logs", "my-logs.json"), "env", null, ".json");
 
         // Assert
         Assert.Equal(expectedPath, path);
-        string written = _fileSystem.File.ReadAllText(path);
-        Assert.True(JsonNode.DeepEquals(logs, JsonNode.Parse(written)));
-        Assert.Contains(Environment.NewLine + "  \"installation\"", written);
+        Assert.Equal("the logs", _fileSystem.File.ReadAllText(path));
         _sessionMock.Verify(s => s.LogInformation($"Logs written to {expectedPath}"), Times.Once);
     }
 
     [Theory]
-    [InlineData(null, "env-logs.json")]
-    [InlineData(3, "env-v3-logs.json")]
-    public async Task WriteLogs_ToAnExistingDirectory_NamesTheFileAfterTheEnvironment(int? version, string expectedFileName)
+    [InlineData(null, ".json", "env-logs.json")]
+    [InlineData(3, ".json", "env-v3-logs.json")]
+    [InlineData(null, ".log", "env-logs.log")]
+    [InlineData(3, ".log", "env-v3-logs.log")]
+    public void WriteLogs_ToAnExistingDirectory_NamesTheFileAfterTheEnvironment(int? version, string extension, string expectedFileName)
     {
         // Arrange
-        JsonObject logs = await _handler.Run("env", version, EnvironmentLogType.All);
         _fileSystem.Directory.CreateDirectory("out");
 
         // Act
-        string path = _handler.WriteLogs(logs, "out", "env", version);
+        string path = _handler.WriteLogs("the logs", "out", "env", version, extension);
 
         // Assert
         Assert.Equal(_fileSystem.Path.GetFullPath(_fileSystem.Path.Combine("out", expectedFileName)), path);
-        Assert.True(_fileSystem.File.Exists(path));
+        Assert.Equal("the logs", _fileSystem.File.ReadAllText(path));
     }
 
     [Fact]
-    public async Task WriteLogs_ToAPathEndingInASeparator_CreatesTheDirectoryAndNamesTheFileAfterTheEnvironment()
+    public void WriteLogs_ToAPathEndingInASeparator_CreatesTheDirectoryAndNamesTheFileAfterTheEnvironment()
     {
-        // Arrange
-        JsonObject logs = await _handler.Run("env", null, EnvironmentLogType.All);
-
         // Act
-        string path = _handler.WriteLogs(logs, "new-dir" + _fileSystem.Path.DirectorySeparatorChar, "env", null);
+        string path = _handler.WriteLogs("the logs", "new-dir" + _fileSystem.Path.DirectorySeparatorChar, "env", null, ".log");
 
         // Assert
-        Assert.Equal(_fileSystem.Path.GetFullPath(_fileSystem.Path.Combine("new-dir", "env-logs.json")), path);
+        Assert.Equal(_fileSystem.Path.GetFullPath(_fileSystem.Path.Combine("new-dir", "env-logs.log")), path);
         Assert.True(_fileSystem.File.Exists(path));
     }
 
     [Fact]
-    public async Task WriteLogs_ToAnExistingFile_OverwritesIt()
+    public void WriteLogs_ToAnExistingFile_OverwritesIt()
     {
         // Arrange
-        JsonObject logs = await _handler.Run("env", null, EnvironmentLogType.Termination);
         _fileSystem.AddFile("logs.json", new MockFileData("old content"));
 
         // Act
-        string path = _handler.WriteLogs(logs, "logs.json", "env", null);
+        string path = _handler.WriteLogs("the logs", "logs.json", "env", null, ".json");
 
         // Assert
-        Assert.True(JsonNode.DeepEquals(logs, JsonNode.Parse(_fileSystem.File.ReadAllText(path))));
+        Assert.Equal("the logs", _fileSystem.File.ReadAllText(path));
     }
 
     [Theory]
@@ -175,7 +169,15 @@ public class GetEnvironmentLogsHandlerTests
     public void WriteLogs_WhenOutputIsNullOrWhitespace_ThrowsArgumentException(string? output)
     {
         // Act & Assert
-        Assert.ThrowsAny<ArgumentException>(() => _handler.WriteLogs(new JsonObject(), output!, "env", null));
+        Assert.ThrowsAny<ArgumentException>(() => _handler.WriteLogs("the logs", output!, "env", null, ".json"));
+        Assert.Empty(_fileSystem.AllFiles);
+    }
+
+    [Fact]
+    public void WriteLogs_WhenContentsAreNull_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => _handler.WriteLogs(null!, "logs.json", "env", null, ".json"));
         Assert.Empty(_fileSystem.AllFiles);
     }
 }

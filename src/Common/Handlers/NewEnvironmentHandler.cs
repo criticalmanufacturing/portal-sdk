@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Extensions;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.Common.Licenses.Enums;
 using Cmf.Foundation.Common.Base;
@@ -98,14 +99,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // update Deployment Package
                 if (!isInfrastructureAgent && !string.IsNullOrWhiteSpace(deploymentPackageName))
                 {
-                    // update Deployment Package
-                    // TODO: currently if package is specified licenses are mandatory,
-                    // we should allow updating the package without updating licenses,
-                    // in that case we would need to get the current licenses of the environment and pass them to the
-                    await customerEnvironmentServices.UpdateDeploymentPackage(
-                        environment,
-                        await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                        [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
+                    await UpdateDeploymentPackage(environment, deploymentPackageName, licensesNames);
                 }
 
 
@@ -146,11 +140,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 if (!isInfrastructureAgent)
                 {
-                    // update Deployment Package
-                    await customerEnvironmentServices.UpdateDeploymentPackage(
-                        environment,
-                        await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                        [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
+                    await UpdateDeploymentPackage(environment, deploymentPackageName, licensesNames);
                 }
             }
             // if not, just create a new environment
@@ -173,18 +163,34 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 if (!isInfrastructureAgent)
                 {
-                    // update Deployment Package
-                    await customerEnvironmentServices.UpdateDeploymentPackage(
-                        environment,
-                        await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName),
-                        [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
+                    await UpdateDeploymentPackage(environment, deploymentPackageName, licensesNames);
                 }
             }
 
-            Session.LogInformation($"Customer environment {name} created...");
+            Session.LogInformation($"Customer environment {name} {environment.DescribeVersion()} created...");
 
             // handle installation
             await environmentDeploymentHandler.Handle(interactive, environment, target, outputDir, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg);
+        }
+
+        /// <summary>
+        /// Update the Deployment Package and licenses of the environment
+        /// </summary>
+        /// <param name="environment">The environment version</param>
+        /// <param name="deploymentPackageName">Name of the Deployment Package</param>
+        /// <param name="licensesNames">Unique names of the licenses</param>
+        private async Task UpdateDeploymentPackage(CustomerEnvironment environment, string deploymentPackageName, string[] licensesNames)
+        {
+            // TODO: currently if package is specified licenses are mandatory,
+            // we should allow updating the package without updating licenses,
+            // in that case we would need to get the current licenses of the environment and pass them to the
+            DeploymentPackage deploymentPackage = await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
+            Session.LogInformation($"Setting deployment package {deploymentPackageName} (Id {deploymentPackage.Id}) on customer environment {environment.Name} {environment.DescribeVersion()}...");
+
+            await customerEnvironmentServices.UpdateDeploymentPackage(
+                environment,
+                deploymentPackage,
+                [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
         }
 
         /// <summary>

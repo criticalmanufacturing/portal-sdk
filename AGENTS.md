@@ -27,6 +27,8 @@ C# coding standards live in the `dotnet-best-practices` skill; repo skills are i
 - Help/UX strings are `const string` members of the partial `Resources` class, split by area in
   `src/Common/Resources/Resources.*.cs` (namespace `Cmf.CustomerPortal.Sdk.Common`). CLI and PowerShell help both use them.
 - File access goes through `System.IO.Abstractions` (`IFileSystem`) so handlers stay testable.
+- Logs name the exact entity an operation acts on: a Customer Environment version through `DescribeVersion()`
+  (`version 3 (Id 1234)`, `src/Common/Extensions/CustomerEnvironmentExtensions.cs`), other entities with `(Id N)`.
 
 ### Console entry point
 - `src/Console/Program.cs` → `RootCommandFactory.Create()` (`src/Console/RootCommandFactory.cs`) builds the

@@ -54,14 +54,17 @@ public class CancelEnvironmentDeploymentHandlerTests
     public async Task Run_WhenEnvironmentExists_CancelsItsDeployment()
     {
         // Arrange
-        var env = new CustomerEnvironment { Id = 42 };
+        var env = new CustomerEnvironment { Id = 42, Name = "env", Version = 3 };
         _ = _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync(env);
+        _ = _sessionMock.Setup(s => s.Configuration).Returns(PortalConfiguration.Create());
 
         // Act
         await _handler.Run("env");
 
         // Assert
         _customerPortalClientMock.Verify(c => c.CancelEnvironmentDeployment(42), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation("Cancelling the deployment of customer environment env version 3 (Id 42)..."), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation("https://portal.example.com/Entity/CustomerEnvironment/42/View/Installation"), Times.Once);
     }
 }

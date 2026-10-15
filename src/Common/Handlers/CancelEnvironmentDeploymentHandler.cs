@@ -1,4 +1,5 @@
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Extensions;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using System;
 using System.Threading.Tasks;
@@ -35,9 +36,10 @@ public class CancelEnvironmentDeploymentHandler(
             throw new Exception($"Customer environment with name '{name}' does not exist...");
         }
 
-        Session.LogInformation($"Cancelling the deployment of customer environment {name}...");
+        Session.LogInformation($"Cancelling the deployment of customer environment {name} {environment.DescribeVersion()}...");
         await customerPortalClient.CancelEnvironmentDeployment(environment.Id);
 
         Session.LogInformation($"Customer environment {name} deployment cancel requested successfully.");
+        Utils.LogCustomerEnvironmentUrl(Session, environment);
     }
 }

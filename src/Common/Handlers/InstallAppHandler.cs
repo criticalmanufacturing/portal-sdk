@@ -2,6 +2,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Extensions;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Handlers
@@ -31,6 +32,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // create or update the relationship between the environment and the app
             CustomerEnvironmentApplicationPackage customerEnvironmentApplicationPackage = await customerPortalClient.CreateOrUpdateAppInstallation(
                     environment.Id, name, appVersion, appParameters, license);
+            Session.LogInformation($"Installing app '{name}' version {appVersion} (installation Id {customerEnvironmentApplicationPackage.Id}) in customer environment '{customerEnvironmentName}' {environment.DescribeVersion()}...");
 
             // start deployment
             await appInstallationHandler.Handle(name, customerEnvironmentApplicationPackage, environment.DeploymentTarget, output, timeout, timeoutToGetSomeMBMessage);

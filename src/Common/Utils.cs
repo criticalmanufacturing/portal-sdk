@@ -73,6 +73,23 @@ namespace Cmf.CustomerPortal.Sdk.Common
             });
         }
 
+        /// <summary>
+        /// Logs the portal url of a Customer Environment version, when the portal host is configured.
+        /// </summary>
+        /// <param name="session">Session whose configuration holds the portal host.</param>
+        /// <param name="environment">The Customer Environment version.</param>
+        public static void LogCustomerEnvironmentUrl(ISession session, CustomerEnvironment environment)
+        {
+            string? hostAddress = session.Configuration?["ClientConfiguration:HostAddress"];
+            if (string.IsNullOrWhiteSpace(hostAddress))
+            {
+                return;
+            }
+
+            string scheme = bool.TryParse(session.Configuration["ClientConfiguration:UseSsl"], out bool useSsl) && useSsl ? "https" : "http";
+            session.LogInformation($"{scheme}://{hostAddress}/Entity/CustomerEnvironment/{environment.Id}/View/Installation");
+        }
+
         private static async Task<Dictionary<string, string>> ConfigureTokens(ISession _session, string[] replaceTokens)
         {
             return await Task.Run(() =>

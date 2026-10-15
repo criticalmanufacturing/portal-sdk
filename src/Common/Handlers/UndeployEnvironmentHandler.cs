@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Extensions;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.Common.Licenses.Enums;
 
@@ -60,8 +61,9 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             Session.LogInformation($"Creating a new version of the Customer environment {name}...");
             environment = await customerEnvironmentServices.CreateEnvironment(environment);
+            Session.LogInformation($"Customer environment {name} {environment.DescribeVersion()} created...");
+            Utils.LogCustomerEnvironmentUrl(Session, environment);
 
-            
             await customerEnvironmentServices.TerminateOtherVersions(environment, true, true, true);
 
             Session.LogInformation($"Customer environment {name} undeploy succeeded...");

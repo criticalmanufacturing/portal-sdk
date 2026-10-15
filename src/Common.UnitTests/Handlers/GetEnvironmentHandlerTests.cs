@@ -27,7 +27,7 @@ public class GetEnvironmentHandlerTests
     {
         // Act & Assert
         await Assert.ThrowsAnyAsync<ArgumentException>(() => _handler.Run(name!, null));
-        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironmentVersion(It.IsAny<string>(), It.IsAny<int?>()), Times.Never);
+        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironmentVersion(It.IsAny<string>(), It.IsAny<int?>(), It.IsAny<int>()), Times.Never);
     }
 
     [Theory]
@@ -37,7 +37,7 @@ public class GetEnvironmentHandlerTests
     {
         // Arrange
         var createdOn = new DateTime(2026, 10, 13, 16, 33, 23);
-        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", version))
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", version, 1))
             .ReturnsAsync(new CustomerEnvironment
             {
                 Id = 7,
@@ -48,6 +48,7 @@ public class GetEnvironmentHandlerTests
                 Status = DeploymentStatus.DeploymentSucceeded,
                 UniversalState = UniversalState.Effective,
                 Site = new ProductSite { Name = "site" },
+                CustomerInfrastructure = new CustomerInfrastructure { Name = "infra" },
                 DeploymentPackage = new DeploymentPackage { Name = "@criticalmanufacturing\\mes:12.0.0" },
                 DeploymentTarget = "OpenShiftRemoteTarget",
                 CreatedBy = "user",
@@ -61,7 +62,7 @@ public class GetEnvironmentHandlerTests
 
         // Assert
         Assert.Equal(
-            new CustomerEnvironmentDetails(7, "env", 3, null, "Development", "DeploymentSucceeded", "Effective", "site", null,
+            new CustomerEnvironmentDetails(7, "env", 3, null, "Development", "DeploymentSucceeded", "Effective", "site", "infra",
                 "@criticalmanufacturing\\mes:12.0.0", "OpenShiftRemoteTarget", "user", createdOn, "other", createdOn.AddHours(1)),
             details);
     }
@@ -70,7 +71,7 @@ public class GetEnvironmentHandlerTests
     public async Task Run_WhenVersionDoesNotExist_ThrowsNotFoundException()
     {
         // Arrange
-        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", 3))
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", 3, 1))
             .ThrowsAsync(new NotFoundException("not found"));
 
         // Act & Assert

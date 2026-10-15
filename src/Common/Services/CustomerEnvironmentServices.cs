@@ -38,7 +38,7 @@ internal class CustomerEnvironmentServices(
         return environment;
     }
 
-    public async Task<CustomerEnvironment> GetCustomerEnvironmentVersion(string name, int? version)
+    public async Task<CustomerEnvironment> GetCustomerEnvironmentVersion(string name, int? version, int levelsToLoad = 0)
     {
         long id;
         if (version is null)
@@ -59,7 +59,7 @@ internal class CustomerEnvironmentServices(
         }
 
         session.LogDebug($"Loading customer environment {name} (Id {id})");
-        return await customerPortalClient.GetCustomerEnvironmentById(id);
+        return await customerPortalClient.GetCustomerEnvironmentById(id, levelsToLoad);
     }
 
     /// <summary>

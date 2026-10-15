@@ -25,7 +25,7 @@ public class GetEnvironmentLogsHandlerTests
     {
         _handler = new GetEnvironmentLogsHandler(_sessionMock.Object, _customerPortalClientMock.Object, _customerEnvironmentServicesMock.Object, _fileSystem);
 
-        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", It.IsAny<int?>()))
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", It.IsAny<int?>(), 0))
             .ReturnsAsync(new CustomerEnvironment { Id = EnvironmentId, Name = "env" });
         _customerPortalClientMock.Setup(c => c.GetCustomerEnvironmentDeploymentLogs(EnvironmentId)).ReturnsAsync(InstallationLogs);
         _customerPortalClientMock.Setup(c => c.GetCustomerEnvironmentTerminationLogs(EnvironmentId)).ReturnsAsync(TerminationLogs);
@@ -52,7 +52,7 @@ public class GetEnvironmentLogsHandlerTests
         Assert.Equal(["installation", "termination"], logs.Select(property => property.Key));
         Assert.True(JsonNode.DeepEquals(JsonNode.Parse(InstallationLogs), logs["installation"]));
         Assert.True(JsonNode.DeepEquals(JsonNode.Parse(TerminationLogs), logs["termination"]));
-        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironmentVersion("env", 3), Times.Once);
+        _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironmentVersion("env", 3, 0), Times.Once);
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public class GetEnvironmentLogsHandlerTests
     public async Task Run_WhenVersionDoesNotExist_ThrowsNotFoundException()
     {
         // Arrange
-        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", 3))
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", 3, 0))
             .ThrowsAsync(new NotFoundException("not found"));
 
         // Act & Assert

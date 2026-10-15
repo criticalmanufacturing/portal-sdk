@@ -25,7 +25,7 @@ public class GetEnvironmentHandler(
 
         await EnsureLogin();
 
-        CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironmentVersion(name, version);
+        CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironmentVersion(name, version, levelsToLoad: 1);
         return CustomerEnvironmentDetails.From(environment);
     }
 }

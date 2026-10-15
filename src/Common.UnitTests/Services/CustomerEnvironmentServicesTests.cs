@@ -83,6 +83,28 @@ public class CustomerEnvironmentServicesTests
         _sessionMock.Verify(s => s.LogInformation(It.IsAny<string>()), Times.Never);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData(3)]
+    public async Task GetCustomerEnvironmentVersion_WithLevelsToLoad_LoadsTheVersionWithItsRelatedObjects(int? version)
+    {
+        // Arrange
+        var environment = new CustomerEnvironment { Id = 7, Name = "env", Version = 3, Site = new ProductSite { Name = "site" } };
+        _customerPortalClientMock.Setup(c => c.GetObjectByName<CustomerEnvironment>("env", 0))
+            .ReturnsAsync(new CustomerEnvironment { Id = 7, Name = "env" });
+        _customerPortalClientMock.Setup(c => c.ExecuteQuery(It.IsAny<QueryObject>()))
+            .ReturnsAsync(IdsDataSet(7));
+        _customerPortalClientMock.Setup(c => c.GetCustomerEnvironmentById(7, 1))
+            .ReturnsAsync(environment);
+
+        // Act
+        CustomerEnvironment result = await _services.GetCustomerEnvironmentVersion("env", version, levelsToLoad: 1);
+
+        // Assert
+        Assert.Same(environment, result);
+        _customerPortalClientMock.Verify(c => c.GetCustomerEnvironmentById(7, 1), Times.Once);
+    }
+
     [Fact]
     public async Task GetCustomerEnvironmentVersion_WithVersion_WhenVersionDoesNotExist_ThrowsNotFoundException()
     {

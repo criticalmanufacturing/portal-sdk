@@ -618,5 +618,23 @@ namespace Cmf.CustomerPortal.Sdk.Common
                 OperationAttributes = operationAttributes
             }.TerminateCustomerEnvironmentsAsync(true);
         }
+
+        /// <inheritdoc/>
+        public async Task CancelEnvironmentDeployment(long customerEnvironmentId)
+        {
+            await new CancelDeploymentInput
+            {
+                CustomerEnvironmentId = customerEnvironmentId
+            }.CancelDeploymentAsync(true);
+        }
+
+        /// <inheritdoc/>
+        public async Task CancelAppDeployment(long customerEnvironmentApplicationPackageId)
+        {
+            await new CancelDeploymentInput
+            {
+                CustomerEnvironmentApplicationPackageId = customerEnvironmentApplicationPackageId
+            }.CancelDeploymentAsync(true);
+        }
     }
 }

@@ -1,5 +1,6 @@
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console.Base;
+using Cmf.CustomerPortal.Sdk.Console.Commands.Cancel;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Create;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Deploy;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Download;
@@ -30,6 +31,10 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         { "undeploy environment my-env --force", typeof(UndeployEnvironmentCommand) },
         { "undeploy app my-app -ce env", typeof(UndeployAppCommand) },
         { "undeploy application my-app -ce env --removeVolumes --undeploy -to 10 -tombm 5", typeof(UndeployAppCommand) },
+        { "cancel env my-env", typeof(CancelEnvironmentCommand) },
+        { "cancel environment my-env", typeof(CancelEnvironmentCommand) },
+        { "cancel app my-app -ce env", typeof(CancelAppCommand) },
+        { "cancel application my-app --customer-environment env", typeof(CancelAppCommand) },
         { "create infrastructure", typeof(CreateInfrastructureCommand) },
         { "create infra my-infra --customer customer --ignore-if-exists -params \"{file}\"", typeof(CreateInfrastructureCommand) },
         { "healthcheck agent my-agent", typeof(HealthcheckAgentCommand) },
@@ -67,6 +72,8 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("deploy app my-app -ce env -av 1 -lic L", "name", "my-app")]
     [InlineData("undeploy env my-env", "name", "my-env")]
     [InlineData("undeploy app my-app -ce env", "name", "my-app")]
+    [InlineData("cancel env my-env", "name", "my-env")]
+    [InlineData("cancel app my-app -ce env", "name", "my-app")]
     [InlineData("create infrastructure my-infra", "name", "my-infra")]
     [InlineData("healthcheck agent my-agent", "agent-name", "my-agent")]
     [InlineData("download artifacts my-env", "name", "my-env")]
@@ -124,6 +131,10 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("deploy app -ce env -av 1 -lic L")]
     [InlineData("undeploy env")]
     [InlineData("undeploy app my-app")]
+    [InlineData("cancel env")]
+    [InlineData("cancel env one two")]
+    [InlineData("cancel app my-app")]
+    [InlineData("cancel app -ce env")]
     [InlineData("healthcheck agent")]
     [InlineData("healthcheck agent my-agent -ce env")]
     [InlineData("publish deploymentpackage \"{dir}\\missing\"")]
@@ -137,11 +148,17 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("logs env my-env --type other")]
     [InlineData("logs env my-env --version -1")]
     [InlineData("logs env my-env -f xml")]
+    [InlineData("cancel")]
     [InlineData("get")]
     [InlineData("logs")]
     [InlineData("create")]
     [InlineData("healthcheck")]
     [InlineData("download")]
+    [InlineData("undeploy -f env my-env")]
+    [InlineData("undeploy -n x env my-env")]
+    [InlineData("undeploy -v env my-env")]
+    [InlineData("deploy -lic L env my-env")]
+    [InlineData("publish -dg g deploymentpackage \"{dir}\"")]
     public void CommandLine_WithInvalidInput_HasErrors(string commandLine)
     {
         // Act

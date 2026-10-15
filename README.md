@@ -60,6 +60,8 @@ Commands:
 | <a href="#publish-deploymentpackage">`publish deploymentpackage <path>`</a> | Publishes one or more Deployment Package manifests into the Customer Portal | `publish` |
 | <a href="#publish-installationpackage">`publish installationpackage <path>`</a> | Publishes one or more Installation Packages into the Customer Portal | `publish-package` |
 | <a href="#download-artifacts-name">`download artifacts <name>`</a> | Downloads all artifacts of a Customer Environment | `download-artifacts` |
+| <a href="#get-env">`get env <name>`</a> | **[Preview]** Shows the details of a Customer Environment, or of one of its versions | |
+| <a href="#logs-env">`logs env <name>`</a> | **[Preview]** Shows the installation and termination logs of a Customer Environment, or of one of its versions | |
 
 `<name>` is a required argument and `[name]` an optional one. For example, `deploy env` generates a name when it is omitted.
 
@@ -73,6 +75,8 @@ Examples:
   - `cmf-portal deploy app my-app -ce my-env -av 1.0.0 -lic "My License"` - Installs version 1.0.0 of `my-app` in `my-env`
   - `cmf-portal healthcheck agent <agent-name>` - Check if the Infrastructure Agent named <agent-name> is connected
   - `cmf-portal healthcheck agent -ce <customer-environment>` - Check if the Infrastructure Agent associated with <customer-environment> is connected
+  - `cmf-portal get env my-env -ver 3 -f json` - Shows the details of version 3 of `my-env` as JSON
+  - `cmf-portal logs env my-env --type termination -f json -o termination.json` - Saves the termination logs of the current version of `my-env` as JSON
   - `cmf-portal healthcheck agent -h` - Displays help about the command, including a brief description of its function, how to use it and what arguments and options are available and/or required.
 
 **Note:** npm package names start with `@`, which the parser reads as a response file when it's a separate argument. Pass them as `--package=@scope/name`.
@@ -317,6 +321,56 @@ Arguments:
 Options:
   - `-v, --verbose` - Show detailed logging
   - `-o, --output <output>` - Directory to place all artifacts downloaded from the Customer Portal.
+  - `-?, -h, --help` - Show help and usage information
+
+### get env
+
+Shows the details of a Customer Environment, or of one of its versions.
+
+> **Preview:** this command is a preview, so its options and output may change in a future version. When it runs, it says so on standard error, so its output is unchanged for scripts.
+
+Usage: `cmf-portal get env <name> [options]` (alias: `get environment`)
+
+Arguments:
+  - `name` - **REQUIRED** - Name of the Customer Environment
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-ver, --version <version>` - Version number of the Customer Environment version to use. The current version is used when omitted
+  - `-f, --format <Json|Table>` - Format of the output: a readable table, or JSON for scripts. Defaults to `Table`
+  - `-?, -h, --help` - Show help and usage information
+
+### logs env
+
+Shows the installation and termination logs of a Customer Environment, or of one of its versions.
+
+By default each type of logs is a section of `LogLevel | StepId | Data` rows, where an entry without a log level is `INFO`:
+
+```
+Installation logs:
+LogLevel | StepId | Data
+INFO     | Pre    | Infrastructure Agent configured. Checking connection status.
+ERROR    | Post   | Failed to deploy the CustomerEnvironment.
+         |        |  Object reference not set to an instance of an object.
+
+Termination logs: -
+```
+
+With `-f json`, the logs are written as one JSON object keyed by log type (`installation`, `termination`), so they can be piped to `jq`. A log that doesn't exist is `null`.
+
+> **Preview:** this command is a preview, so its options and output may change in a future version. When it runs, it says so on standard error, so its output is unchanged for scripts.
+
+Usage: `cmf-portal logs env <name> [options]` (alias: `logs environment`)
+
+Arguments:
+  - `name` - **REQUIRED** - Name of the Customer Environment
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `-ver, --version <version>` - Version number of the Customer Environment version to use. The current version is used when omitted
+  - `--type <All|Installation|Termination>` - Type of logs to get. Defaults to `All`
+  - `-f, --format <Json|Table>` - Format of the output: a readable table, or JSON for scripts. Defaults to `Table`
+  - `-o, --output <path>` - File to write the logs to, in the chosen format, or a directory to write them to as `<name>-logs.log`, or `<name>-logs.json` with `-f json` (`<name>-v<version>-logs.*` with `--version`). Missing directories are created. The logs are written to the standard output when omitted
   - `-?, -h, --help` - Show help and usage information
 
 ### Legacy commands (deprecated, still supported)

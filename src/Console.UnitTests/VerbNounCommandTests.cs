@@ -1,8 +1,12 @@
+using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Cancel;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Create;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Deploy;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Download;
+using Cmf.CustomerPortal.Sdk.Console.Commands.Get;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Healthcheck;
+using Cmf.CustomerPortal.Sdk.Console.Commands.Logs;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Publish;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy;
 using System.CommandLine;
@@ -38,6 +42,15 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         { "publish deploymentpackage \"{dir}\" -dg datagroup --replace-tokens A=1", typeof(PublishDeploymentPackageCommand) },
         { "publish installationpackage \"{file}\" -dg datagroup", typeof(PublishInstallationPackageCommand) },
         { "download artifacts my-env -o \"{dir}\"", typeof(DownloadArtifactsCommand) },
+        { "get env my-env", typeof(GetEnvironmentCommand) },
+        { "get environment my-env -ver 3 -f json", typeof(GetEnvironmentCommand) },
+        { "get env my-env --version 3 --format Table -v", typeof(GetEnvironmentCommand) },
+        { "logs env my-env", typeof(LogsEnvironmentCommand) },
+        { "logs environment my-env -ver 3 --type termination -v", typeof(LogsEnvironmentCommand) },
+        { "logs env my-env -o logs.json", typeof(LogsEnvironmentCommand) },
+        { "logs env my-env --output \"{dir}\" --type installation", typeof(LogsEnvironmentCommand) },
+        { "logs env my-env -f json -o logs.json", typeof(LogsEnvironmentCommand) },
+        { "logs environment my-env --format Table", typeof(LogsEnvironmentCommand) },
     };
 
     [Theory]
@@ -64,6 +77,8 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("create infrastructure my-infra", "name", "my-infra")]
     [InlineData("healthcheck agent my-agent", "agent-name", "my-agent")]
     [InlineData("download artifacts my-env", "name", "my-env")]
+    [InlineData("get env my-env", "name", "my-env")]
+    [InlineData("logs env my-env", "name", "my-env")]
     public void CommandLine_ReadsNameFromPositionalArgument(string commandLine, string argumentName, string expectedName)
     {
         // Act
@@ -125,7 +140,17 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("publish deploymentpackage \"{dir}\\missing\"")]
     [InlineData("publish installationpackage")]
     [InlineData("download artifacts")]
+    [InlineData("get env")]
+    [InlineData("get env my-env -f xml")]
+    [InlineData("get env my-env -ver abc")]
+    [InlineData("get env my-env -ver 0")]
+    [InlineData("logs env")]
+    [InlineData("logs env my-env --type other")]
+    [InlineData("logs env my-env --version -1")]
+    [InlineData("logs env my-env -f xml")]
     [InlineData("cancel")]
+    [InlineData("get")]
+    [InlineData("logs")]
     [InlineData("create")]
     [InlineData("healthcheck")]
     [InlineData("download")]
@@ -161,5 +186,85 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
 
         // Assert
         Assert.Equal("At least one of the following options must be provided: <agent-name>, --customer-environment", Assert.Single(result.Errors).Message);
+    }
+
+    [Fact]
+    public void GetEnvironment_ReadsVersionAndFormat()
+    {
+        // Act
+        ParseResult result = fixture.Parse("get env my-env -ver 3 -f json");
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal(3, result.GetValue<int?>("--version"));
+        Assert.Equal(OutputFormat.Json, result.GetValue<OutputFormat>("--format"));
+    }
+
+    [Fact]
+    public void GetEnvironment_DefaultsToTheCurrentVersionAsATable()
+    {
+        // Act
+        ParseResult result = fixture.Parse("get env my-env");
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Null(result.GetValue<int?>("--version"));
+        Assert.Equal(OutputFormat.Table, result.GetValue<OutputFormat>("--format"));
+    }
+
+    [Fact]
+    public void LogsEnvironment_DefaultsToAllLogsAsATable()
+    {
+        // Act
+        ParseResult result = fixture.Parse("logs env my-env");
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal(EnvironmentLogType.All, result.GetValue<EnvironmentLogType>("--type"));
+        Assert.Equal(OutputFormat.Table, result.GetValue<OutputFormat>("--format"));
+        Assert.Null(result.GetValue<string>("--output"));
+    }
+
+    [Fact]
+    public void LogsEnvironment_ReadsTheFormat()
+    {
+        // Act
+        ParseResult result = fixture.Parse("logs env my-env -f json");
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal(OutputFormat.Json, result.GetValue<OutputFormat>("--format"));
+    }
+
+    [Fact]
+    public void LogsEnvironment_ReadsTheOutputPath()
+    {
+        // Act
+        ParseResult result = fixture.Parse("logs env my-env -o out/logs.json");
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal("out/logs.json", result.GetValue<string>("--output"));
+    }
+
+    [Fact]
+    public void EnvironmentVersion_BelowOne_ReportsThatItMustBePositive()
+    {
+        // Act
+        ParseResult result = fixture.Parse("logs env my-env -ver 0");
+
+        // Assert
+        Assert.Equal("The version must be a positive number", Assert.Single(result.Errors).Message);
+    }
+
+    [Fact]
+    public void RootVersion_StillShowsTheCliVersion()
+    {
+        // Act
+        ParseResult result = fixture.Parse("--version");
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.IsType<RootCommand>(result.CommandResult.Command);
     }
 }

@@ -340,6 +340,15 @@ namespace Cmf.CustomerPortal.Sdk.Common
         }
 
         /// <inheritdoc/>
+        public async Task<string> GetCustomerEnvironmentDeploymentLogs(long ceId)
+        {
+            return (await new GetCustomerEnvironmentDeploymentLogsInput()
+            {
+                CustomerEnvironmentId = ceId
+            }.GetCustomerEnvironmentDeploymentLogsAsync(true)).Logs;
+        }
+
+        /// <inheritdoc/>
         public async Task<EntityType> GetEntityTypeByName(string name)
         {
             return (await new GetEntityTypeByNameInput { Name = name }.GetEntityTypeByNameAsync(true)).EntityType;

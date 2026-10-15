@@ -40,6 +40,18 @@ C# coding standards live in the `dotnet-best-practices` skill; repo skills are i
 - Legacy flat commands live in `src/Console/Commands/Legacy`. They are deprecated (`DeprecationMessage`, printed to stderr)
   but keep working; legacy commands that share a verb name (`deploy`, `undeploy`, `publish`) become the verb via `AsVerb`.
   Their options only parse without a noun: before a noun they are rejected, as on any other verb.
+- Preview commands override `PreviewMessage` (printed to stderr when they run) and start their verb and noun help
+  texts with `[Preview]`.
+- Output streams:
+  - stderr is only for errors and the `[Deprecated]` / `[Preview]` notices.
+  - Everything else goes to stdout: command output, info messages and `--verbose` debug logs. `Session` writes
+    `LogInformation`/`LogDebug` to stdout and `LogError` to stderr.
+  - Commands whose output is machine-readable (JSON) log only at debug level, so stdout holds just the output
+    without `--verbose`.
+  - To save output to a file, add `-o, --output` (written through `IFileSystem` in the handler) instead of moving
+    logs to stderr.
+- Commands that show a resource take `-f, --format Table|Json` (`OutputFormatExtension`), defaulting to a readable
+  `Table` with `TableOutput.EmptyValue` (`-`) for empty values.
 
 ### PowerShell entry point
 - Cmdlets derive from `BaseCmdlet<THandler>` (`src/Powershell/Base/BaseCmdlet.cs`, built on `AsyncCmdlet`), override

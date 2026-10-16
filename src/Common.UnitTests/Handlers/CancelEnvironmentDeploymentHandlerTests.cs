@@ -65,6 +65,11 @@ public class CancelEnvironmentDeploymentHandlerTests
         // Assert
         _customerPortalClientMock.Verify(c => c.CancelEnvironmentDeployment(42), Times.Once);
         _sessionMock.Verify(s => s.LogInformation("Cancelling the deployment of customer environment env version 3 (Id 42)..."), Times.Once);
-        _sessionMock.Verify(s => s.LogInformation("https://portal.example.com/Entity/CustomerEnvironment/42/View/Installation"), Times.Once);
+        _sessionMock.Verify(
+            s => s.LogInformation(
+                "Follow the cancellation at https://portal.example.com/Entity/CustomerEnvironment/42/View/Installation"
+            ),
+            Times.Once
+        );
     }
 }

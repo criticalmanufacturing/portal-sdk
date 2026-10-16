@@ -208,7 +208,7 @@ public class UninstallAppHandlerTests
 
         // Assert
         _sessionMock.Verify(
-            s => s.LogInformation("App 'my-app' found in customer environment 'env' version 2 (Id 5), installation Id 123."),
+            s => s.LogInformation("App 'my-app' (Id 123) found in customer environment 'env' version 2 (Id 5)."),
             Times.Once
         );
         _appUninstallationHandler.Verify(c => c.Handle(ceap, undeploy, undeploy, null, null), Times.Once);

@@ -17,7 +17,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with it, rendering them unrecoverable.");
 
             // Confirmation dialogue, skipped when --force is enabled
-            if (!force) 
+            if (!force)
             {
                 Session.LogInformation("Do you wish to proceed? [y/N]");
                 string? input = Console.ReadLine()?.Trim().ToLower();
@@ -26,7 +26,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                     Session.LogInformation("Operation Cancelled.");
                     return;
                 }
-            } else
+            }
+            else
             {
                 Session.LogInformation("Skipping confirmation because --force was specified.");
             }
@@ -62,7 +63,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation($"Creating a new version of the Customer environment {name}...");
             environment = await customerEnvironmentServices.CreateEnvironment(environment);
             Session.LogInformation($"Customer environment {name} {environment.DescribeVersion()} created...");
-            Utils.LogCustomerEnvironmentUrl(Session, environment);
+            Utils.LogCustomerEnvironmentUrl("Follow the undeploy at", Session, environment);
 
             await customerEnvironmentServices.TerminateOtherVersions(environment, true, true, true);
 

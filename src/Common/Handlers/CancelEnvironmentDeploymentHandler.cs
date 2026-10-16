@@ -40,6 +40,6 @@ public class CancelEnvironmentDeploymentHandler(
         await customerPortalClient.CancelEnvironmentDeployment(environment.Id);
 
         Session.LogInformation($"Customer environment {name} deployment cancel requested successfully.");
-        Utils.LogCustomerEnvironmentUrl(Session, environment);
+        Utils.LogCustomerEnvironmentUrl("Follow the cancellation at", Session, environment);
     }
 }

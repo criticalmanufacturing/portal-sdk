@@ -12,23 +12,31 @@ public class UtilsTests
     [Theory]
     [InlineData(true, "https")]
     [InlineData(false, "http")]
-    public void LogCustomerEnvironmentUrl_WhenTheHostIsConfigured_LogsTheInstallationPageOfTheVersion(bool useSsl, string scheme)
+    public void LogCustomerEnvironmentUrl_WhenTheHostIsConfigured_LogsTheDescriptionAndInstallationPageOfTheVersion(
+        bool useSsl,
+        string scheme
+    )
     {
         // Arrange
         _sessionMock.Setup(s => s.Configuration).Returns(PortalConfiguration.Create(useSsl));
 
         // Act
-        Utils.LogCustomerEnvironmentUrl(_sessionMock.Object, _environment);
+        Utils.LogCustomerEnvironmentUrl("Follow the deployment at", _sessionMock.Object, _environment);
 
         // Assert
-        _sessionMock.Verify(s => s.LogInformation($"{scheme}://portal.example.com/Entity/CustomerEnvironment/1234/View/Installation"), Times.Once);
+        _sessionMock.Verify(
+            s => s.LogInformation(
+                $"Follow the deployment at {scheme}://portal.example.com/Entity/CustomerEnvironment/1234/View/Installation"
+            ),
+            Times.Once
+        );
     }
 
     [Fact]
     public void LogCustomerEnvironmentUrl_WhenTheHostIsNotConfigured_LogsNothing()
     {
         // Act
-        Utils.LogCustomerEnvironmentUrl(_sessionMock.Object, _environment);
+        Utils.LogCustomerEnvironmentUrl("Follow the deployment at", _sessionMock.Object, _environment);
 
         // Assert
         _sessionMock.Verify(s => s.LogInformation(It.IsAny<string>()), Times.Never);

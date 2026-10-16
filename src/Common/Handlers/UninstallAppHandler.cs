@@ -82,7 +82,7 @@ public class UninstallAppHandler(
             if (item is CustomerEnvironmentApplicationPackage ceap && ceap.TargetEntity?.Name == appName)
             {
                 Session.LogInformation(
-                    $"App '{appName}' found in customer environment '{customerEnvironmentName}' {customerEnvironment.DescribeVersion()}, installation Id {ceap.Id}."
+                    $"App '{appName}' (Id {ceap.Id}) found in customer environment '{customerEnvironmentName}' {customerEnvironment.DescribeVersion()}."
                 );
                 customerEnvironmentApplicationPackage = ceap;
                 break;

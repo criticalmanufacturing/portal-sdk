@@ -40,7 +40,12 @@ public class InstallAppHandlerTests
         await _handler.Run("my-app", "1.0.0", "env", "license", null!, [], null!, null);
 
         // Assert
-        _sessionMock.Verify(s => s.LogInformation("Installing app 'my-app' version 1.0.0 (installation Id 123) in customer environment 'env' version 3 (Id 7)..."), Times.Once);
+        _sessionMock.Verify(
+            s => s.LogInformation(
+                "Installing app 'my-app' version 1.0.0 (Id 123) in customer environment 'env' version 3 (Id 7)..."
+            ),
+            Times.Once
+        );
         _appInstallationHandlerMock.Verify(h => h.Handle("my-app", customerEnvironmentApplicationPackage, "KubernetesOnPremisesTarget", null!, null, null), Times.Once);
     }
 }

@@ -70,14 +70,17 @@ public class EnvironmentDeploymentHandler(
 
         if (interactive)
         {
-            session.LogInformation($"Environment {customerEnvironment.Name} was created, please access the portal url to configure the environment and start the installation:");
-            Utils.LogCustomerEnvironmentUrl(session, customerEnvironment);
+            Utils.LogCustomerEnvironmentUrl(
+                "Configure the environment and start the installation at",
+                session,
+                customerEnvironment
+            );
             session.LogInformation($"Waiting for user configuration...");
         }
         else
         {
             session.LogInformation($"Starting deployment of environment {customerEnvironment.Name}...");
-            Utils.LogCustomerEnvironmentUrl(session, customerEnvironment);
+            Utils.LogCustomerEnvironmentUrl("Follow the deployment at", session, customerEnvironment);
             await startDeploymentInput.StartDeploymentAsync(true);
         }
 

@@ -115,7 +115,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // if we are creating an environment, we need to validate that some options are provided
                 ValidateCustomerEnvironmentArgs(target, siteName, deploymentPackageName, isInfrastructureAgent);
 
-                ProductSite environmentSite = null;                
+                ProductSite environmentSite = null;
                 // If the user defined a site, load it
                 if (!string.IsNullOrEmpty(siteName))
                 {
@@ -181,9 +181,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// <param name="licensesNames">Unique names of the licenses</param>
         private async Task UpdateDeploymentPackage(CustomerEnvironment environment, string deploymentPackageName, string[] licensesNames)
         {
-            // TODO: currently if package is specified licenses are mandatory,
-            // we should allow updating the package without updating licenses,
-            // in that case we would need to get the current licenses of the environment and pass them to the
+            // TODO: at the moment we do not allow changing the package without passing its mandatory licenses
             DeploymentPackage deploymentPackage = await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
             Session.LogInformation($"Setting deployment package {deploymentPackageName} (Id {deploymentPackage.Id}) on customer environment {environment.Name} {environment.DescribeVersion()}...");
 

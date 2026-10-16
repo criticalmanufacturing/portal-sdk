@@ -12,6 +12,7 @@ public class PreviewTests
     [Theory]
     [InlineData("get -h")]
     [InlineData("get env -h")]
+    [InlineData("get deploymentpackage -h")]
     [InlineData("logs -h")]
     [InlineData("logs env -h")]
     public void PreviewCommandHelp_SaysItIsAPreview(string commandLine)
@@ -51,6 +52,7 @@ public class PreviewTests
 
     [Theory]
     [InlineData("get", "env")]
+    [InlineData("get", "deploymentpackage")]
     [InlineData("logs", "env")]
     public void PreviewCommand_WhenRun_WarnsThatItIsAPreview(string verb, string noun)
     {

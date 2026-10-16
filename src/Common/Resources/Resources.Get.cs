@@ -1,7 +1,7 @@
 namespace Cmf.CustomerPortal.Sdk.Common;
 
 /// <summary>
-/// Help texts and messages for getting the details and the logs of Customer Environments.
+/// Help texts and messages for getting the details and the logs of Customer Environments, and the details of Deployment Packages.
 /// </summary>
 public static partial class Resources
 {
@@ -12,10 +12,12 @@ public static partial class Resources
 
     public const string EnvironmentNotFoundMessage = "Customer Environment '{0}' does not exist";
     public const string EnvironmentVersionNotFoundMessage = "Customer Environment '{0}' has no version {1}";
+    public const string DeploymentPackageNotFoundMessage = "Deployment Package '{0}' does not exist";
     public const string EnvironmentVersionInvalidMessage = "The version must be a positive number";
     public const string LogsWrittenMessage = "Logs written to {0}";
 
     // messages printed when a preview command runs
     public const string GetEnvironmentPreview = "[Preview] 'get env' is a preview: its options and output may change in a future version.";
+    public const string GetDeploymentPackagePreview = "[Preview] 'get deploymentpackage' is a preview: its options and output may change in a future version.";
     public const string LogsEnvironmentPreview = "[Preview] 'logs env' is a preview: its options and output may change in a future version.";
 }

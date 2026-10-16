@@ -30,10 +30,12 @@ public static partial class Resources
     public const string NounCancelEnvironmentHelp = "Cancels the in-progress deployment of a Customer Environment";
     public const string NounCancelAppHelp = "Cancels the in-progress installation of an App in a Customer Environment";
     public const string NounGetEnvironmentHelp = "[Preview] Shows the details of a Customer Environment, or of one of its versions";
+    public const string NounGetDeploymentPackageHelp = "[Preview] Shows the details of a Deployment Package";
     public const string NounLogsEnvironmentHelp = "[Preview] Shows the installation and termination logs of a Customer Environment, or of one of its versions";
 
     public const string ArgEnvironmentNameHelp = "Name of the Customer Environment. A name is generated when omitted";
     public const string ArgAgentNameHelp = "Name of the Infrastructure Agent. A name is generated when omitted";
     public const string ArgExistingEnvironmentNameHelp = "Name of the Customer Environment";
     public const string ArgAppNameHelp = "Name of the App";
+    public const string ArgDeploymentPackageNameHelp = "Full name of the Deployment Package: its name and version, e.g. @criticalmanufacturing\\mes:12.0.0";
 }

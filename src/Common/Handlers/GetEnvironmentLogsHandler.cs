@@ -1,4 +1,5 @@
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Extensions;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using System;
 using System.IO.Abstractions;
@@ -49,13 +50,13 @@ public class GetEnvironmentLogsHandler(
         var logs = new JsonObject();
         if (logType is EnvironmentLogType.All or EnvironmentLogType.Installation)
         {
-            Session.LogDebug($"Getting the installation logs of customer environment {name} (Id {environment.Id})");
+            Session.LogDebug($"Getting the installation logs of customer environment {name} {environment.DescribeVersion()}");
             logs[InstallationKey] = ParseLogs(await customerPortalClient.GetCustomerEnvironmentDeploymentLogs(environment.Id));
         }
 
         if (logType is EnvironmentLogType.All or EnvironmentLogType.Termination)
         {
-            Session.LogDebug($"Getting the termination logs of customer environment {name} (Id {environment.Id})");
+            Session.LogDebug($"Getting the termination logs of customer environment {name} {environment.DescribeVersion()}");
             logs[TerminationKey] = ParseLogs(await customerPortalClient.GetCustomerEnvironmentTerminationLogs(environment.Id));
         }
 

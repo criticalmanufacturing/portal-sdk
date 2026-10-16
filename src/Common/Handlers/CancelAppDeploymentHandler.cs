@@ -1,4 +1,5 @@
 using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Extensions;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System;
@@ -70,7 +71,9 @@ public class CancelAppDeploymentHandler(
             throw new Exception($"App '{appName}' is not installed in customer environment '{customerEnvironmentName}'.");
         }
 
-        Session.LogInformation($"Cancelling the deployment of app '{appName}' in customer environment '{customerEnvironmentName}'...");
+        Session.LogInformation(
+            $"Cancelling the deployment of app '{appName}' (Id {customerEnvironmentApplicationPackage.Id}) in customer environment '{customerEnvironmentName}' {customerEnvironment.DescribeVersion()}..."
+        );
         await customerPortalClient.CancelAppDeployment(customerEnvironmentApplicationPackage.Id);
 
         Session.LogInformation($"App '{appName}' deployment cancel requested successfully.");

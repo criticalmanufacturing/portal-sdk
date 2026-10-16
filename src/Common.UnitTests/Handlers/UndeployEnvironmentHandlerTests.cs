@@ -53,16 +53,24 @@ public class UndeployEnvironmentHandlerTests
     [Fact]
     public async Task Run_WhenValid_RunsSuccessfully()
     {
-        var env = new CustomerEnvironment();
+        var env = new CustomerEnvironment { Name = "env", Id = 11, Version = 4 };
         _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync(env);
         _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
             .ReturnsAsync(env);
+        _sessionMock.Setup(s => s.Configuration).Returns(PortalConfiguration.Create());
 
         await _handler.Run("env", true);
 
         // assert warning is always logged
         _sessionMock.Verify(s => s.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with it, rendering them unrecoverable."), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation("Customer environment env version 4 (Id 11) created..."), Times.Once);
+        _sessionMock.Verify(
+            s => s.LogInformation(
+                "Follow the undeploy at https://portal.example.com/Entity/CustomerEnvironment/11/View/Installation"
+            ),
+            Times.Once
+        );
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Once);
         _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Once);

@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Sdk.Common.Extensions;
 using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.LightBusinessObjects.Infrastructure.Errors;
 using System.Threading.Tasks;
@@ -81,7 +82,7 @@ public class UninstallAppHandler(
             if (item is CustomerEnvironmentApplicationPackage ceap && ceap.TargetEntity?.Name == appName)
             {
                 Session.LogInformation(
-                    $"App '{appName}' found in environment '{customerEnvironmentName}' (relation id: {ceap.Id})."
+                    $"App '{appName}' (Id {ceap.Id}) found in customer environment '{customerEnvironmentName}' {customerEnvironment.DescribeVersion()}."
                 );
                 customerEnvironmentApplicationPackage = ceap;
                 break;

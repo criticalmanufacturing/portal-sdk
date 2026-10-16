@@ -90,6 +90,12 @@ public class CancelAppDeploymentHandlerTests
 
         // Assert
         _customerPortalClientMock.Verify(c => c.CancelAppDeployment(123), Times.Once);
+        _sessionMock.Verify(
+            s => s.LogInformation(
+                "Cancelling the deployment of app 'my-app' (Id 123) in customer environment 'env' version 2 (Id 5)..."
+            ),
+            Times.Once
+        );
     }
 
     private CustomerEnvironment EnvironmentWithApp(string appName, long relationId)
@@ -102,6 +108,8 @@ public class CancelAppDeploymentHandlerTests
 
         var env = new CustomerEnvironment
         {
+            Id = 5,
+            Version = 2,
             Status = DeploymentStatus.DeploymentSucceeded,
             RelationCollection = new CmfEntityRelationCollection
             {

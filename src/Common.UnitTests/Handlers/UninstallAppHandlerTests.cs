@@ -178,6 +178,8 @@ public class UninstallAppHandlerTests
 
         var env = new CustomerEnvironment
         {
+            Id = 5,
+            Version = 2,
             Status = DeploymentStatus.DeploymentSucceeded,
             RelationCollection = relations
         };
@@ -206,7 +208,7 @@ public class UninstallAppHandlerTests
 
         // Assert
         _sessionMock.Verify(
-            s => s.LogInformation($"App 'my-app' found in environment 'env' (relation id: {ceap.Id})."),
+            s => s.LogInformation("App 'my-app' (Id 123) found in customer environment 'env' version 2 (Id 5)."),
             Times.Once
         );
         _appUninstallationHandler.Verify(c => c.Handle(ceap, undeploy, undeploy, null, null), Times.Once);

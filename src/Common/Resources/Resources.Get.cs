@@ -8,6 +8,7 @@ public static partial class Resources
     public const string EnvironmentVersionHelp = "Version number of the Customer Environment version to use. The current version is used when omitted";
     public const string OutputFormatHelp = "Format of the output: a readable table, or JSON for scripts";
     public const string LogTypeHelp = "Type of logs to get: the installation logs, the termination logs, or both";
+    public const string ManifestHelp = "Show only the manifest XML of the Deployment Package, instead of its details";
     public const string LogsOutputHelp = "File to write the logs to, in the chosen format, or a directory to write them to as <name>-logs.log, or <name>-logs.json with --format Json (<name>-v<version>-logs.* with --version). The logs are written to the standard output when omitted";
 
     public const string EnvironmentNotFoundMessage = "Customer Environment '{0}' does not exist";

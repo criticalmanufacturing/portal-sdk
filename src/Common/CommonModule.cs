@@ -34,6 +34,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
             serviceCollection.AddTransient<Handlers.CancelAppDeploymentHandler>();
             serviceCollection.AddTransient<Handlers.GetEnvironmentHandler>();
             serviceCollection.AddTransient<Handlers.GetEnvironmentLogsHandler>();
+            serviceCollection.AddTransient<Handlers.GetDeploymentPackageHandler>();
         }
     }
 }

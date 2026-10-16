@@ -29,7 +29,7 @@ public class HelpTests
     [InlineData("create -h", new[] { "infra, infrastructure" })]
     [InlineData("healthcheck -h", new[] { "agent" })]
     [InlineData("download -h", new[] { "artifacts" })]
-    [InlineData("get -h", new[] { "env, environment" })]
+    [InlineData("get -h", new[] { "deploymentpackage", "env, environment" })]
     [InlineData("logs -h", new[] { "env, environment" })]
     public void VerbHelp_ListsNouns(string commandLine, string[] expectedNouns)
     {

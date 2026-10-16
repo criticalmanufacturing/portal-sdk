@@ -1,14 +1,19 @@
 using Cmf.CustomerPortal.Sdk.Console;
+using Cmf.CustomerPortal.Sdk.Console.Base;
 using System.CommandLine;
+using System.IO.Abstractions;
 
 namespace Console.UnitTests;
 
 /// <summary>
-/// Parses command lines against the real <c>cmf-portal</c> command tree. Provides an existing file and folder,
-/// substituted for the <c>{file}</c> and <c>{dir}</c> placeholders, for options that only accept existing paths.
+/// Parses command lines against the real <c>cmf-portal</c> command tree, with the parser configuration of the tool.
+/// Provides an existing file and folder, substituted for the <c>{file}</c> and <c>{dir}</c> placeholders, for options
+/// that only accept existing paths.
 /// </summary>
 public sealed class CommandLineFixture : IDisposable
 {
+    private static readonly ParserConfiguration ParserConfiguration = ParserConfigurationFactory.Create(new FileSystem());
+
     public string ExistingDirectory { get; }
 
     public string ExistingFile { get; }
@@ -22,13 +27,13 @@ public sealed class CommandLineFixture : IDisposable
 
     internal ParseResult Parse(string commandLine)
     {
-        return RootCommandFactory.Create().Parse(commandLine.Replace("{file}", ExistingFile).Replace("{dir}", ExistingDirectory));
+        return RootCommandFactory.Create().Parse(commandLine.Replace("{file}", ExistingFile).Replace("{dir}", ExistingDirectory), ParserConfiguration);
     }
 
     internal static string Help(string commandLine)
     {
         using var output = new StringWriter();
-        RootCommandFactory.Create().Parse(commandLine).Invoke(new InvocationConfiguration { Output = output, Error = output });
+        RootCommandFactory.Create().Parse(commandLine, ParserConfiguration).Invoke(new InvocationConfiguration { Output = output, Error = output });
         return output.ToString();
     }
 

@@ -61,6 +61,7 @@ Commands:
 | <a href="#publish-installationpackage">`publish installationpackage <path>`</a> | Publishes one or more Installation Packages into the Customer Portal | `publish-package` |
 | <a href="#download-artifacts-name">`download artifacts <name>`</a> | Downloads all artifacts of a Customer Environment | `download-artifacts` |
 | <a href="#get-env">`get env <name>`</a> | **[Preview]** Shows the details of a Customer Environment, or of one of its versions | |
+| <a href="#get-deploymentpackage">`get deploymentpackage <name>`</a> | **[Preview]** Shows the details of a Deployment Package | |
 | <a href="#logs-env">`logs env <name>`</a> | **[Preview]** Shows the installation and termination logs of a Customer Environment, or of one of its versions | |
 
 `<name>` is a required argument and `[name]` an optional one. For example, `deploy env` generates a name when it is omitted.
@@ -76,10 +77,11 @@ Examples:
   - `cmf-portal healthcheck agent <agent-name>` - Check if the Infrastructure Agent named <agent-name> is connected
   - `cmf-portal healthcheck agent -ce <customer-environment>` - Check if the Infrastructure Agent associated with <customer-environment> is connected
   - `cmf-portal get env my-env -ver 3 -f json` - Shows the details of version 3 of `my-env` as JSON
+  - `cmf-portal get deploymentpackage '@criticalmanufacturing\mes:12.0.0'` - Shows the details of the Deployment Package `@criticalmanufacturing\mes:12.0.0`
   - `cmf-portal logs env my-env --type termination -f json -o termination.json` - Saves the termination logs of the current version of `my-env` as JSON
   - `cmf-portal healthcheck agent -h` - Displays help about the command, including a brief description of its function, how to use it and what arguments and options are available and/or required.
 
-**Note:** npm package names start with `@`, which the parser reads as a response file when it's a separate argument. Pass them as `--package=@scope/name`.
+**Note:** an argument that starts with `@` is read as a response file only when that file exists, so npm package names such as `@criticalmanufacturing\mes:12.0.0` can be passed as they are. In PowerShell, quote them (`'@criticalmanufacturing\mes:12.0.0'`) so `@` isn't read as splatting.
 
 ### login
 
@@ -339,6 +341,26 @@ Options:
   - `-ver, --version <version>` - Version number of the Customer Environment version to use. The current version is used when omitted
   - `-f, --format <Json|Table>` - Format of the output: a readable table, or JSON for scripts. Defaults to `Table`
   - `-?, -h, --help` - Show help and usage information
+
+### get deploymentpackage
+
+Shows the details of a Deployment Package as a readable table, with `-` for empty values, or only its manifest XML with `--manifest`.
+
+> **Preview:** this command is a preview, so its options and output may change in a future version. When it runs, it says so on standard error, so its output is unchanged for scripts.
+
+Usage: `cmf-portal get deploymentpackage <name> [options]`
+
+Arguments:
+  - `name` - **REQUIRED** - Full name of the Deployment Package: its name and version, e.g. `@criticalmanufacturing\mes:12.0.0`
+
+Options:
+  - `-v, --verbose` - Show detailed logging
+  - `--manifest` - Show only the manifest XML of the Deployment Package, instead of its details
+  - `-?, -h, --help` - Show help and usage information
+
+Examples:
+  - `cmf-portal get deploymentpackage '@criticalmanufacturing\mes:12.0.0'` - Shows the details of the Deployment Package
+  - `cmf-portal get deploymentpackage '@criticalmanufacturing\mes:12.0.0' --manifest > mes.xml` - Saves its manifest XML to `mes.xml`
 
 ### logs env
 

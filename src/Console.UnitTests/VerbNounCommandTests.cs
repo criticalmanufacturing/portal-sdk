@@ -45,6 +45,9 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         { "get env my-env", typeof(GetEnvironmentCommand) },
         { "get environment my-env -ver 3 -f json", typeof(GetEnvironmentCommand) },
         { "get env my-env --version 3 --format Table -v", typeof(GetEnvironmentCommand) },
+        { "get deploymentpackage @criticalmanufacturing\\mes:12.0.0", typeof(GetDeploymentPackageCommand) },
+        { "get deploymentpackage \"@criticalmanufacturing\\mes:12.0.0\" -v", typeof(GetDeploymentPackageCommand) },
+        { "get deploymentpackage @criticalmanufacturing\\mes:12.0.0 --manifest", typeof(GetDeploymentPackageCommand) },
         { "logs env my-env", typeof(LogsEnvironmentCommand) },
         { "logs environment my-env -ver 3 --type termination -v", typeof(LogsEnvironmentCommand) },
         { "logs env my-env -o logs.json", typeof(LogsEnvironmentCommand) },
@@ -78,6 +81,8 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("healthcheck agent my-agent", "agent-name", "my-agent")]
     [InlineData("download artifacts my-env", "name", "my-env")]
     [InlineData("get env my-env", "name", "my-env")]
+    [InlineData("get deploymentpackage my-package:1.0.0", "name", "my-package:1.0.0")]
+    [InlineData("get deploymentpackage @criticalmanufacturing\\mes:12.0.0", "name", "@criticalmanufacturing\\mes:12.0.0")]
     [InlineData("logs env my-env", "name", "my-env")]
     public void CommandLine_ReadsNameFromPositionalArgument(string commandLine, string argumentName, string expectedName)
     {
@@ -144,6 +149,10 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("get env my-env -f xml")]
     [InlineData("get env my-env -ver abc")]
     [InlineData("get env my-env -ver 0")]
+    [InlineData("get deploymentpackage")]
+    [InlineData("get deploymentpackage one two")]
+    [InlineData("get deploymentpackage my-package -f json")]
+    [InlineData("get deploymentpackage my-package --format Table")]
     [InlineData("logs env")]
     [InlineData("logs env my-env --type other")]
     [InlineData("logs env my-env --version -1")]
@@ -210,6 +219,19 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         Assert.Empty(result.Errors);
         Assert.Null(result.GetValue<int?>("--version"));
         Assert.Equal(OutputFormat.Table, result.GetValue<OutputFormat>("--format"));
+    }
+
+    [Theory]
+    [InlineData("get deploymentpackage my-package", false)]
+    [InlineData("get deploymentpackage my-package --manifest", true)]
+    public void GetDeploymentPackage_ReadsTheManifestOption(string commandLine, bool expectedManifest)
+    {
+        // Act
+        ParseResult result = fixture.Parse(commandLine);
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal(expectedManifest, result.GetValue<bool>("--manifest"));
     }
 
     [Fact]

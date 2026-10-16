@@ -344,7 +344,7 @@ Options:
 
 ### get deploymentpackage
 
-Shows the details of a Deployment Package as a readable table, with `-` for empty values.
+Shows the details of a Deployment Package as a readable table, with `-` for empty values, or only its manifest XML with `--manifest`.
 
 > **Preview:** this command is a preview, so its options and output may change in a future version. When it runs, it says so on standard error, so its output is unchanged for scripts.
 
@@ -355,9 +355,12 @@ Arguments:
 
 Options:
   - `-v, --verbose` - Show detailed logging
+  - `--manifest` - Show only the manifest XML of the Deployment Package, instead of its details
   - `-?, -h, --help` - Show help and usage information
 
-Example: `cmf-portal get deploymentpackage '@criticalmanufacturing\mes:12.0.0'`
+Examples:
+  - `cmf-portal get deploymentpackage '@criticalmanufacturing\mes:12.0.0'` - Shows the details of the Deployment Package
+  - `cmf-portal get deploymentpackage '@criticalmanufacturing\mes:12.0.0' --manifest > mes.xml` - Saves its manifest XML to `mes.xml`
 
 ### logs env
 

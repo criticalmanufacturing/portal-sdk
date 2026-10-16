@@ -22,6 +22,7 @@ namespace Cmf.CustomerPortal.Sdk.Common;
 /// <param name="CreatedOn">When the Deployment Package was created.</param>
 /// <param name="ModifiedBy">User that last modified the Deployment Package.</param>
 /// <param name="ModifiedOn">When the Deployment Package was last modified.</param>
+/// <param name="Manifest">Manifest XML of the Deployment Package.</param>
 public sealed record DeploymentPackageDetails(
     long Id,
     string Name,
@@ -38,7 +39,8 @@ public sealed record DeploymentPackageDetails(
     string? CreatedBy,
     DateTime CreatedOn,
     string? ModifiedBy,
-    DateTime ModifiedOn)
+    DateTime ModifiedOn,
+    string? Manifest)
 {
     /// <summary>
     /// Creates the details of <paramref name="deploymentPackage"/>.
@@ -65,7 +67,8 @@ public sealed record DeploymentPackageDetails(
             NullIfEmpty(deploymentPackage.CreatedBy),
             deploymentPackage.CreatedOn,
             NullIfEmpty(deploymentPackage.ModifiedBy),
-            deploymentPackage.ModifiedOn);
+            deploymentPackage.ModifiedOn,
+            NullIfEmpty(deploymentPackage.Manifest));
     }
 
     private static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;

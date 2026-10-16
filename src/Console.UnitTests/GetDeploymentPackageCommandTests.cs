@@ -14,7 +14,7 @@ public class GetDeploymentPackageCommandTests
         // Arrange
         var createdOn = new DateTime(2026, 10, 13, 16, 33, 23);
         var details = new DeploymentPackageDetails(7, "@criticalmanufacturing\\mes:12.0.0", "MES", null, "12.0.0", "Effective",
-            true, false, null, "1.0.0", null, null, "user", createdOn, null, default);
+            true, false, null, "1.0.0", null, null, "user", createdOn, null, default, "<deploymentPackage />");
         using var output = new StringWriter();
 
         // Act
@@ -44,18 +44,50 @@ public class GetDeploymentPackageCommandTests
     }
 
     [Fact]
-    public void WriteTable_HasOneRowPerField()
+    public void WriteTable_HasOneRowPerFieldExceptTheManifest()
     {
         // Arrange
         var details = new DeploymentPackageDetails(7, "package", "name", "desc", "1.0.0", "Effective", true, true, true, "1.0.0",
-            "1", "url", "user", DateTime.Now, "user", DateTime.Now);
+            "1", "url", "user", DateTime.Now, "user", DateTime.Now, "<deploymentPackage />");
         using var output = new StringWriter();
 
         // Act
         GetDeploymentPackageCommand.WriteTable(output, details);
 
         // Assert
-        int fields = typeof(DeploymentPackageDetails).GetProperties().Length;
+        int fields = typeof(DeploymentPackageDetails).GetProperties().Count(p => p.Name != nameof(DeploymentPackageDetails.Manifest));
         Assert.Equal(fields, output.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).Length);
+        Assert.DoesNotContain("<deploymentPackage", output.ToString());
+    }
+
+    [Fact]
+    public void WriteManifest_WritesOnlyTheManifestXml()
+    {
+        // Arrange
+        string manifest = $"<?xml version=\"1.0\" encoding=\"utf-8\"?>{Environment.NewLine}<deploymentPackage>{Environment.NewLine}</deploymentPackage>";
+        var details = new DeploymentPackageDetails(7, "package", null, null, null, "Effective", null, null, null, null,
+            null, null, null, default, null, default, manifest);
+        using var output = new StringWriter();
+
+        // Act
+        GetDeploymentPackageCommand.WriteManifest(output, details);
+
+        // Assert
+        Assert.Equal(manifest + Environment.NewLine, output.ToString());
+    }
+
+    [Fact]
+    public void WriteManifest_WithoutManifest_WritesNothing()
+    {
+        // Arrange
+        var details = new DeploymentPackageDetails(7, "package", null, null, null, "Effective", null, null, null, null,
+            null, null, null, default, null, default, null);
+        using var output = new StringWriter();
+
+        // Act
+        GetDeploymentPackageCommand.WriteManifest(output, details);
+
+        // Assert
+        Assert.Empty(output.ToString());
     }
 }

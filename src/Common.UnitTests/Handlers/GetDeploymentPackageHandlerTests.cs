@@ -55,7 +55,8 @@ public class GetDeploymentPackageHandlerTests
                 CreatedBy = "user",
                 CreatedOn = createdOn,
                 ModifiedBy = "other",
-                ModifiedOn = createdOn.AddHours(1)
+                ModifiedOn = createdOn.AddHours(1),
+                Manifest = "<deploymentPackage />"
             });
 
         // Act
@@ -64,7 +65,7 @@ public class GetDeploymentPackageHandlerTests
         // Assert
         Assert.Equal(
             new DeploymentPackageDetails(7, PackageName, "MES", null, "12.0.0", "Effective", true, false, null, "1.0.0", null,
-                "https://help.example.com", "user", createdOn, "other", createdOn.AddHours(1)),
+                "https://help.example.com", "user", createdOn, "other", createdOn.AddHours(1), "<deploymentPackage />"),
             details);
     }
 

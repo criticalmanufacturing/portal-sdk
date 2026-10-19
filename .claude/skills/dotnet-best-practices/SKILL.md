@@ -80,8 +80,7 @@ user-invocable: false
 
 - Use structured logging with Microsoft.Extensions.Logging
 - Include scoped logging with meaningful context
-- Logs name the exact entity an operation acts on: a Customer Environment version through `DescribeVersion()`
-  (`version 3 (Id 1234)`, `src/Common/Extensions/CustomerEnvironmentExtensions.cs`), other entities with `(Id N)`
+- When operating on Customer Portal entities, log their identity (name, version, id) so the exact entity is clear
 - Throw specific exceptions with descriptive messages
 - Use try-catch blocks for expected failure scenarios
 

@@ -63,7 +63,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             Session.LogInformation($"Creating a new version of the Customer environment {name}...");
             environment = await customerEnvironmentServices.CreateEnvironment(environment);
             Session.LogInformation($"Customer environment {name} {environment.DescribeVersion()} created...");
-            Utils.LogCustomerEnvironmentUrl("Follow the undeploy at", Session, environment);
 
             await customerEnvironmentServices.TerminateOtherVersions(environment, true, true, true);
 

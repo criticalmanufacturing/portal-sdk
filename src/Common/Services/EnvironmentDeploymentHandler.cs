@@ -80,7 +80,6 @@ public class EnvironmentDeploymentHandler(
         else
         {
             session.LogInformation($"Starting deployment of environment {customerEnvironment.Name}...");
-            Utils.LogCustomerEnvironmentUrl("Follow the deployment at", session, customerEnvironment);
             await startDeploymentInput.StartDeploymentAsync(true);
         }
 

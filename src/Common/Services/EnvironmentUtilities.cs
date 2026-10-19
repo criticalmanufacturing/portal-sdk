@@ -191,6 +191,16 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     Name = "Name",
                     Position = 2,
                     Sort = Cmf.Foundation.Common.FieldSort.NoSort
+                },
+                new Field()
+                {
+                    Alias = "Version",
+                    ObjectName = "CustomerEnvironment",
+                    ObjectAlias = "CustomerEnvironment_1",
+                    IsUserAttribute = false,
+                    Name = "Version",
+                    Position = 3,
+                    Sort = Cmf.Foundation.Common.FieldSort.NoSort
                 }
             };
             query.Query.Relations = new RelationCollection();
@@ -206,7 +216,8 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services
                     {
                         Id = (long)row["Id"],
                         Name = (string)row["Name"],
-                        DefinitionId = (long)row["DefinitionId"]
+                        DefinitionId = (long)row["DefinitionId"],
+                        Version = Convert.ToInt32(row["Version"])
                     });
                 }
             }

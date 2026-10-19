@@ -80,6 +80,7 @@ user-invocable: false
 
 - Use structured logging with Microsoft.Extensions.Logging
 - Include scoped logging with meaningful context
+- When operating on Customer Portal entities, log their identity (name, version, id) so the exact entity is clear
 - Throw specific exceptions with descriptive messages
 - Use try-catch blocks for expected failure scenarios
 

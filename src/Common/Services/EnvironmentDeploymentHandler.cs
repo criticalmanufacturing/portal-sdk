@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.Foundation.Common.Base;
-using Cmf.LightBusinessObjects.Infrastructure;
 
 namespace Cmf.CustomerPortal.Sdk.Common.Services;
 
@@ -71,16 +70,17 @@ public class EnvironmentDeploymentHandler(
 
         if (interactive)
         {
-            string infrastructureUrl = $"{(ClientConfigurationProvider.ClientConfiguration.UseSsl ? "https" : "http")}://{ClientConfigurationProvider.ClientConfiguration.HostAddress}/Entity/CustomerEnvironment/{customerEnvironment.Id}/View/Installation";
-
-            session.LogInformation($"Environment {customerEnvironment.Name} was created, please access the portal url to configure the environment and start the installation:");
-            session.LogInformation(infrastructureUrl);
+            Utils.LogCustomerEnvironmentUrl(
+                "Configure the environment and start the installation at",
+                session,
+                customerEnvironment
+            );
             session.LogInformation($"Waiting for user configuration...");
         }
         else
         {
             session.LogInformation($"Starting deployment of environment {customerEnvironment.Name}...");
-            var result = await startDeploymentInput.StartDeploymentAsync(true);
+            await startDeploymentInput.StartDeploymentAsync(true);
         }
 
         using (CancellationTokenSource cancellationTokenMainTask = new CancellationTokenSource(timeoutMainTask))
@@ -217,10 +217,6 @@ public class EnvironmentDeploymentHandler(
                 throw new TimeoutException($"Timeout while waiting for Customer Environment {customerEnvironments.First().Name} versions to be terminated.");
             }
             return ceTerminationFailedIds;
-        }
-        catch
-        {
-            throw;
         }
         finally
         {

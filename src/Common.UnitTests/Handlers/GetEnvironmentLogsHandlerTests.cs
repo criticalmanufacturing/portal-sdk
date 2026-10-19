@@ -26,7 +26,7 @@ public class GetEnvironmentLogsHandlerTests
         _handler = new GetEnvironmentLogsHandler(_sessionMock.Object, _customerPortalClientMock.Object, _customerEnvironmentServicesMock.Object, _fileSystem);
 
         _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironmentVersion("env", It.IsAny<int?>(), 0))
-            .ReturnsAsync(new CustomerEnvironment { Id = EnvironmentId, Name = "env" });
+            .ReturnsAsync(new CustomerEnvironment { Id = EnvironmentId, Name = "env", Version = 3 });
         _customerPortalClientMock.Setup(c => c.GetCustomerEnvironmentDeploymentLogs(EnvironmentId)).ReturnsAsync(InstallationLogs);
         _customerPortalClientMock.Setup(c => c.GetCustomerEnvironmentTerminationLogs(EnvironmentId)).ReturnsAsync(TerminationLogs);
     }
@@ -53,6 +53,8 @@ public class GetEnvironmentLogsHandlerTests
         Assert.True(JsonNode.DeepEquals(JsonNode.Parse(InstallationLogs), logs["installation"]));
         Assert.True(JsonNode.DeepEquals(JsonNode.Parse(TerminationLogs), logs["termination"]));
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironmentVersion("env", 3, 0), Times.Once);
+        _sessionMock.Verify(s => s.LogDebug("Getting the installation logs of customer environment env version 3 (Id 7)"), Times.Once);
+        _sessionMock.Verify(s => s.LogDebug("Getting the termination logs of customer environment env version 3 (Id 7)"), Times.Once);
     }
 
     [Fact]

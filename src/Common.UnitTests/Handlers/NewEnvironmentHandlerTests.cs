@@ -33,7 +33,7 @@ public class NewEnvironmentHandlerTests
     private static readonly bool terminateOtherVersionsRemoveVolumes = false;
 
     [Fact]
-    public async void Run_CustomerEnvironmentDoesNotExistAndIsInfrastructureAgent_DeploymentPackageIsNotUpdated()
+    public async Task Run_CustomerEnvironmentDoesNotExistAndIsInfrastructureAgent_DeploymentPackageIsNotUpdated()
     {
         // Arrange
         using var mock = AutoMock.GetLoose();
@@ -64,7 +64,7 @@ public class NewEnvironmentHandlerTests
     }
 
     [Fact]
-    public async void Run_CustomerEnvironmentDoesNotExistAndIsNotInfrastructureAgent_DeploymentPackageIsUpdated()
+    public async Task Run_CustomerEnvironmentDoesNotExistAndIsNotInfrastructureAgent_DeploymentPackageIsUpdated()
     {
         // Arrange
         using var mock = AutoMock.GetLoose();
@@ -110,7 +110,7 @@ public class NewEnvironmentHandlerTests
     }
 
     [Fact]
-    public async void Run_CustomerEnvironmentDoesNotExistInAnInfrastructure_DeploymentPackageIsUpdated()
+    public async Task Run_CustomerEnvironmentDoesNotExistInAnInfrastructure_DeploymentPackageIsUpdated()
     {
         // Arrange
         using var mock = AutoMock.GetLoose();
@@ -159,13 +159,13 @@ public class NewEnvironmentHandlerTests
     }
 
     [Fact]
-    public async void Run_CustomerEnvironmentExists_DeploymentPackageIsUpdated()
+    public async Task Run_CustomerEnvironmentExists_DeploymentPackageIsUpdated()
     {
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment() { Name = name, UniversalState = UniversalState.Created, Status = DeploymentStatus.DeploymentFailed };
-        var deploymentPackage = new DeploymentPackage() { Name = deploymentPackageName };
+        var customerEnvironment = new CustomerEnvironment() { Name = name, Id = 10, Version = 3, UniversalState = UniversalState.Created, Status = DeploymentStatus.DeploymentFailed };
+        var deploymentPackage = new DeploymentPackage() { Name = deploymentPackageName, Id = 5 };
         var cPSoftwareLicense = new CPSoftwareLicense() { Name = licenseName, Id = 1234 };
         string[] licenseNames = [licenseName];
         List<CPSoftwareLicense> licenses = [cPSoftwareLicense];
@@ -212,8 +212,12 @@ public class NewEnvironmentHandlerTests
             It.Is<long[]>(
                 x => x.Count() == 1 && x[0] == cPSoftwareLicense.Id
             )), Times.Once);
+
+        var sessionMock = mock.Mock<ISession>();
+        sessionMock.Verify(s => s.LogInformation("Setting deployment package deploymentPackageName (Id 5) on customer environment name version 3 (Id 10)..."), Times.Once);
+        sessionMock.Verify(s => s.LogInformation("Customer environment name version 3 (Id 10) created..."), Times.Once);
     }
-    
+
     [Fact]
     public async Task Run_ShouldLogTerminationLogsAndThrow_WhenTerminationFails()
     {
@@ -326,7 +330,7 @@ public class NewEnvironmentHandlerTests
         mockClient.Verify(c => c.GetCustomerEnvironmentTerminationLogs(20), Times.Once);
 
         Assert.NotEmpty(loggedStrings);
-        Assert.Contains(loggedStrings, s => s.Contains("Customer Environment 20") && s.Contains("termination logs for 20"));
+        Assert.Contains(loggedStrings, s => s.Contains("(Id 20)") && s.Contains("termination logs for 20"));
     }
 
     [Theory]
@@ -358,6 +362,9 @@ public class NewEnvironmentHandlerTests
             .ReturnsAsync(customerEnvironment);
         customerEnvironmentServicesMock
             .Setup(x => x.CreateEnvironment(customerEnvironment))
+            .ReturnsAsync(customerEnvironment);
+        customerEnvironmentServicesMock
+            .Setup(x => x.UpdateEnvironment(customerEnvironment))
             .ReturnsAsync(customerEnvironment);
 
         mock.Mock<IEnvironmentUtilities>()

@@ -1,5 +1,6 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
+using Cmf.CustomerPortal.Sdk.Common.Extensions;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
@@ -28,7 +29,7 @@ internal class CustomerEnvironmentServices(
             environment = await customerPortalClient.GetObjectByName<CustomerEnvironment>(name);
             environment = await customerPortalClient.GetCustomerEnvironmentById(environment.Id);
 
-            session.LogInformation($"Customer environment {name} actually exists...");
+            session.LogInformation($"Customer environment {name} exists, current {environment.DescribeVersion()}...");
         }
         catch (CmfFaultException ex) when (ex.Code?.Name == Foundation.Common.CmfExceptionType.Db20001.ToString())
         {
@@ -176,8 +177,6 @@ internal class CustomerEnvironmentServices(
     /// <inheritdoc/>
     public async Task TerminateOtherVersions(CustomerEnvironment customerEnvironment, bool terminateOtherVersionsRemove, bool terminateOtherVersionsRemoveVolumes, bool undeploy)
     {
-        session.LogInformation("Terminating other versions...");
-
         var customerEnvironmentsToTerminate = await newEnvironmentUtilities.GetOtherVersionToTerminate(customerEnvironment);
         OperationAttributeCollection terminateOperationAttributes = [];
 
@@ -225,6 +224,8 @@ internal class CustomerEnvironmentServices(
 
         if (customerEnvironmentsToTerminate.Count > 0)
         {
+            string versionsToTerminate = string.Join(", ", customerEnvironmentsToTerminate.Select(ce => ce.DescribeVersion()));
+            session.LogInformation($"Terminating {versionsToTerminate} of customer environment {customerEnvironment.Name}; keeping {customerEnvironment.DescribeVersion()}...");
             await customerPortalClient.TerminateCustomerEnvironments([.. customerEnvironmentsToTerminate.Select(ce => ce.Id)], terminateOperationAttributes);
 
             // wait until they're terminated
@@ -237,10 +238,10 @@ internal class CustomerEnvironmentServices(
                 Exception ex = new(errorMessage);
                 session.LogError(ex);
 
-                foreach (long ceId in ceTerminationFailedIds)
+                foreach (CustomerEnvironment ce in customerEnvironmentsToTerminate.Where(ce => ceTerminationFailedIds.Contains(ce.Id)))
                 {
-                    var logs = await customerPortalClient.GetCustomerEnvironmentTerminationLogs(ceId);
-                    session.LogError($"\nCustomer Environment {ceId} did not terminate sucessully. Termination logs:\n {logs}\n");
+                    var logs = await customerPortalClient.GetCustomerEnvironmentTerminationLogs(ce.Id);
+                    session.LogError($"\nCustomer Environment {ce.Name} {ce.DescribeVersion()} did not terminate successfully. Termination logs:\n {logs}\n");
                 }
 
                 throw ex;

@@ -51,19 +51,17 @@ public sealed record CustomerEnvironmentDetails(
             environment.Id,
             environment.Name,
             environment.Version,
-            NullIfEmpty(environment.Description),
-            NullIfEmpty(environment.EnvironmentType),
+            Utils.NullIfEmpty(environment.Description),
+            Utils.NullIfEmpty(environment.EnvironmentType),
             environment.Status.ToString(),
             environment.UniversalState.ToString(),
-            NullIfEmpty(environment.Site?.Name),
-            NullIfEmpty(environment.CustomerInfrastructure?.Name),
-            NullIfEmpty(environment.DeploymentPackage?.Name),
-            NullIfEmpty(environment.DeploymentTarget),
-            NullIfEmpty(environment.CreatedBy),
+            Utils.NullIfEmpty(environment.Site?.Name),
+            Utils.NullIfEmpty(environment.CustomerInfrastructure?.Name),
+            Utils.NullIfEmpty(environment.DeploymentPackage?.Name),
+            Utils.NullIfEmpty(environment.DeploymentTarget),
+            Utils.NullIfEmpty(environment.CreatedBy),
             environment.CreatedOn,
-            NullIfEmpty(environment.ModifiedBy),
+            Utils.NullIfEmpty(environment.ModifiedBy),
             environment.ModifiedOn);
     }
-
-    private static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 }

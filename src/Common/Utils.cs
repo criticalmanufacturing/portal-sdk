@@ -97,6 +97,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
             );
         }
 
+        /// <summary>
+        /// Returns null when <paramref name="value"/> is null, empty or white space, so it is shown as an empty value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns>The value, or null when it is null, empty or white space.</returns>
+        public static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
+
         private static async Task<Dictionary<string, string>> ConfigureTokens(ISession _session, string[] replaceTokens)
         {
             return await Task.Run(() =>

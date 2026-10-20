@@ -54,22 +54,20 @@ public sealed record DeploymentPackageDetails(
         return new DeploymentPackageDetails(
             deploymentPackage.Id,
             deploymentPackage.Name,
-            NullIfEmpty(deploymentPackage.DisplayName),
-            NullIfEmpty(deploymentPackage.Description),
-            NullIfEmpty(deploymentPackage.PackageVersion),
+            Utils.NullIfEmpty(deploymentPackage.DisplayName),
+            Utils.NullIfEmpty(deploymentPackage.Description),
+            Utils.NullIfEmpty(deploymentPackage.PackageVersion),
             deploymentPackage.UniversalState.ToString(),
             deploymentPackage.IsRootPackage,
             deploymentPackage.IsInstallable,
             deploymentPackage.PreRelease,
-            NullIfEmpty(deploymentPackage.ManifestVersion),
-            NullIfEmpty(deploymentPackage.LicenseVersion),
-            NullIfEmpty(deploymentPackage.DocumentationURL),
-            NullIfEmpty(deploymentPackage.CreatedBy),
+            Utils.NullIfEmpty(deploymentPackage.ManifestVersion),
+            Utils.NullIfEmpty(deploymentPackage.LicenseVersion),
+            Utils.NullIfEmpty(deploymentPackage.DocumentationURL),
+            Utils.NullIfEmpty(deploymentPackage.CreatedBy),
             deploymentPackage.CreatedOn,
-            NullIfEmpty(deploymentPackage.ModifiedBy),
+            Utils.NullIfEmpty(deploymentPackage.ModifiedBy),
             deploymentPackage.ModifiedOn,
-            NullIfEmpty(deploymentPackage.Manifest));
+            Utils.NullIfEmpty(deploymentPackage.Manifest));
     }
-
-    private static string? NullIfEmpty(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 }

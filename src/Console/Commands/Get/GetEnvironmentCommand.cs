@@ -2,10 +2,8 @@ using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.CustomerPortal.Sdk.Console.Extensions;
-using System;
 using System.CommandLine;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -71,17 +69,11 @@ class GetEnvironmentCommand : BaseCommand
             ("Deployment Package", details.DeploymentPackage),
             ("Deployment Target", details.DeploymentTarget),
             ("Created By", details.CreatedBy),
-            ("Created On", FormatDate(details.CreatedOn)),
+            ("Created On", TableOutput.FormatDate(details.CreatedOn)),
             ("Modified By", details.ModifiedBy),
-            ("Modified On", FormatDate(details.ModifiedOn))
+            ("Modified On", TableOutput.FormatDate(details.ModifiedOn))
         ];
 
-        int width = rows.Max(row => row.Label.Length) + 1;
-        foreach ((string label, string value) in rows)
-        {
-            output.WriteLine($"{(label + ":").PadRight(width)} {value ?? TableOutput.EmptyValue}");
-        }
+        TableOutput.WriteRows(output, rows);
     }
-
-    private static string FormatDate(DateTime date) => date == default ? null : date.ToString("yyyy-MM-dd HH:mm:ss");
 }

@@ -44,7 +44,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.Subcommands.Add(Verb("create", Resources.VerbCreateHelp, new CreateInfrastructureCommand()));
             rootCommand.Subcommands.Add(Verb("healthcheck", Resources.VerbHealthcheckHelp, new HealthcheckAgentCommand()));
             rootCommand.Subcommands.Add(Verb("download", Resources.VerbDownloadHelp, new DownloadArtifactsCommand()));
-            rootCommand.Subcommands.Add(Verb("get", Resources.VerbGetHelp, new GetEnvironmentCommand()));
+            rootCommand.Subcommands.Add(Verb("get", Resources.VerbGetHelp, new GetEnvironmentCommand(), new GetDeploymentPackageCommand()));
             rootCommand.Subcommands.Add(Verb("logs", Resources.VerbLogsHelp, new LogsEnvironmentCommand()));
 
             // deprecated legacy commands without a matching verb, listed after the verbs so their help points to the replacement

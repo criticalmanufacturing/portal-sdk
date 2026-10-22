@@ -13,13 +13,25 @@ public class UninstallAppHandler(
     IAppUninstallationHandler appUninstallationHandler
 ) : AbstractHandler(session, true)
 {
+    /// <summary>
+    /// Uninstalls an App from the latest deployed version of a Customer Environment.
+    /// By default only the App's workloads are removed.
+    /// </summary>
+    /// <param name="appName">The name of the App to uninstall.</param>
+    /// <param name="customerEnvironmentName">The name of the Customer Environment the App is installed on.</param>
+    /// <param name="removeVolumes">Also removes the App's volumes.</param>
+    /// <param name="undeploy">Also runs the App's undeploy procedures, which implies removing its volumes.</param>
+    /// <param name="timeout">Timeout, in minutes, to wait for the uninstall to finish.</param>
+    /// <param name="timeoutToGetSomeMBMessage">Timeout, in minutes, to wait for any Message Bus message from the portal.</param>
+    /// <param name="purge">Wipes out the App completely: removes its volumes and runs its undeploy procedures.</param>
     public async Task Run(
         string appName,
         string customerEnvironmentName,
         bool removeVolumes,
         bool undeploy,
         double? timeout,
-        double? timeoutToGetSomeMBMessage = null
+        double? timeoutToGetSomeMBMessage = null,
+        bool purge = false
     )
     {
         Session.LogInformation(
@@ -97,10 +109,17 @@ public class UninstallAppHandler(
             return;
         }
 
+        if (purge)
+        {
+            Session.LogInformation(
+                $"Purging App '{appName}' (Id {customerEnvironmentApplicationPackage.Id}): its volumes will be removed and its undeploy procedures executed."
+            );
+        }
+
         await appUninstallationHandler.Handle(
             customerEnvironmentApplicationPackage,
-            removeVolumes,
-            undeploy,
+            removeVolumes || purge,
+            undeploy || purge,
             timeout,
             timeoutToGetSomeMBMessage
         );

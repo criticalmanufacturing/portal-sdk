@@ -192,11 +192,15 @@ Arguments:
 Options:
   - `-v, --verbose` - Show detailed logging
   - `-f, --force` - Flag that controls if the confirmation message on whether to proceed with undeployment is skipped.
+  - `--purge` - Flag that wipes out the Customer Environment completely: removes all its persistent data and runs its uninstall procedures. Undeploying without it currently does the same, but will soon only remove its workloads.
   - `-?, -h, --help` - Show help and usage information
+
+> [!NOTE]
+> Without `--purge`, `undeploy env` still wipes out all the data of the Customer Environment and runs its uninstall procedures, and prints a notice saying so. This will soon change to only remove its workloads, keeping its data. Use `--purge` to keep wiping out the Customer Environment completely.
 
 ### undeploy app
 
-Uninstalls an App from a previously deployed Customer Environment.
+Uninstalls an App from a previously deployed Customer Environment. By default only the App's workloads are removed; use `--purge` to also remove its volumes and run its undeploy procedures.
 
 Equivalent to powershell cmdlet <a href="#uninstall-app-1">Uninstall-App</a>
 
@@ -211,6 +215,7 @@ Options:
   - `-tovr, --terminateOtherVersionsRemove` - Deprecated, always enabled. Flag that controls if the app deployments installed in the cluster should be removed.
   - `-tovrv, --removeVolumes, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the App that will be uninstalled should be removed.
   - `--undeploy` - Flag that controls if the app's undeploy procedures will be executed. Implies volume removal.
+  - `--purge` - Flag that wipes out the App completely: removes its volumes and runs its undeploy procedures. Without it, only the App's workloads are removed.
   - `-to, --timeout <timeout>` - Timeout, in minutes, to wait for an App to uninstall. The default is 360 minutes.
   - `-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
   - `-?, -h, --help` - Show help and usage information.
@@ -637,6 +642,7 @@ Usage: `Undeploy-Environment [options]`
 Options:
   - `-TerminateOtherVersionsRemoveVolumes` - **Position 2** - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.
   - `-Name <name>` - Name of the Customer Environment to be used
+  - `-Purge` - Flag that wipes out the Customer Environment completely: removes all its persistent data and runs its uninstall procedures. Undeploying without it currently does the same, but will soon only remove its workloads.
 
 
 
@@ -653,5 +659,6 @@ Options:
   - `-TerminateOtherVersionsRemove` - Flag that controls if the deployments of the versions of the App that will be uninstalled should be removed.
   - `-TerminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the versions of the App that will be uninstalled should be removed.
   - `-Undeploy` - Flag that controls if the app's undeploy procedures will be executed.
+  - `-Purge` - Flag that wipes out the App completely: removes its volumes and runs its undeploy procedures. Without it, only the App's workloads are removed.
   - `-DeploymentTimeoutMinutes <deploymentTimeoutMinutes>` - Number of minutes that are allowed to wait for the uninstall to succeed. The default is 360 minutes.
   - `-DeploymentTimeoutMinutesToGetSomeMBMsg <DeploymentTimeoutMinutesToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes. 

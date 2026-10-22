@@ -18,11 +18,14 @@ namespace Cmf.CustomerPortal.Sdk.Powershell
         [Parameter(Position = 1, HelpMessage = Resources.UndeploymentForceHelp)]
         public SwitchParameter Force;
 
+        [Parameter(HelpMessage = Resources.UndeploymentPurgeHelp)]
+        public SwitchParameter Purge;
+
         protected async override Task ProcessRecordAsync()
         {
             // get undeploy environment handler and run it
             UndeployEnvironmentHandler undeployEnvironmentHandler = ServiceLocator.Get<UndeployEnvironmentHandler>();
-            await undeployEnvironmentHandler.Run(Name, Force.ToBool());
+            await undeployEnvironmentHandler.Run(Name, Force.ToBool(), Purge.ToBool());
         }
     }
 }

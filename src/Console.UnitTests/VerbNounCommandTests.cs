@@ -31,6 +31,8 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         { "undeploy environment my-env --force", typeof(UndeployEnvironmentCommand) },
         { "undeploy app my-app -ce env", typeof(UndeployAppCommand) },
         { "undeploy application my-app -ce env --removeVolumes --undeploy -to 10 -tombm 5", typeof(UndeployAppCommand) },
+        { "undeploy env my-env --force --purge", typeof(UndeployEnvironmentCommand) },
+        { "undeploy app my-app -ce env --purge", typeof(UndeployAppCommand) },
         { "cancel env my-env", typeof(CancelEnvironmentCommand) },
         { "cancel environment my-env", typeof(CancelEnvironmentCommand) },
         { "cancel app my-app -ce env", typeof(CancelAppCommand) },
@@ -185,6 +187,21 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
 
         // Assert
         Assert.Equal("Unrecognized command or argument '-f'.", Assert.Single(result.Errors).Message);
+    }
+
+    [Theory]
+    [InlineData("undeploy env my-env --purge", true)]
+    [InlineData("undeploy env my-env", false)]
+    [InlineData("undeploy app my-app -ce env --purge", true)]
+    [InlineData("undeploy app my-app -ce env", false)]
+    public void Undeploy_ReadsPurge(string commandLine, bool expectedPurge)
+    {
+        // Act
+        ParseResult result = fixture.Parse(commandLine);
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal(expectedPurge, result.GetValue<bool>("--purge"));
     }
 
     [Fact]

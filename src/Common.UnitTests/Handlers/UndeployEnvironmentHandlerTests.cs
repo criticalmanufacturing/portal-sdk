@@ -73,6 +73,43 @@ public class UndeployEnvironmentHandlerTests
     }
 
     [Fact]
+    public async Task Run_WithoutPurge_WipesEverythingAndLogsPurgeNotice()
+    {
+        // Arrange
+        var env = new CustomerEnvironment { Name = "env", Id = 11, Version = 4 };
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
+            .ReturnsAsync(env);
+        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
+            .ReturnsAsync(env);
+
+        // Act
+        await _handler.Run("env", true, purge: false);
+
+        // Assert
+        _sessionMock.Verify(s => s.LogInformation(UndeployEnvironmentHandler.PurgeNotice), Times.Once);
+        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(env, true, true, true), Times.Once);
+    }
+
+    [Fact]
+    public async Task Run_WithPurge_WipesEverythingWithoutPurgeNotice()
+    {
+        // Arrange
+        var env = new CustomerEnvironment { Name = "env", Id = 11, Version = 4 };
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
+            .ReturnsAsync(env);
+        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
+            .ReturnsAsync(env);
+
+        // Act
+        await _handler.Run("env", true, purge: true);
+
+        // Assert
+        _sessionMock.Verify(s => s.LogInformation(UndeployEnvironmentHandler.PurgeNotice), Times.Never);
+        _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(env, true, true, true), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation("Customer environment env undeploy succeeded..."), Times.Once);
+    }
+
+    [Fact]
     public async Task Run_WhenForceDisabledAndNegativeInput_Cancels()
     {
         var env = new CustomerEnvironment();

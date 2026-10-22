@@ -12,9 +12,29 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         IEnvironmentUtilities newEnvironmentUtilities,
         ICustomerEnvironmentServices customerEnvironmentServices) : AbstractHandler(session, true)
     {
-        public async Task Run(string name, bool force)
+        /// <summary>
+        /// Notice logged when undeploying without purge, whose behaviour is about to change.
+        /// </summary>
+        public const string PurgeNotice = "Notice: undeploying without --purge currently also wipes out all the persistent data of the Customer Environment and runs its uninstall procedures. This will soon change to only remove its workloads, keeping its data. Use --purge to keep wiping out the Customer Environment completely.";
+
+        /// <summary>
+        /// Undeploys a Customer Environment: creates a new version of it and terminates the other versions,
+        /// removing their deployments and volumes and running their uninstall procedures.
+        /// </summary>
+        /// <param name="name">The name of the Customer Environment to undeploy.</param>
+        /// <param name="force">Skips the confirmation prompt.</param>
+        /// <param name="purge">
+        /// Wipes out the Customer Environment completely. Undeploying without it currently does the same,
+        /// but logs <see cref="PurgeNotice"/> because it will soon only remove the workloads.
+        /// </param>
+        public async Task Run(string name, bool force, bool purge = false)
         {
             Session.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with it, rendering them unrecoverable.");
+
+            if (!purge)
+            {
+                Session.LogInformation(PurgeNotice);
+            }
 
             // Confirmation dialogue, skipped when --force is enabled
             if (!force)

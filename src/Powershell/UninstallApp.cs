@@ -30,6 +30,8 @@ public class UninstallApp : BaseCmdlet<UninstallAppHandler>
     [Parameter(HelpMessage = Resources.DeploymentTimeoutMinutesToGetSomeMBMessageHelp)]
     public double? DeploymentTimeoutMinutesToGetSomeMBMsg { get; set; }
 
+    [Parameter(HelpMessage = Resources.AppUninstallPurgeHelp)]
+    public SwitchParameter Purge { get; set; }
 
     protected override async Task ProcessRecordAsync()
     {
@@ -41,7 +43,8 @@ public class UninstallApp : BaseCmdlet<UninstallAppHandler>
             TerminateOtherVersionsRemoveVolumes,
             Undeploy,
             DeploymentTimeoutMinutes,
-            DeploymentTimeoutMinutesToGetSomeMBMsg
+            DeploymentTimeoutMinutesToGetSomeMBMsg,
+            Purge
         );
     }
 }

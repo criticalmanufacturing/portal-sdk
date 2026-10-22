@@ -213,4 +213,122 @@ public class UninstallAppHandlerTests
         );
         _appUninstallationHandler.Verify(c => c.Handle(ceap, undeploy, undeploy, null, null), Times.Once);
     }
+
+    [Fact]
+    public async Task Run_WithoutPurgeOrFlags_OnlyRemovesWorkloads()
+    {
+        // Arrange
+        var ceap = SetupInstalledApp();
+
+        // Act
+        await _handler.Run(
+            appName: "my-app",
+            customerEnvironmentName: "env",
+            removeVolumes: false,
+            undeploy: false,
+            timeout: 10,
+            timeoutToGetSomeMBMessage: 5
+        );
+
+        // Assert
+        _appUninstallationHandler.Verify(c => c.Handle(ceap, false, false, 10, 5), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation(It.Is<string>(m => m.StartsWith("Purging App"))), Times.Never);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task Run_WithPurge_RemovesVolumesAndRunsUndeployProcedures(bool removeVolumes, bool undeploy)
+    {
+        // Arrange
+        var ceap = SetupInstalledApp();
+
+        // Act
+        await _handler.Run(
+            appName: "my-app",
+            customerEnvironmentName: "env",
+            removeVolumes: removeVolumes,
+            undeploy: undeploy,
+            timeout: 10,
+            timeoutToGetSomeMBMessage: 5,
+            purge: true
+        );
+
+        // Assert
+        _sessionMock.Verify(
+            s => s.LogInformation("Purging App 'my-app' (Id 123): its volumes will be removed and its undeploy procedures executed."),
+            Times.Once
+        );
+        _appUninstallationHandler.Verify(c => c.Handle(ceap, true, true, 10, 5), Times.Once);
+    }
+
+    [Fact]
+    public async Task Run_WithPurgeWhenAppNotInstalled_DoesNotUninstall()
+    {
+        // Arrange
+        var env = new CustomerEnvironment
+        {
+            Status = DeploymentStatus.DeploymentSucceeded
+        };
+        _ = _environmentUtilities
+            .Setup(c => c.GetLastNonNotDeployedCustomerEnvironmentVersion("env"))
+            .ReturnsAsync(env);
+        _ = _customerPortalClientMock
+            .Setup(c => c.GetCustomerEnvironmentById(env.Id, 1))
+            .ReturnsAsync(env);
+
+        // Act
+        await _handler.Run(
+            appName: "missing-app",
+            customerEnvironmentName: "env",
+            removeVolumes: false,
+            undeploy: false,
+            timeout: null,
+            timeoutToGetSomeMBMessage: null,
+            purge: true
+        );
+
+        // Assert
+        _appUninstallationHandler.Verify(
+            c => c.Handle(
+                It.IsAny<CustomerEnvironmentApplicationPackage>(),
+                It.IsAny<bool>(),
+                It.IsAny<bool>(),
+                It.IsAny<double?>(),
+                It.IsAny<double?>()
+            ),
+            Times.Never
+        );
+    }
+
+    private CustomerEnvironmentApplicationPackage SetupInstalledApp()
+    {
+        var ceap = new CustomerEnvironmentApplicationPackage
+        {
+            Id = 123,
+            TargetEntity = new ApplicationPackage { Name = "my-app" }
+        };
+
+        var env = new CustomerEnvironment
+        {
+            Id = 5,
+            Version = 2,
+            Status = DeploymentStatus.DeploymentSucceeded,
+            RelationCollection = new CmfEntityRelationCollection
+            {
+                ["CustomerEnvironmentApplicationPackage"] = new EntityRelationCollection { ceap }
+            }
+        };
+
+        _ = _environmentUtilities
+            .Setup(c => c.GetLastNonNotDeployedCustomerEnvironmentVersion("env"))
+            .ReturnsAsync(env);
+        _ = _customerPortalClientMock
+            .Setup(c => c.GetCustomerEnvironmentById(env.Id, 1))
+            .ReturnsAsync(env);
+
+        return ceap;
+    }
 }

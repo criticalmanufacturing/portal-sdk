@@ -42,6 +42,12 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
         /// </summary>
         protected abstract string GetAppName(ParseResult parseResult);
 
+        /// <summary>
+        /// Gets whether the App is purged. Only <c>undeploy app</c> takes <c>--purge</c>,
+        /// the legacy command keeps its options.
+        /// </summary>
+        protected virtual bool GetPurge(ParseResult parseResult) => false;
+
         private async Task UninstallHandler(ParseResult parseResult)
         {
             CreateSession(parseResult);
@@ -52,7 +58,8 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
                 parseResult.GetValue(removeVolumesOption),
                 parseResult.GetValue(undeployOption),
                 parseResult.GetValue(timeoutOption),
-                parseResult.GetValue(timeoutToGetSomeMBMsgOption));
+                parseResult.GetValue(timeoutToGetSomeMBMsgOption),
+                GetPurge(parseResult));
         }
     }
 }

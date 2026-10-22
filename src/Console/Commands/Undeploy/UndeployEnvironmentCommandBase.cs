@@ -26,12 +26,18 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
         /// </summary>
         protected abstract string GetName(ParseResult parseResult);
 
+        /// <summary>
+        /// Gets whether the Customer Environment is explicitly wiped out. Only the commands that declare <c>--purge</c>
+        /// override it; the legacy command keeps its options unchanged.
+        /// </summary>
+        protected virtual bool GetPurge(ParseResult parseResult) => false;
+
         private async Task UndeployHandler(ParseResult parseResult)
         {
             // get undeploy environment handler and run it
             CreateSession(parseResult);
             UndeployEnvironmentHandler undeployEnvironmentHandler = ServiceLocator.Get<UndeployEnvironmentHandler>();
-            await undeployEnvironmentHandler.Run(GetName(parseResult), parseResult.GetValue(forceOption));
+            await undeployEnvironmentHandler.Run(GetName(parseResult), parseResult.GetValue(forceOption), GetPurge(parseResult));
         }
     }
 }

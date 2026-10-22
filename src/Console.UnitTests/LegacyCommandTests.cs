@@ -120,6 +120,8 @@ public class LegacyCommandTests(CommandLineFixture fixture) : IClassFixture<Comm
     [InlineData("undeploy")]
     [InlineData("install-app -av 1 -ce env -lic L")]
     [InlineData("uninstall-app -n app")]
+    [InlineData("undeploy -n env --purge")]
+    [InlineData("uninstall-app -n app -ce env --purge")]
     [InlineData("publish")]
     [InlineData("publish-package --path \"{dir}\\missing.zip\"")]
     [InlineData("download-artifacts")]

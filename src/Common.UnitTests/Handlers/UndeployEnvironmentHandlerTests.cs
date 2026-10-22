@@ -86,8 +86,38 @@ public class UndeployEnvironmentHandlerTests
         await _handler.Run("env", true, purge: false);
 
         // Assert
-        _sessionMock.Verify(s => s.LogInformation(UndeployEnvironmentHandler.PurgeNotice), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation(UndeployEnvironmentHandler.PurgeNotice("env")), Times.Once);
         _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(env, true, true, true), Times.Once);
+    }
+
+    [Fact]
+    public async Task Run_WithoutPurgeArgument_LogsNoticeNamingTheCommandsThatPurge()
+    {
+        // Arrange
+        var env = new CustomerEnvironment { Name = "my env", Id = 11, Version = 4 };
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("my env"))
+            .ReturnsAsync(env);
+        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
+            .ReturnsAsync(env);
+
+        // Act: the deprecated 'undeploy -n <name>' command doesn't take --purge and calls Run without it
+        await _handler.Run("my env", true);
+
+        // Assert
+        _sessionMock.Verify(s => s.LogInformation(It.Is<string>(m =>
+            m.StartsWith("Notice: ")
+            && m.Contains("'cmf-portal undeploy env \"my env\" --purge'")
+            && m.Contains("'Reset-Environment -Name \"my env\" -Purge'")
+            && m.Contains("'cmf-portal undeploy -n <name>' command doesn't take --purge"))), Times.Once);
+    }
+
+    [Theory]
+    [InlineData("env", "undeploy env \"env\" --purge")]
+    [InlineData(null, "undeploy env <name> --purge")]
+    [InlineData(" ", "undeploy env <name> --purge")]
+    public void PurgeCommandLine_QuotesTheNameOrUsesAPlaceholder(string? name, string expected)
+    {
+        Assert.Equal(expected, UndeployEnvironmentHandler.PurgeCommandLine(name));
     }
 
     [Fact]
@@ -104,7 +134,7 @@ public class UndeployEnvironmentHandlerTests
         await _handler.Run("env", true, purge: true);
 
         // Assert
-        _sessionMock.Verify(s => s.LogInformation(UndeployEnvironmentHandler.PurgeNotice), Times.Never);
+        _sessionMock.Verify(s => s.LogInformation(It.Is<string>(m => m.StartsWith("Notice: "))), Times.Never);
         _customerEnvironmentServicesMock.Verify(s => s.TerminateOtherVersions(env, true, true, true), Times.Once);
         _sessionMock.Verify(s => s.LogInformation("Customer environment env undeploy succeeded..."), Times.Once);
     }

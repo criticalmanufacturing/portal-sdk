@@ -1,4 +1,5 @@
 using Cmf.CustomerPortal.Sdk.Common;
+using Cmf.CustomerPortal.Sdk.Common.Handlers;
 using Cmf.CustomerPortal.Sdk.Console.Base;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Cancel;
 using Cmf.CustomerPortal.Sdk.Console.Commands.Create;
@@ -202,6 +203,21 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         // Assert
         Assert.Empty(result.Errors);
         Assert.Equal(expectedPurge, result.GetValue<bool>("--purge"));
+    }
+
+    [Theory]
+    [InlineData("my-env")]
+    [InlineData("my env")]
+    public void UndeployEnvironment_PurgeNoticeCommandLine_PurgesTheEnvironment(string name)
+    {
+        // Act: the command the notice of undeploying without purge tells the user to run
+        ParseResult result = fixture.Parse(UndeployEnvironmentHandler.PurgeCommandLine(name));
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.IsType<UndeployEnvironmentCommand>(result.CommandResult.Command);
+        Assert.Equal(name, result.GetValue<string>("name"));
+        Assert.True(result.GetValue<bool>("--purge"));
     }
 
     [Fact]

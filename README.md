@@ -196,7 +196,7 @@ Options:
   - `-?, -h, --help` - Show help and usage information
 
 > [!NOTE]
-> Without `--purge`, `undeploy env` still wipes out all the data of the Customer Environment and runs its uninstall procedures, and prints a notice saying so. This will soon change to only remove its workloads, keeping its data. Use `--purge` to keep wiping out the Customer Environment completely.
+> Without `--purge`, `undeploy env` still wipes out all the data of the Customer Environment and runs its uninstall procedures, and prints a notice saying so. This will soon change to only remove its workloads, keeping its data. Use `undeploy env <name> --purge` (`Reset-Environment -Name <name> -Purge` in PowerShell) to keep wiping out the Customer Environment completely. The deprecated <a href="#undeploy">`undeploy`</a> command prints the same notice but doesn't take `--purge`.
 
 ### undeploy app
 
@@ -404,7 +404,7 @@ Options:
 
 > **Deprecated:** the commands below are the original flat commands and **will be removed in a future major version**. Migrate to the replacement listed for each one.
 
-They keep working as before. Both `cmf-portal -h` and their own `-h` list them marked `[Deprecated]`, together with the command to use instead. Each one takes the same options as its replacement, except that the name (or path) is an option instead of a positional argument.
+They keep working as before. Both `cmf-portal -h` and their own `-h` list them marked `[Deprecated]`, together with the command to use instead. Each one takes the same options as its replacement, except that the name (or path) is an option instead of a positional argument, and that `undeploy` and `uninstall-app` don't take `--purge`.
 
 | Legacy command | Use instead | Difference |
 |---|---|---|
@@ -416,8 +416,8 @@ They keep working as before. Both `cmf-portal -h` and their own `-h` list them m
 | <a href="#install-app">`install-app`</a> | <a href="#deploy-app">`deploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
 | <a href="#publish">`publish`</a> | <a href="#publish-deploymentpackage">`publish deploymentpackage`</a> | `-p, --path <path>` (**REQUIRED**) instead of `<path>` |
 | <a href="#publish-package">`publish-package`</a> | <a href="#publish-installationpackage">`publish installationpackage`</a> | `-p, --path <path>` (**REQUIRED**) instead of `<path>` |
-| <a href="#undeploy">`undeploy`</a> | <a href="#undeploy-env">`undeploy env`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
-| <a href="#uninstall-app">`uninstall-app`</a> | <a href="#undeploy-app">`undeploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
+| <a href="#undeploy">`undeploy`</a> | <a href="#undeploy-env">`undeploy env`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>`, and no `--purge` |
+| <a href="#uninstall-app">`uninstall-app`</a> | <a href="#undeploy-app">`undeploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>`, and no `--purge` |
 
 `deploy`, `undeploy` and `publish` are also the verbs of the new commands, so only running them **without a subcommand** is deprecated (e.g. `deploy -n my-env`, instead of `deploy env my-env`). `cmf-portal deploy -h` shows the verb help; the legacy options are hidden there but still accepted.
 
@@ -473,13 +473,13 @@ Usage: `cmf-portal publish-package [options]`
 
 Usage: `cmf-portal undeploy [options]`
 
-**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-env">`undeploy env`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-env">`undeploy env`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**) and `--purge` isn't available. Like `undeploy env` without `--purge`, it prints a notice that its default will soon change to only remove the workloads; to keep wiping out the Customer Environment completely, move to `undeploy env <name> --purge`.
 
 ### uninstall-app
 
 Usage: `cmf-portal uninstall-app [options]`
 
-**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-app">`undeploy app`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-app">`undeploy app`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**) and `--purge` isn't available; `--removeVolumes --undeploy` does the same.
 
 ## Powershell
 

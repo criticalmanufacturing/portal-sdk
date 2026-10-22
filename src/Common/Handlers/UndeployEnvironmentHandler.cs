@@ -13,9 +13,26 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         ICustomerEnvironmentServices customerEnvironmentServices) : AbstractHandler(session, true)
     {
         /// <summary>
-        /// Notice logged when undeploying without purge, whose behaviour is about to change.
+        /// Gets the <c>cmf-portal</c> arguments that undeploy and purge a Customer Environment.
         /// </summary>
-        public const string PurgeNotice = "Notice: undeploying without --purge currently also wipes out all the persistent data of the Customer Environment and runs its uninstall procedures. This will soon change to only remove its workloads, keeping its data. Use --purge to keep wiping out the Customer Environment completely.";
+        /// <param name="name">The name of the Customer Environment, or <see langword="null"/> for a <c>&lt;name&gt;</c> placeholder.</param>
+        /// <returns>The arguments, without the <c>cmf-portal</c> tool name.</returns>
+        public static string PurgeCommandLine(string? name) => $"undeploy env {QuoteName(name)} --purge";
+
+        /// <summary>
+        /// Gets the notice logged when undeploying without purge, whose behaviour is about to change. It names the exact
+        /// command and cmdlet that keep wiping out the Customer Environment, since the legacy <c>undeploy</c> command,
+        /// which runs this handler too, doesn't take <c>--purge</c>.
+        /// </summary>
+        /// <param name="name">The name of the Customer Environment being undeployed.</param>
+        /// <returns>The notice.</returns>
+        public static string PurgeNotice(string? name) =>
+            "Notice: undeploying without purge currently also wipes out all the persistent data of the Customer Environment and runs its uninstall procedures. "
+            + "This will soon change to only remove its workloads, keeping its data. "
+            + $"To keep wiping out the Customer Environment completely, run 'cmf-portal {PurgeCommandLine(name)}' (or 'Reset-Environment -Name {QuoteName(name)} -Purge' in PowerShell). "
+            + "The deprecated 'cmf-portal undeploy -n <name>' command doesn't take --purge.";
+
+        private static string QuoteName(string? name) => string.IsNullOrWhiteSpace(name) ? "<name>" : $"\"{name}\"";
 
         /// <summary>
         /// Undeploys a Customer Environment: creates a new version of it and terminates the other versions,
@@ -25,7 +42,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// <param name="force">Skips the confirmation prompt.</param>
         /// <param name="purge">
         /// Wipes out the Customer Environment completely. Undeploying without it currently does the same,
-        /// but logs <see cref="PurgeNotice"/> because it will soon only remove the workloads.
+        /// but logs <see cref="PurgeNotice(string?)"/> because it will soon only remove the workloads.
         /// </param>
         public async Task Run(string name, bool force, bool purge = false)
         {
@@ -33,7 +50,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             if (!purge)
             {
-                Session.LogInformation(PurgeNotice);
+                Session.LogInformation(PurgeNotice(name));
             }
 
             // Confirmation dialogue, skipped when --force is enabled

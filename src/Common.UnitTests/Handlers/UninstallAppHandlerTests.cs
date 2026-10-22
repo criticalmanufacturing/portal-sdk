@@ -221,7 +221,7 @@ public class UninstallAppHandlerTests
     public static TheoryData<bool, bool, bool, bool, bool, string> UninstallModes => new()
     {
         // removeVolumes, undeploy, purge => expected removeVolumes, expected undeploy, expected log
-        { false, false, false, false, false, "Removing only the workloads of App 'my-app', keeping its volumes. To wipe it out, use 'undeploy app <name> --purge' (Uninstall-App -Purge in PowerShell)." },
+        { false, false, false, false, false, "Removing only the workloads of App 'my-app', keeping its volumes. To wipe it out, use 'undeploy app my-app -ce env --purge' (Uninstall-App -Name my-app -CustomerEnvironment env -Purge in PowerShell)." },
         { true, false, false, true, false, "Removing the workloads and volumes of App 'my-app'." },
         { false, true, false, false, true, "Removing the workloads and volumes of App 'my-app' and running its undeploy procedures." },
         { false, false, true, true, true, "Removing the workloads and volumes of App 'my-app' and running its undeploy procedures." },

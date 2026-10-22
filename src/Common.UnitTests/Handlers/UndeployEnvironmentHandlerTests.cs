@@ -9,6 +9,8 @@ namespace Common.UnitTests.Handlers;
 
 public class UndeployEnvironmentHandlerTests
 {
+    private const string PurgeNotice = "Notice: undeploying without purge currently wipes out the Customer Environment, removing its volumes and running its undeploy procedures. This will soon change to only remove its workloads, keeping its data. To keep wiping it out, use 'undeploy env env --purge' (Reset-Environment -Name env -Purge in PowerShell).";
+
     private readonly Mock<ISession> _sessionMock = new();
     private readonly Mock<IEnvironmentUtilities> _newEnvironmentUtilitiesMock = new();
     private readonly Mock<ICustomerEnvironmentServices> _customerEnvironmentServicesMock = new();
@@ -138,7 +140,7 @@ public class UndeployEnvironmentHandlerTests
         await _handler.Run("env", force: true, purge: false);
 
         // Assert
-        _sessionMock.Verify(s => s.LogInformation(UndeployEnvironmentHandler.PurgeNotice), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation(PurgeNotice), Times.Once);
         _customerEnvironmentServicesMock.Verify(
             s => s.TerminateOtherVersions(env, true, true, true),
             Times.Once);
@@ -156,7 +158,7 @@ public class UndeployEnvironmentHandlerTests
         await _handler.Run("env", force: true, purge: true);
 
         // Assert
-        _sessionMock.Verify(s => s.LogInformation(UndeployEnvironmentHandler.PurgeNotice), Times.Never);
+        _sessionMock.Verify(s => s.LogInformation(It.Is<string>(m => m.StartsWith("Notice:"))), Times.Never);
         _customerEnvironmentServicesMock.Verify(
             s => s.TerminateOtherVersions(env, true, true, true),
             Times.Once);
@@ -173,7 +175,7 @@ public class UndeployEnvironmentHandlerTests
         await _handler.Run("env", force: false, purge: false);
 
         // Assert
-        _sessionMock.Verify(s => s.LogInformation(UndeployEnvironmentHandler.PurgeNotice), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation(PurgeNotice), Times.Once);
         _sessionMock.Verify(s => s.LogInformation("Operation Cancelled."), Times.Once);
         _customerEnvironmentServicesMock.Verify(
             s => s.TerminateOtherVersions(It.IsAny<CustomerEnvironment>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()),

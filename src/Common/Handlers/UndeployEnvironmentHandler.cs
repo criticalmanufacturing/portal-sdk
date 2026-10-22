@@ -13,11 +13,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         ICustomerEnvironmentServices customerEnvironmentServices) : AbstractHandler(session, true)
     {
         /// <summary>
-        /// Notice logged when undeploying without purge, whose behaviour will change to keep the Customer Environment's data.
-        /// </summary>
-        public const string PurgeNotice = "Notice: undeploying without purge currently wipes out the Customer Environment, removing its volumes and running its undeploy procedures. This will soon change to only remove its workloads, keeping its data. To keep wiping it out, use 'undeploy env <name> --purge' (Reset-Environment -Name <name> -Purge in PowerShell).";
-
-        /// <summary>
         /// Undeploys a Customer Environment: creates a new version of it and terminates the other versions,
         /// removing their deployments and volumes and running their undeploy procedures.
         /// </summary>
@@ -31,7 +26,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             if (!purge)
             {
-                Session.LogInformation(PurgeNotice);
+                Session.LogInformation($"Notice: undeploying without purge currently wipes out the Customer Environment, removing its volumes and running its undeploy procedures. This will soon change to only remove its workloads, keeping its data. To keep wiping it out, use 'undeploy env {name} --purge' (Reset-Environment -Name {name} -Purge in PowerShell).");
             }
 
             // Confirmation dialogue, skipped when --force is enabled

@@ -119,7 +119,7 @@ public class UninstallAppHandler(
         Session.LogInformation(
             undeploy ? $"Removing the workloads and volumes of App '{appName}' and running its undeploy procedures."
             : removeVolumes ? $"Removing the workloads and volumes of App '{appName}'."
-            : $"Removing only the workloads of App '{appName}', keeping its volumes. To wipe it out, use 'undeploy app <name> --purge' (Uninstall-App -Purge in PowerShell)."
+            : $"Removing only the workloads of App '{appName}', keeping its volumes. To wipe it out, use 'undeploy app {appName} -ce {customerEnvironmentName} --purge' (Uninstall-App -Name {appName} -CustomerEnvironment {customerEnvironmentName} -Purge in PowerShell)."
         );
 
         await appUninstallationHandler.Handle(

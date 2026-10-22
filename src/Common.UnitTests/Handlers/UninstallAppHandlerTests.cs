@@ -48,6 +48,7 @@ public class UninstallAppHandlerTests
             customerEnvironmentName: "env",
             removeVolumes: false,
             undeploy: false,
+            purge: false,
             timeout: null,
             timeoutToGetSomeMBMessage: null
         );
@@ -92,6 +93,7 @@ public class UninstallAppHandlerTests
             customerEnvironmentName: "env",
             removeVolumes: false,
             undeploy: false,
+            purge: false,
             timeout: null,
             timeoutToGetSomeMBMessage: null
         );
@@ -138,6 +140,7 @@ public class UninstallAppHandlerTests
             customerEnvironmentName: "env",
             removeVolumes: false,
             undeploy: false,
+            purge: false,
             timeout: null,
             timeoutToGetSomeMBMessage: null
         );
@@ -202,6 +205,7 @@ public class UninstallAppHandlerTests
             customerEnvironmentName: "env",
             removeVolumes: undeploy,
             undeploy: undeploy,
+            purge: false,
             timeout: null,
             timeoutToGetSomeMBMessage: null
         );
@@ -212,5 +216,67 @@ public class UninstallAppHandlerTests
             Times.Once
         );
         _appUninstallationHandler.Verify(c => c.Handle(ceap, undeploy, undeploy, null, null), Times.Once);
+    }
+
+    public static TheoryData<bool, bool, bool, bool, bool, string> UninstallModes => new()
+    {
+        // removeVolumes, undeploy, purge => expected removeVolumes, expected undeploy, expected log
+        { false, false, false, false, false, "Removing only the workloads of App 'my-app', keeping its volumes. To wipe it out, use 'undeploy app <name> --purge' (Uninstall-App -Purge in PowerShell)." },
+        { true, false, false, true, false, "Removing the workloads and volumes of App 'my-app'." },
+        { false, true, false, false, true, "Removing the workloads and volumes of App 'my-app' and running its undeploy procedures." },
+        { false, false, true, true, true, "Removing the workloads and volumes of App 'my-app' and running its undeploy procedures." },
+        { true, false, true, true, true, "Removing the workloads and volumes of App 'my-app' and running its undeploy procedures." },
+    };
+
+    [Theory]
+    [MemberData(nameof(UninstallModes))]
+    public async Task Run_UninstallsWithTheRequestedCleanup(
+        bool removeVolumes,
+        bool undeploy,
+        bool purge,
+        bool expectedRemoveVolumes,
+        bool expectedUndeploy,
+        string expectedLog)
+    {
+        // Arrange
+        var ceap = new CustomerEnvironmentApplicationPackage
+        {
+            Id = 123,
+            TargetEntity = new ApplicationPackage { Name = "my-app" }
+        };
+        var env = new CustomerEnvironment
+        {
+            Id = 5,
+            Version = 2,
+            Status = DeploymentStatus.DeploymentSucceeded,
+            RelationCollection = new CmfEntityRelationCollection
+            {
+                ["CustomerEnvironmentApplicationPackage"] = new EntityRelationCollection { ceap }
+            }
+        };
+        _ = _environmentUtilities
+            .Setup(c => c.GetLastNonNotDeployedCustomerEnvironmentVersion("env"))
+            .ReturnsAsync(env);
+        _ = _customerPortalClientMock
+            .Setup(c => c.GetCustomerEnvironmentById(env.Id, 1))
+            .ReturnsAsync(env);
+
+        // Act
+        await _handler.Run(
+            appName: "my-app",
+            customerEnvironmentName: "env",
+            removeVolumes: removeVolumes,
+            undeploy: undeploy,
+            purge: purge,
+            timeout: 10,
+            timeoutToGetSomeMBMessage: 5
+        );
+
+        // Assert
+        _sessionMock.Verify(s => s.LogInformation(expectedLog), Times.Once);
+        _appUninstallationHandler.Verify(
+            c => c.Handle(ceap, expectedRemoveVolumes, expectedUndeploy, 10, 5),
+            Times.Once
+        );
     }
 }

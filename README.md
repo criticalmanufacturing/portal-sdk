@@ -182,7 +182,7 @@ Options:
 
 Creates a new Customer Environment version and terminates the other versions, removing deployments. This feature is in preview and may change.
 
-Equivalent to powershell cmdlet <a href="#undeploy-environment">Undeploy-Environment</a>
+Equivalent to powershell cmdlet <a href="#reset-environment">Reset-Environment</a>
 
 Usage: `cmf-portal undeploy env <name> [options]` (alias: `undeploy environment`)
 
@@ -192,11 +192,14 @@ Arguments:
 Options:
   - `-v, --verbose` - Show detailed logging
   - `-f, --force` - Flag that controls if the confirmation message on whether to proceed with undeployment is skipped.
+  - `--purge` - Flag that wipes out the Customer Environment: removes its volumes and runs its undeploy procedures. Without it, the undeploy currently does the same, but will soon only remove its workloads.
   - `-?, -h, --help` - Show help and usage information
+
+> **Note:** without `--purge`, `undeploy env` still wipes out the Customer Environment (volumes and undeploy procedures included), but prints a notice that it will soon only remove its workloads and keep its data. Use `undeploy env <name> --purge` (`Reset-Environment -Name <name> -Purge` in PowerShell) to keep wiping it out. The deprecated <a href="#undeploy">`undeploy`</a> prints the same notice but doesn't take `--purge`.
 
 ### undeploy app
 
-Uninstalls an App from a previously deployed Customer Environment.
+Uninstalls an App from a previously deployed Customer Environment. By default only the App's workloads are removed and its volumes are kept; `--purge` wipes it out.
 
 Equivalent to powershell cmdlet <a href="#uninstall-app-1">Uninstall-App</a>
 
@@ -211,6 +214,7 @@ Options:
   - `-tovr, --terminateOtherVersionsRemove` - Deprecated, always enabled. Flag that controls if the app deployments installed in the cluster should be removed.
   - `-tovrv, --removeVolumes, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the App that will be uninstalled should be removed.
   - `--undeploy` - Flag that controls if the app's undeploy procedures will be executed. Implies volume removal.
+  - `--purge` - Flag that wipes out the App: removes its volumes and runs its undeploy procedures. Without it, only the App's workloads are removed.
   - `-to, --timeout <timeout>` - Timeout, in minutes, to wait for an App to uninstall. The default is 360 minutes.
   - `-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
   - `-?, -h, --help` - Show help and usage information.
@@ -399,7 +403,7 @@ Options:
 
 > **Deprecated:** the commands below are the original flat commands and **will be removed in a future major version**. Migrate to the replacement listed for each one.
 
-They keep working as before. Both `cmf-portal -h` and their own `-h` list them marked `[Deprecated]`, together with the command to use instead. Each one takes the same options as its replacement, except that the name (or path) is an option instead of a positional argument.
+They keep working as before. Both `cmf-portal -h` and their own `-h` list them marked `[Deprecated]`, together with the command to use instead. Each one takes the same options as its replacement, except that the name (or path) is an option instead of a positional argument, and that `undeploy` and `uninstall-app` don't take `--purge`.
 
 | Legacy command | Use instead | Difference |
 |---|---|---|
@@ -411,8 +415,8 @@ They keep working as before. Both `cmf-portal -h` and their own `-h` list them m
 | <a href="#install-app">`install-app`</a> | <a href="#deploy-app">`deploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
 | <a href="#publish">`publish`</a> | <a href="#publish-deploymentpackage">`publish deploymentpackage`</a> | `-p, --path <path>` (**REQUIRED**) instead of `<path>` |
 | <a href="#publish-package">`publish-package`</a> | <a href="#publish-installationpackage">`publish installationpackage`</a> | `-p, --path <path>` (**REQUIRED**) instead of `<path>` |
-| <a href="#undeploy">`undeploy`</a> | <a href="#undeploy-env">`undeploy env`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
-| <a href="#uninstall-app">`uninstall-app`</a> | <a href="#undeploy-app">`undeploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>` |
+| <a href="#undeploy">`undeploy`</a> | <a href="#undeploy-env">`undeploy env`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>`, and no `--purge` |
+| <a href="#uninstall-app">`uninstall-app`</a> | <a href="#undeploy-app">`undeploy app`</a> | `-n, --name <name>` (**REQUIRED**) instead of `<name>`, and no `--purge` |
 
 `deploy`, `undeploy` and `publish` are also the verbs of the new commands, so only running them **without a subcommand** is deprecated (e.g. `deploy -n my-env`, instead of `deploy env my-env`). `cmf-portal deploy -h` shows the verb help; the legacy options are hidden there but still accepted.
 
@@ -468,13 +472,13 @@ Usage: `cmf-portal publish-package [options]`
 
 Usage: `cmf-portal undeploy [options]`
 
-**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-env">`undeploy env`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-env">`undeploy env`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**) and `--purge` isn't available. It wipes out the Customer Environment and prints the same notice as `undeploy env` without `--purge`; use `undeploy env <name> --purge` to keep wiping it out.
 
 ### uninstall-app
 
 Usage: `cmf-portal uninstall-app [options]`
 
-**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-app">`undeploy app`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**).
+**Deprecated**, will be removed in a future major version. Use <a href="#undeploy-app">`undeploy app`</a> instead. This command takes the same options, except that the name is given by `-n, --name <name>` (**REQUIRED**) and `--purge` isn't available; `--undeploy` does the same.
 
 ## Powershell
 
@@ -500,7 +504,7 @@ Cmdlets:
   - <a href="#new-infrastructure">`New-Infrastructure`</a> - Creates a customer Infrastructure
   - <a href="#new-infrastructureagent">`New-InfrastructureAgent`</a> - Creates and deploys a new Infrastructure Agent
   - <a href="#set-login">`Set-Login`</a> - Log in to the CM Portal
-  - <a href="#undeploy-environment">`Undeploy-Environment`</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
+  - <a href="#reset-environment">`Reset-Environment`</a> - Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments
     - <a href="#uninstall-app-1">`Uninstall-App`</a> - Uninstalls an app installed in a CustomerEnvironment's version
 
 
@@ -626,17 +630,18 @@ Usage: `Set-Login [options]`
 Options:
   - `-PAT <token>` - Personal Access Token used to access the Customer Portal
 
-### Undeploy-Environment
+### Reset-Environment
 
 Creates a new CustomerEnvironment's version and terminates the other versions, removing deployments.
 
 Equivalent to the console command <a href="#undeploy-env">undeploy env</a>
 
-Usage: `Undeploy-Environment [options]`
+Usage: `Reset-Environment [options]`
 
 Options:
-  - `-TerminateOtherVersionsRemoveVolumes` - **Position 2** - Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed.
-  - `-Name <name>` - Name of the Customer Environment to be used
+  - `-Name <name>` - **REQUIRED** - Name of the Customer Environment to be used
+  - `-Force` - **Position 1** - Flag that controls if the confirmation message on whether to proceed with undeployment is skipped.
+  - `-Purge` - Flag that wipes out the Customer Environment: removes its volumes and runs its undeploy procedures. Without it, the undeploy currently does the same, but will soon only remove its workloads.
 
 
 
@@ -653,5 +658,6 @@ Options:
   - `-TerminateOtherVersionsRemove` - Flag that controls if the deployments of the versions of the App that will be uninstalled should be removed.
   - `-TerminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the versions of the App that will be uninstalled should be removed.
   - `-Undeploy` - Flag that controls if the app's undeploy procedures will be executed.
+  - `-Purge` - Flag that wipes out the App: removes its volumes and runs its undeploy procedures. Without it, only the App's workloads are removed.
   - `-DeploymentTimeoutMinutes <deploymentTimeoutMinutes>` - Number of minutes that are allowed to wait for the uninstall to succeed. The default is 360 minutes.
   - `-DeploymentTimeoutMinutesToGetSomeMBMsg <DeploymentTimeoutMinutesToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes. 

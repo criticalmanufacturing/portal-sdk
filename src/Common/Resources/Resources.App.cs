@@ -16,4 +16,5 @@ public static partial class Resources
     public const string AppUninstallRemoveHelp = "Deprecated, always enabled. Flag that controls if the deployments of the App that will be uninstalled should be removed.";
     public const string AppUninstallRemoveVolumesHelp = "Flag that controls if the volumes of the App that will be uninstalled should be removed.";
     public const string AppUndeployHelp = "Flag that controls if the app's undeploy procedures will be executed. Implies volume removal.";
+    public const string AppUninstallPurgeHelp = "Flag that wipes out the App: removes its volumes and runs its undeploy procedures. Without it, only the App's workloads are removed.";
 }

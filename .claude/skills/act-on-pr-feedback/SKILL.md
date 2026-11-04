@@ -29,24 +29,27 @@ Use the `gh` CLI for the GitHub steps, following the `branch-pr-conventions` ski
    - **Inline review threads** — the only kind with a resolved state, which GitHub exposes through
      its GraphQL API, not the REST one. Drop resolved threads before triage — they get no code
      change and no reply. Outdated threads are not dropped; triage them against HEAD like any other.
-   - **Conversation comments** on the PR.
+   - **Conversation comments** on the PR. Drop resolved comments.
    - **Review summaries** — the body of a submitted review. Skip reviews with an empty body.
 
    Fetch (and check out, if you need to build/run/grep it) the head branch's HEAD with `git`.
 2. **Triage** every remaining thread and comment against the branch HEAD:
    - **Not valid** (already handled, misunderstanding, out of scope, conflicts with an
      architecture constraint, etc.) — no code change. Draft a reply explaining why.
-   - **Valid** — make the code change that addresses it. Draft a reply stating what
+   - **Valid** — make the local code change that addresses it. Draft a reply stating what
      changed (`path:line`).
-3. **Report to the user first**, in the format below.
-4. **Post** — show the user the exact reply text for each thread and **wait for confirmation**.
-   Then post each reply verbatim:
+
+   Run relevant validation. Keep the changes uncommitted until the publishing step below.
+3. **Publish** — commit only the feedback changes following the `commit-conventions` skill and push
+   the head branch. After the push succeeds, post each reply verbatim. If no code changes are
+   needed, skip the commit and push and post the replies.
    - Review thread — reply inside the thread, not as a new PR comment.
    - Conversation comment or review summary — GitHub can't thread replies to these; post a new PR
      comment that quotes (`>`) the comment it answers.
 
    **Never** resolve a thread, submit a review, approve, request changes, or otherwise change the
-   state of any comment or the PR itself — only reply text is posted.
+   state of any comment or the PR itself — only reply text is posted. Reviewers resolve their own
+   threads after verifying the fix or answer.
 
 ## Reporting
 

@@ -1,19 +1,33 @@
+# Publication setup: .github/RELEASE-ARTIFACTS.md
 name: Publish NPM Package on Release
 
 on:
   release:
     types: [published]
+concurrency:
+  group: release-artifacts-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
 
 jobs:
-  BuildAndPublish:
+  build-binaries:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
     steps:
       # Checkout
       - name: Git checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+      - name: Test artifact publication checks
+        run: node --test .github/scripts/release-artifacts.test.mjs
       # Needs .NET
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
       # Run dotnet restore
@@ -42,6 +56,10 @@ jobs:
         with:
           filename: src/Version.props
           expression: '/Project/PropertyGroup/Version/text()'
+      - name: Validate release version
+        env:
+          PACKAGE_VERSION: ${{ steps.getver.outputs.result }}
+        run: test "$RELEASE_TAG" = "$PACKAGE_VERSION"
       # Needs zip
       - name: Install zip
         uses: montudor/action-zip@v0.1.0
@@ -57,32 +75,61 @@ jobs:
         working-directory: src/Powershell/bin/Release/net10.0/linux-x64/publish/
       # Add to release assets
       - name: Add Console Win64 to Release assets
-        uses: JasonEtco/upload-to-release@master
-        with: 
-          args: "Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.win-x64.zip application/zip"
+        run: gh release upload "$RELEASE_TAG" "Cmf.CustomerPortal.Sdk.Console-$RELEASE_TAG.win-x64.zip"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add Console Linux64 to Release assets
-        uses: JasonEtco/upload-to-release@master
-        with:
-          args: "Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip application/zip"
+        run: gh release upload "$RELEASE_TAG" "Cmf.CustomerPortal.Sdk.Console-$RELEASE_TAG.linux-x64.zip"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add PowerShell to Release assets
-        uses: JasonEtco/upload-to-release@master
-        with:
-          args: "Cmf.CustomerPortal.Sdk.PowerShell-${{ steps.getver.outputs.result }}.zip application/zip"
+        run: gh release upload "$RELEASE_TAG" "Cmf.CustomerPortal.Sdk.PowerShell-$RELEASE_TAG.zip"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Add Console Linux64 to Nexus Repository
-        run: curl -v --user "tfsproductbuild:${{secrets.CRITICALMANUFACTURING_IO_TOKEN}}" --upload-file Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip https://criticalmanufacturing.io/repository/tools/Cmf.CustomerPortal.Sdk.Console-${{ steps.getver.outputs.result }}.linux-x64.zip
-      # Setup Node.js environment
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2.4.1
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-and-verify-binaries:
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '12.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+      - name: Require registry publishing credentials
+        run: test -n "$CRITICALMANUFACTURING_IO_TOKEN"
+        env:
+          CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+      - name: Download original release binaries
+        run: |
+          mkdir -p dist
+          gh release download "$RELEASE_TAG" --pattern '*.zip' --dir dist
+          for archive in dist/*.zip; do unzip -tq "$archive"; done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish every binary to the registry
+        run: node .github/scripts/release-artifacts.mjs publish "$RELEASE_TAG"
+        env:
+          CRITICALMANUFACTURING_IO_TOKEN: ${{ secrets.CRITICALMANUFACTURING_IO_TOKEN }}
+      - name: Verify every binary on GitHub, criticalmanufacturing.io and China
+        run: node .github/scripts/release-artifacts.mjs verify "$RELEASE_TAG"
+
+  publish-npm:
+    needs: publish-and-verify-binaries
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
       # Publish NPM package (if pre-release)
       - name: Publish pre-release NPM package
         run: cd npm && npm publish --tag next
@@ -91,7 +138,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       # Publish NPM package (if regular release)
       - name: Publish NPM package
-        run: cd npm && npm publish --tag latest && npm dist-tag add @criticalmanufacturing/portal@${{ steps.getver.outputs.result }} next
+        run: cd npm && npm publish --tag latest && npm dist-tag add "@criticalmanufacturing/portal@$RELEASE_TAG" next
         if: "!github.event.release.prerelease"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

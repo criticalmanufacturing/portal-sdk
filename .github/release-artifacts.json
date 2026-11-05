@@ -1,0 +1,8 @@
+{
+  "repository": "criticalmanufacturing/portal-sdk",
+  "files": [
+    { "local": "Cmf.CustomerPortal.Sdk.Console-{version}.win-x64.zip", "github": "Cmf.CustomerPortal.Sdk.Console-{version}.win-x64.zip", "mirror": "Cmf.CustomerPortal.Sdk.Console-{version}.win-x64.zip" },
+    { "local": "Cmf.CustomerPortal.Sdk.Console-{version}.linux-x64.zip", "github": "Cmf.CustomerPortal.Sdk.Console-{version}.linux-x64.zip", "mirror": "Cmf.CustomerPortal.Sdk.Console-{version}.linux-x64.zip" },
+    { "local": "Cmf.CustomerPortal.Sdk.PowerShell-{version}.zip", "github": "Cmf.CustomerPortal.Sdk.PowerShell-{version}.zip", "mirror": "Cmf.CustomerPortal.Sdk.PowerShell-{version}.zip" }
+  ]
+}

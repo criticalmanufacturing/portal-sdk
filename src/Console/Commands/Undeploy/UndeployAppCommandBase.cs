@@ -42,6 +42,12 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
         /// </summary>
         protected abstract string GetAppName(ParseResult parseResult);
 
+        /// <summary>
+        /// Gets whether the App is wiped out. Only the commands that declare <c>--purge</c> override it;
+        /// the legacy command keeps its options unchanged.
+        /// </summary>
+        protected virtual bool GetPurge(ParseResult parseResult) => false;
+
         private async Task UninstallHandler(ParseResult parseResult)
         {
             CreateSession(parseResult);
@@ -51,6 +57,7 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
                 parseResult.GetValue(customerEnvironmentOption),
                 parseResult.GetValue(removeVolumesOption),
                 parseResult.GetValue(undeployOption),
+                GetPurge(parseResult),
                 parseResult.GetValue(timeoutOption),
                 parseResult.GetValue(timeoutToGetSomeMBMsgOption));
         }

@@ -9,6 +9,8 @@ namespace Common.UnitTests.Handlers;
 
 public class UndeployEnvironmentHandlerTests
 {
+    private const string PurgeNotice = "Notice: undeploying without purge currently wipes out the Customer Environment, removing its volumes and running its undeploy procedures. This will soon change to only remove its workloads, keeping its data. To keep wiping it out, use 'undeploy env env --purge' (Reset-Environment -Name env -Purge in PowerShell).";
+
     private readonly Mock<ISession> _sessionMock = new();
     private readonly Mock<IEnvironmentUtilities> _newEnvironmentUtilitiesMock = new();
     private readonly Mock<ICustomerEnvironmentServices> _customerEnvironmentServicesMock = new();
@@ -26,9 +28,9 @@ public class UndeployEnvironmentHandlerTests
     [Fact]
     public async Task Run_WhenNameIsNullOrWhitespace_ThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(null, true));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run("", true));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(" ", true));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(null, true, false));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run("", true, false));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _handler.Run(" ", true, false));
 
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment(It.IsAny<string>()), Times.Never);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Never);
@@ -42,7 +44,7 @@ public class UndeployEnvironmentHandlerTests
         _ = _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync((CustomerEnvironment?)null);
 
-        await Assert.ThrowsAsync<Exception>(() => _handler.Run("env", true));
+        await Assert.ThrowsAsync<Exception>(() => _handler.Run("env", true, false));
 
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(It.IsAny<CustomerEnvironment>()), Times.Never);
@@ -59,7 +61,7 @@ public class UndeployEnvironmentHandlerTests
         _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env))
             .ReturnsAsync(env);
 
-        await _handler.Run("env", true);
+        await _handler.Run("env", true, false);
 
         // assert warning is always logged
         _sessionMock.Verify(s => s.LogInformation("The Undeploy operation will uninstall the Customer Environment cleaning up all persistent resources associated with it, rendering them unrecoverable."), Times.Once);
@@ -82,7 +84,7 @@ public class UndeployEnvironmentHandlerTests
             .ReturnsAsync(env);
         Console.SetIn(new StringReader("a"));
 
-        await _handler.Run("env", false);
+        await _handler.Run("env", false, false);
 
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Never);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Never);
@@ -99,7 +101,7 @@ public class UndeployEnvironmentHandlerTests
             .ReturnsAsync(env);
         Console.SetIn(new StringReader("y"));
 
-        await _handler.Run("env", false);
+        await _handler.Run("env", false, false);
 
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Once);
@@ -119,10 +121,64 @@ public class UndeployEnvironmentHandlerTests
         _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env"))
             .ReturnsAsync(env);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Run("env", true));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _handler.Run("env", true, false));
 
         _customerEnvironmentServicesMock.Verify(s => s.GetCustomerEnvironment("env"), Times.Once);
         _newEnvironmentUtilitiesMock.Verify(u => u.CheckEnvironmentConnection(env), Times.Never);
         _customerEnvironmentServicesMock.Verify(s => s.CreateEnvironment(env), Times.Never);
+    }
+
+    [Fact]
+    public async Task Run_WithoutPurge_WarnsThatItWillChangeAndStillWipesOutEverything()
+    {
+        // Arrange
+        var env = new CustomerEnvironment { Name = "env", Id = 11, Version = 4 };
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env")).ReturnsAsync(env);
+        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env)).ReturnsAsync(env);
+
+        // Act
+        await _handler.Run("env", force: true, purge: false);
+
+        // Assert
+        _sessionMock.Verify(s => s.LogInformation(PurgeNotice), Times.Once);
+        _customerEnvironmentServicesMock.Verify(
+            s => s.TerminateOtherVersions(env, true, true, true),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Run_WithPurge_WipesOutEverythingWithoutNotice()
+    {
+        // Arrange
+        var env = new CustomerEnvironment { Name = "env", Id = 11, Version = 4 };
+        _customerEnvironmentServicesMock.Setup(s => s.GetCustomerEnvironment("env")).ReturnsAsync(env);
+        _customerEnvironmentServicesMock.Setup(s => s.CreateEnvironment(env)).ReturnsAsync(env);
+
+        // Act
+        await _handler.Run("env", force: true, purge: true);
+
+        // Assert
+        _sessionMock.Verify(s => s.LogInformation(It.Is<string>(m => m.StartsWith("Notice:"))), Times.Never);
+        _customerEnvironmentServicesMock.Verify(
+            s => s.TerminateOtherVersions(env, true, true, true),
+            Times.Once);
+        _sessionMock.Verify(s => s.LogInformation("Customer environment env undeploy succeeded..."), Times.Once);
+    }
+
+    [Fact]
+    public async Task Run_WithoutPurge_WarnsEvenWhenCancelled()
+    {
+        // Arrange
+        Console.SetIn(new StringReader("n"));
+
+        // Act
+        await _handler.Run("env", force: false, purge: false);
+
+        // Assert
+        _sessionMock.Verify(s => s.LogInformation(PurgeNotice), Times.Once);
+        _sessionMock.Verify(s => s.LogInformation("Operation Cancelled."), Times.Once);
+        _customerEnvironmentServicesMock.Verify(
+            s => s.TerminateOtherVersions(It.IsAny<CustomerEnvironment>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()),
+            Times.Never);
     }
 }

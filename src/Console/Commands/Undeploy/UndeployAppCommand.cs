@@ -10,12 +10,17 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
     {
         private readonly Argument<string> nameArgument = new("name") { Description = Resources.AppUninstallNameHelp };
 
+        private readonly Option<bool> purgeOption = new("--purge") { Description = Resources.AppUninstallPurgeHelp };
+
         public UndeployAppCommand() : base("app", Resources.NounUndeployAppHelp)
         {
             Aliases.Add("application");
             Arguments.Add(nameArgument);
+            Options.Add(purgeOption);
         }
 
         protected override string GetAppName(ParseResult parseResult) => parseResult.GetValue(nameArgument);
+
+        protected override bool GetPurge(ParseResult parseResult) => parseResult.GetValue(purgeOption);
     }
 }

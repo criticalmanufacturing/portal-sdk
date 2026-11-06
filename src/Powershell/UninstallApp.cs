@@ -24,6 +24,9 @@ public class UninstallApp : BaseCmdlet<UninstallAppHandler>
     [Parameter(HelpMessage = Resources.AppUndeployHelp)]
     public SwitchParameter Undeploy { get; set; }
 
+    [Parameter(HelpMessage = Resources.AppUninstallPurgeHelp)]
+    public SwitchParameter Purge { get; set; }
+
     [Parameter(HelpMessage = Resources.DeploymentTimeoutMinutesHelp)]
     public double? DeploymentTimeoutMinutes { get; set; }
 
@@ -40,6 +43,7 @@ public class UninstallApp : BaseCmdlet<UninstallAppHandler>
             CustomerEnvironment,
             TerminateOtherVersionsRemoveVolumes,
             Undeploy,
+            Purge,
             DeploymentTimeoutMinutes,
             DeploymentTimeoutMinutesToGetSomeMBMsg
         );

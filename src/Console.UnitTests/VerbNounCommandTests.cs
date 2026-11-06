@@ -31,6 +31,8 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
         { "undeploy environment my-env --force", typeof(UndeployEnvironmentCommand) },
         { "undeploy app my-app -ce env", typeof(UndeployAppCommand) },
         { "undeploy application my-app -ce env --removeVolumes --undeploy -to 10 -tombm 5", typeof(UndeployAppCommand) },
+        { "undeploy env my-env --purge -f", typeof(UndeployEnvironmentCommand) },
+        { "undeploy app my-app -ce env --purge", typeof(UndeployAppCommand) },
         { "cancel env my-env", typeof(CancelEnvironmentCommand) },
         { "cancel environment my-env", typeof(CancelEnvironmentCommand) },
         { "cancel app my-app -ce env", typeof(CancelAppCommand) },
@@ -166,6 +168,7 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
     [InlineData("undeploy -f env my-env")]
     [InlineData("undeploy -n x env my-env")]
     [InlineData("undeploy -v env my-env")]
+    [InlineData("undeploy --purge env my-env")]
     [InlineData("deploy -lic L env my-env")]
     [InlineData("publish -dg g deploymentpackage \"{dir}\"")]
     public void CommandLine_WithInvalidInput_HasErrors(string commandLine)
@@ -175,6 +178,21 @@ public class VerbNounCommandTests(CommandLineFixture fixture) : IClassFixture<Co
 
         // Assert
         Assert.NotEmpty(result.Errors);
+    }
+
+    [Theory]
+    [InlineData("undeploy env my-env", false)]
+    [InlineData("undeploy env my-env --purge", true)]
+    [InlineData("undeploy app my-app -ce env", false)]
+    [InlineData("undeploy app my-app -ce env --purge", true)]
+    public void Undeploy_ReadsPurge(string commandLine, bool expectedPurge)
+    {
+        // Act
+        ParseResult result = fixture.Parse(commandLine);
+
+        // Assert
+        Assert.Empty(result.Errors);
+        Assert.Equal(expectedPurge, result.GetValue<bool>("--purge"));
     }
 
     [Fact]

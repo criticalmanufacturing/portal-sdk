@@ -68,6 +68,14 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // let's see if the environment already exists
             CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironment(name);
 
+            // Resolve licenses before creating a version or changing the environment. Creation/update
+            // responses may not include the existing deployment package relations.
+            long[] softwareLicenseIds = null;
+            if (!isInfrastructureAgent && !string.IsNullOrWhiteSpace(deploymentPackageName))
+            {
+                softwareLicenseIds = await ResolveSoftwareLicenseIds(environment, licensesNames);
+            }
+
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
             if (environment != null)
             {
@@ -99,7 +107,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // update Deployment Package
                 if (!isInfrastructureAgent && !string.IsNullOrWhiteSpace(deploymentPackageName))
                 {
-                    await UpdateDeploymentPackage(environment, deploymentPackageName, licensesNames);
+                    await UpdateDeploymentPackage(environment, deploymentPackageName, softwareLicenseIds);
                 }
 
 
@@ -140,7 +148,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 if (!isInfrastructureAgent)
                 {
-                    await UpdateDeploymentPackage(environment, deploymentPackageName, licensesNames);
+                    await UpdateDeploymentPackage(environment, deploymentPackageName, softwareLicenseIds);
                 }
             }
             // if not, just create a new environment
@@ -163,7 +171,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 if (!isInfrastructureAgent)
                 {
-                    await UpdateDeploymentPackage(environment, deploymentPackageName, licensesNames);
+                    await UpdateDeploymentPackage(environment, deploymentPackageName, softwareLicenseIds);
                 }
             }
 
@@ -178,17 +186,50 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// </summary>
         /// <param name="environment">The environment version</param>
         /// <param name="deploymentPackageName">Name of the Deployment Package</param>
-        /// <param name="licensesNames">Unique names of the licenses</param>
-        private async Task UpdateDeploymentPackage(CustomerEnvironment environment, string deploymentPackageName, string[] licensesNames)
+        /// <param name="softwareLicenseIds">IDs of the supplied or preserved licenses</param>
+        private async Task UpdateDeploymentPackage(CustomerEnvironment environment, string deploymentPackageName, long[] softwareLicenseIds)
         {
-            // TODO: at the moment we do not allow changing the package without passing its mandatory licenses
             DeploymentPackage deploymentPackage = await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
             Session.LogInformation($"Setting deployment package {deploymentPackageName} (Id {deploymentPackage.Id}) on customer environment {environment.Name} {environment.DescribeVersion()}...");
 
             await customerEnvironmentServices.UpdateDeploymentPackage(
                 environment,
                 deploymentPackage,
-                [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)]);
+                softwareLicenseIds);
+        }
+
+        /// <summary>
+        /// Resolve explicit licenses, or preserve licenses from an existing environment's package relations.
+        /// </summary>
+        private async Task<long[]> ResolveSoftwareLicenseIds(CustomerEnvironment environment, string[] licensesNames)
+        {
+            if (licensesNames?.Length > 0)
+            {
+                return [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)];
+            }
+
+            if (environment == null)
+            {
+                throw new ArgumentException("Software licenses must be supplied with --license when creating a new Customer Environment.", nameof(licensesNames));
+            }
+
+            var loadedEnvironment = await customerPortalClient.LoadObjectRelations(environment, ["CustomerEnvironmentDeploymentPackage"]);
+            long[] licenseIds = [];
+            if (loadedEnvironment.RelationCollection != null &&
+                loadedEnvironment.RelationCollection.TryGetValue("CustomerEnvironmentDeploymentPackage", out var packageRelations))
+            {
+                licenseIds = [.. packageRelations.OfType<CustomerEnvironmentDeploymentPackage>()
+                    .Where(relation => relation.SoftwareLicense != null && relation.SoftwareLicense.Id > 0)
+                    .Select(relation => relation.SoftwareLicense.Id)
+                    .Distinct()];
+            }
+
+            if (licenseIds.Length == 0)
+            {
+                throw new InvalidOperationException($"Customer environment {environment.Name} {environment.DescribeVersion()} has no software licenses to preserve. Supply --license when updating its deployment package.");
+            }
+
+            return licenseIds;
         }
 
         /// <summary>

@@ -47,14 +47,9 @@ Push the new branch and set its remote as upstream.
 
 ## Pull requests
 
-- **Always draft.** Never open a ready-for-review PR and never promote one, even if the user omits
-  the word "draft"
+- **Always open as draft**, even if the user omits the word "draft"
 - Base branch `main` unless otherwise specified; source branch is the current one, pushed
 - Title follows the `commit-conventions` skill, without the work item ID
-- **The title and description content come from whoever requested the PR** — they made the change,
-  they know what it does. When a workflow skill has you draft them (e.g. `implement-work-item`), show
-  the draft to the requester and create the PR only with the version they confirm. Never create a PR
-  with content the requester hasn't supplied or confirmed
 - Description body structure comes from the repository's GitHub pull request template when it has
   one; otherwise use these sections:
   - **Summary** — what the change does and why, and the work item it implements (ID and title) —
@@ -67,13 +62,13 @@ Push the new branch and set its remote as upstream.
 
 ## PR comments
 
-- Post a comment only when asked to, and only with text the requester supplied or confirmed —
-  verbatim, as a new PR comment. Never write, edit, summarise, or extend review content yourself
+- You write and post your own comments and replies while reviewing (`review-code`) or addressing
+  feedback (`act-on-pr-feedback`)
 
 ## Never
 
-- Submit a review, approve, request changes on, merge, close, or mark ready a pull request
-- Resolve or unresolve review threads
+- Merge or close a pull request
+- Unresolve a review thread, or resolve one you didn't open
 - Push to `main`, force-push, or bypass branch protection or required checks
 - Create, touch, update, delete, or reassign work items unless explicitly asked
 - Transition work item states, remove links, or change Area/Iteration Path

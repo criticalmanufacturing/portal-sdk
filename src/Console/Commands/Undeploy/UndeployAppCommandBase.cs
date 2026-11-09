@@ -17,9 +17,15 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
         // kept for backwards compatibility, removal is always enabled
         private readonly Option<bool> terminateOtherVersionsRemoveOption = new("--terminateOtherVersionsRemove", "-tovr") { Description = Resources.AppUninstallRemoveHelp };
 
-        private readonly Option<bool> removeVolumesOption = new("--terminateOtherVersionsRemoveVolumes", "-tovrv", "--removeVolumes") { Description = Resources.AppUninstallRemoveVolumesHelp };
+        /// <summary>
+        /// <c>--removeVolumes</c>: removes the App's volumes along with its workloads.
+        /// </summary>
+        protected Option<bool> RemoveVolumesOption { get; } = new("--terminateOtherVersionsRemoveVolumes", "-tovrv", "--removeVolumes") { Description = Resources.AppUninstallRemoveVolumesHelp };
 
-        private readonly Option<bool> undeployOption = new("--undeploy") { Description = Resources.AppUndeployHelp };
+        /// <summary>
+        /// <c>--undeploy</c>: runs the App's undeploy procedures, which implies removing its volumes.
+        /// </summary>
+        protected Option<bool> UndeployOption { get; } = new("--undeploy") { Description = Resources.AppUndeployHelp };
 
         private readonly Option<double?> timeoutOption = new("--timeout", "-to") { Description = Resources.AppUninstallationTimeoutHelp, Required = false };
 
@@ -29,8 +35,8 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
         {
             Options.Add(customerEnvironmentOption);
             Options.Add(terminateOtherVersionsRemoveOption);
-            Options.Add(removeVolumesOption);
-            Options.Add(undeployOption);
+            Options.Add(RemoveVolumesOption);
+            Options.Add(UndeployOption);
             Options.Add(timeoutOption);
             Options.Add(timeoutToGetSomeMBMsgOption);
 
@@ -42,6 +48,12 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
         /// </summary>
         protected abstract string GetAppName(ParseResult parseResult);
 
+        /// <summary>
+        /// Gets whether the App is wiped out. Only the commands that declare <c>--purge</c> override it;
+        /// the legacy command keeps its options unchanged.
+        /// </summary>
+        protected virtual bool GetPurge(ParseResult parseResult) => false;
+
         private async Task UninstallHandler(ParseResult parseResult)
         {
             CreateSession(parseResult);
@@ -49,8 +61,9 @@ namespace Cmf.CustomerPortal.Sdk.Console.Commands.Undeploy
             await uninstallAppHandler.Run(
                 GetAppName(parseResult),
                 parseResult.GetValue(customerEnvironmentOption),
-                parseResult.GetValue(removeVolumesOption),
-                parseResult.GetValue(undeployOption),
+                parseResult.GetValue(RemoveVolumesOption),
+                parseResult.GetValue(UndeployOption),
+                GetPurge(parseResult),
                 parseResult.GetValue(timeoutOption),
                 parseResult.GetValue(timeoutToGetSomeMBMsgOption));
         }

@@ -23,4 +23,5 @@ public static partial class Resources
     public const string DeploymentTerminateOtherVersionsRemoveVolumesHelp = "Flag that controls if the volumes of the versions of the Customer Environment that will be terminated should be removed. Requires the terminateOtherVersions and terminateOtherVersionsRemove flags.";
 
     public const string UndeploymentForceHelp = "Flag that controls if the confirmation message on whether to proceed with undeployment is skipped.";
+    public const string UndeploymentPurgeHelp = "Flag that wipes out the Customer Environment: removes its volumes and runs its undeploy procedures. Without it, the undeploy currently does the same, but will soon only remove its workloads.";
 }

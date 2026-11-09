@@ -19,8 +19,10 @@ public class UninstallAppHandler(
     /// </summary>
     /// <param name="appName">The name of the App to uninstall.</param>
     /// <param name="customerEnvironmentName">The name of the Customer Environment where the App is installed.</param>
-    /// <param name="removeVolumes">Whether to remove the App's volumes.</param>
-    /// <param name="undeploy">Whether to run the App's undeploy procedures. Implies volume removal.</param>
+    /// <param name="removeVolumes">Whether to remove the App's volumes. Deprecated in <c>undeploy app</c> and
+    /// <c>Uninstall-App</c> in favour of <paramref name="purge"/>.</param>
+    /// <param name="undeploy">Whether to run the App's undeploy procedures. Implies volume removal. Deprecated in
+    /// <c>undeploy app</c> and <c>Uninstall-App</c> in favour of <paramref name="purge"/>, which does the same.</param>
     /// <param name="purge">Whether to wipe out the App: removes its volumes and runs its undeploy procedures,
     /// regardless of <paramref name="removeVolumes"/> and <paramref name="undeploy"/>.</param>
     /// <param name="timeout">Timeout, in minutes, to wait for the uninstall to finish.</param>
@@ -119,7 +121,7 @@ public class UninstallAppHandler(
         Session.LogInformation(
             undeploy ? $"Removing the workloads and volumes of App '{appName}' and running its undeploy procedures."
             : removeVolumes ? $"Removing the workloads and volumes of App '{appName}'."
-            : $"Removing only the workloads of App '{appName}', keeping its volumes. To wipe it out, use 'undeploy app {appName} -ce {customerEnvironmentName} --purge' (Uninstall-App -Name {appName} -CustomerEnvironment {customerEnvironmentName} -Purge in PowerShell)."
+            : $"Removing only the workloads of App '{appName}', keeping its volumes. To wipe it out, use 'undeploy app {appName.ToCliArgument()} -ce {customerEnvironmentName.ToCliArgument()} --purge' (Uninstall-App -Name {appName.ToPowerShellArgument()} -CustomerEnvironment {customerEnvironmentName.ToPowerShellArgument()} -Purge in PowerShell)."
         );
 
         await appUninstallationHandler.Handle(

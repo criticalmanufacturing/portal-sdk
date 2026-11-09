@@ -1,3 +1,4 @@
+using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console;
 using Cmf.CustomerPortal.Sdk.Console.Base;
 using System.CommandLine;
@@ -102,5 +103,66 @@ public class DeprecationTests
         // Assert
         Assert.Null(command.DeprecationMessage);
         Assert.Empty(error.ToString());
+    }
+
+    [Theory]
+    [InlineData("--undeploy", "Use '--purge' instead, which does the same.")]
+    [InlineData("--removeVolumes", "Use '--purge' instead, which also runs the App's undeploy procedures, or neither to keep the App's volumes.")]
+    [InlineData("-tovrv", "Use '--purge' instead, which also runs the App's undeploy procedures, or neither to keep the App's volumes.")]
+    [InlineData("--terminateOtherVersionsRemoveVolumes", "Use '--purge' instead, which also runs the App's undeploy procedures, or neither to keep the App's volumes.")]
+    public void UndeployApp_WithDeprecatedCleanupOption_WarnsAndNamesPurge(string option, string replacement)
+    {
+        // Arrange
+        ParseResult parseResult = RootCommandFactory.Create().Parse($"undeploy app my-app -ce env {option}");
+        var command = (BaseCommand)parseResult.CommandResult.Command;
+        using var error = new StringWriter();
+
+        // Act
+        command.WarnIfDeprecatedOptions(parseResult, error);
+
+        // Assert
+        Assert.Equal($"[Deprecated] '{option}' will be removed in a future major version. {replacement}", error.ToString().Trim());
+    }
+
+    [Theory]
+    [InlineData("undeploy app my-app -ce env")]
+    [InlineData("undeploy app my-app -ce env --purge -tovr")]
+    [InlineData("uninstall-app -n my-app -ce env --removeVolumes --undeploy")]
+    public void AppUninstall_WithoutDeprecatedCleanupOptions_DoesNotWarnAboutThem(string commandLine)
+    {
+        // Arrange
+        ParseResult parseResult = RootCommandFactory.Create().Parse(commandLine);
+        var command = (BaseCommand)parseResult.CommandResult.Command;
+        using var error = new StringWriter();
+
+        // Act
+        command.WarnIfDeprecatedOptions(parseResult, error);
+
+        // Assert
+        Assert.Empty(error.ToString());
+    }
+
+    [Fact]
+    public void UndeployAppHelp_MarksTheCleanupOptionsDeprecatedInFavourOfPurge()
+    {
+        // Act
+        string help = CommandLineFixture.Help("undeploy app -h");
+
+        // Assert
+        Assert.Contains(Resources.AppUninstallRemoveVolumesDeprecatedHelp, help);
+        Assert.Contains(Resources.AppUndeployDeprecatedHelp, help);
+        Assert.Contains(Resources.AppUninstallPurgeHelp, help);
+    }
+
+    [Fact]
+    public void LegacyUninstallAppHelp_KeepsTheCleanupOptionsUndeprecated()
+    {
+        // Act
+        string help = CommandLineFixture.Help("uninstall-app -h");
+
+        // Assert
+        Assert.Contains(Resources.AppUninstallRemoveVolumesHelp, help);
+        Assert.Contains(Resources.AppUndeployHelp, help);
+        Assert.DoesNotContain("--purge", help);
     }
 }

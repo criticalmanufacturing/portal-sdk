@@ -26,7 +26,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
             if (!purge)
             {
-                Session.LogInformation($"Notice: undeploying without purge currently wipes out the Customer Environment, removing its volumes and running its undeploy procedures. This will soon change to only remove its workloads, keeping its data. To keep wiping it out, use 'undeploy env {name} --purge' (Reset-Environment -Name {name} -Purge in PowerShell).");
+                Session.LogInformation($"Notice: undeploying without purge currently wipes out the Customer Environment, removing its volumes and running its undeploy procedures. This will soon change to only remove its workloads, keeping its data. To keep wiping it out, use 'undeploy env {name.ToCliArgument()} --purge' (Reset-Environment -Name {name.ToPowerShellArgument()} -Purge in PowerShell).");
             }
 
             // Confirmation dialogue, skipped when --force is enabled

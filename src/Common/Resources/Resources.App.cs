@@ -16,5 +16,15 @@ public static partial class Resources
     public const string AppUninstallRemoveHelp = "Deprecated, always enabled. Flag that controls if the deployments of the App that will be uninstalled should be removed.";
     public const string AppUninstallRemoveVolumesHelp = "Flag that controls if the volumes of the App that will be uninstalled should be removed.";
     public const string AppUndeployHelp = "Flag that controls if the app's undeploy procedures will be executed. Implies volume removal.";
-    public const string AppUninstallPurgeHelp = "Flag that wipes out the App: removes its volumes and runs its undeploy procedures. Without it, only the App's workloads are removed.";
+    public const string AppUninstallPurgeHelp = "Flag that wipes out the App: removes its workloads and volumes and runs its undeploy procedures. When no cleanup option is given, only the App's workloads are removed.";
+
+    // cleanup options deprecated in favour of purge in 'undeploy app' and Uninstall-App
+    public const string AppUninstallRemoveVolumesDeprecatedHelp = "Deprecated, use --purge instead. Removes the App's volumes along with its workloads, without running its undeploy procedures.";
+    public const string AppUndeployDeprecatedHelp = "Deprecated, use --purge instead, which does the same. Runs the App's undeploy procedures and removes its volumes.";
+    public const string AppUninstallRemoveVolumesDeprecatedPowershellHelp = "Deprecated, use -Purge instead. Removes the App's volumes along with its workloads, without running its undeploy procedures.";
+    public const string AppUndeployDeprecatedPowershellHelp = "Deprecated, use -Purge instead, which does the same. Runs the App's undeploy procedures and removes its volumes.";
+
+    // messages printed when a deprecated cleanup option is given: {0} is the option as typed, {1} the purge option
+    public const string AppUninstallRemoveVolumesDeprecated = "[Deprecated] '{0}' will be removed in a future major version. Use '{1}' instead, which also runs the App's undeploy procedures, or neither to keep the App's volumes.";
+    public const string AppUndeployDeprecated = "[Deprecated] '{0}' will be removed in a future major version. Use '{1}' instead, which does the same.";
 }

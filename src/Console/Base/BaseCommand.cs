@@ -1,6 +1,9 @@
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console.Extensions;
+using System;
+using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.IO;
 
 namespace Cmf.CustomerPortal.Sdk.Console.Base
@@ -48,14 +51,28 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
         /// </summary>
         public virtual string PreviewMessage => null;
 
+        private readonly Dictionary<Option, Func<string, string>> deprecatedOptions = [];
+
         /// <summary>
-        /// Warns that the command is deprecated or a preview, when it is, then creates the session and service locator,
-        /// honouring the <c>--verbose</c> option.
+        /// Marks <paramref name="option"/> of this command as deprecated: when it is given, the message built by
+        /// <paramref name="message"/> is printed.
+        /// </summary>
+        /// <param name="option">The deprecated option.</param>
+        /// <param name="message">Builds the message naming the option's replacement, from the alias that was typed.</param>
+        protected void DeprecateOption(Option option, Func<string, string> message)
+        {
+            deprecatedOptions[option] = message;
+        }
+
+        /// <summary>
+        /// Warns that the command is deprecated or a preview, when it is, and about each deprecated option given, then
+        /// creates the session and service locator, honouring the <c>--verbose</c> option.
         /// </summary>
         /// <param name="parseResult">The parse result of the invocation.</param>
         protected void CreateSession(ParseResult parseResult)
         {
             WarnIfDeprecated(parseResult.InvocationConfiguration.Error);
+            WarnIfDeprecatedOptions(parseResult, parseResult.InvocationConfiguration.Error);
             WarnIfPreview(parseResult.InvocationConfiguration.Error);
 
             Session session = new Session(parseResult.GetValue(VerboseOption));
@@ -71,6 +88,23 @@ namespace Cmf.CustomerPortal.Sdk.Console.Base
             if (DeprecationMessage != null)
             {
                 error.WriteLine(DeprecationMessage);
+            }
+        }
+
+        /// <summary>
+        /// Writes the message of each option marked with <see cref="DeprecateOption"/> that <paramref name="parseResult"/>
+        /// gives. Standard error keeps the command's output unchanged for scripts.
+        /// </summary>
+        /// <param name="parseResult">The parse result of the invocation.</param>
+        /// <param name="error">The standard error of the invocation.</param>
+        internal void WarnIfDeprecatedOptions(ParseResult parseResult, TextWriter error)
+        {
+            foreach ((Option option, Func<string, string> message) in deprecatedOptions)
+            {
+                if (parseResult.GetResult(option) is OptionResult { Implicit: false } optionResult)
+                {
+                    error.WriteLine(message(optionResult.IdentifierToken?.Value ?? option.Name));
+                }
             }
         }
 

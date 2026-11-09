@@ -9,7 +9,7 @@ namespace Common.UnitTests.Handlers;
 
 public class UndeployEnvironmentHandlerTests
 {
-    private const string PurgeNotice = "Notice: undeploying without purge currently wipes out the Customer Environment, removing its volumes and running its undeploy procedures. This will soon change to only remove its workloads, keeping its data. To keep wiping it out, use 'undeploy env env --purge' (Reset-Environment -Name env -Purge in PowerShell).";
+    private const string PurgeNotice = "Notice: undeploying without purge currently wipes out the Customer Environment, removing its volumes and running its undeploy procedures. This will soon change to only remove its workloads, keeping its data. To keep wiping it out, use 'undeploy env \"env\" --purge' (Reset-Environment -Name 'env' -Purge in PowerShell).";
 
     private readonly Mock<ISession> _sessionMock = new();
     private readonly Mock<IEnvironmentUtilities> _newEnvironmentUtilitiesMock = new();
@@ -180,5 +180,20 @@ public class UndeployEnvironmentHandlerTests
         _customerEnvironmentServicesMock.Verify(
             s => s.TerminateOtherVersions(It.IsAny<CustomerEnvironment>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()),
             Times.Never);
+    }
+
+    [Theory]
+    [InlineData("My Environment", "use 'undeploy env \"My Environment\" --purge' (Reset-Environment -Name 'My Environment' -Purge in PowerShell).")]
+    [InlineData("Bob's \"Env\"", "use 'undeploy env \"Bob's \\\"Env\\\"\" --purge' (Reset-Environment -Name 'Bob''s \"Env\"' -Purge in PowerShell).")]
+    public async Task Run_WithoutPurge_QuotesTheNameInTheNotice(string name, string expectedHint)
+    {
+        // Arrange
+        Console.SetIn(new StringReader("n"));
+
+        // Act
+        await _handler.Run(name, force: false, purge: false);
+
+        // Assert
+        _sessionMock.Verify(s => s.LogInformation(It.Is<string>(m => m.StartsWith("Notice:") && m.EndsWith($"To keep wiping it out, {expectedHint}"))), Times.Once);
     }
 }

@@ -199,7 +199,7 @@ Options:
 
 ### undeploy app
 
-Uninstalls an App from a previously deployed Customer Environment. By default only the App's workloads are removed and its volumes are kept; `--purge` wipes it out.
+Uninstalls an App from a previously deployed Customer Environment. When no cleanup option is given, only the App's workloads are removed and its volumes are kept; `--purge` wipes it out.
 
 Equivalent to powershell cmdlet <a href="#uninstall-app-1">Uninstall-App</a>
 
@@ -212,12 +212,14 @@ Options:
   - `-v, --verbose` - Show detailed logging.
   - `-ce, --customer-environment <customer-environment>` - **REQUIRED** - The name of a Customer Environment where the App is installed on.
   - `-tovr, --terminateOtherVersionsRemove` - Deprecated, always enabled. Flag that controls if the app deployments installed in the cluster should be removed.
-  - `-tovrv, --removeVolumes, --terminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the App that will be uninstalled should be removed.
-  - `--undeploy` - Flag that controls if the app's undeploy procedures will be executed. Implies volume removal.
-  - `--purge` - Flag that wipes out the App: removes its volumes and runs its undeploy procedures. Without it, only the App's workloads are removed.
+  - `-tovrv, --removeVolumes, --terminateOtherVersionsRemoveVolumes` - Deprecated, use `--purge` instead. Removes the App's volumes along with its workloads, without running its undeploy procedures.
+  - `--undeploy` - Deprecated, use `--purge` instead, which does the same. Runs the App's undeploy procedures and removes its volumes.
+  - `--purge` - Flag that wipes out the App: removes its workloads and volumes and runs its undeploy procedures. When no cleanup option is given, only the App's workloads are removed.
   - `-to, --timeout <timeout>` - Timeout, in minutes, to wait for an App to uninstall. The default is 360 minutes.
   - `-tombm, --timeoutToGetSomeMBMsg <timeoutToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes.
   - `-?, -h, --help` - Show help and usage information.
+
+> **Note:** `--removeVolumes` and `--undeploy` keep working, but print a `[Deprecated]` notice to stderr and will be removed in a future major version. The deprecated <a href="#uninstall-app">`uninstall-app`</a> keeps them without the notice, as it doesn't take `--purge`.
 
 ### cancel env
 
@@ -656,8 +658,8 @@ Options:
   - `-Name <name>` - Name of the App to be uninstalled.
   - `-CustomerEnvironment <name>` - Name of the customer environment where the app is installed.
   - `-TerminateOtherVersionsRemove` - Flag that controls if the deployments of the versions of the App that will be uninstalled should be removed.
-  - `-TerminateOtherVersionsRemoveVolumes` - Flag that controls if the volumes of the versions of the App that will be uninstalled should be removed.
-  - `-Undeploy` - Flag that controls if the app's undeploy procedures will be executed.
-  - `-Purge` - Flag that wipes out the App: removes its volumes and runs its undeploy procedures. Without it, only the App's workloads are removed.
+  - `-TerminateOtherVersionsRemoveVolumes` - Deprecated, use `-Purge` instead. Removes the App's volumes along with its workloads, without running its undeploy procedures. Writes a deprecation warning.
+  - `-Undeploy` - Deprecated, use `-Purge` instead, which does the same. Runs the App's undeploy procedures and removes its volumes. Writes a deprecation warning.
+  - `-Purge` - Flag that wipes out the App: removes its workloads and volumes and runs its undeploy procedures. When no cleanup option is given, only the App's workloads are removed.
   - `-DeploymentTimeoutMinutes <deploymentTimeoutMinutes>` - Number of minutes that are allowed to wait for the uninstall to succeed. The default is 360 minutes.
   - `-DeploymentTimeoutMinutesToGetSomeMBMsg <DeploymentTimeoutMinutesToGetSomeMBMsg>` - Timeout, in minutes, that the SDK client waits to receive any message from the portal via Message Bus. The default is 30 minutes. 

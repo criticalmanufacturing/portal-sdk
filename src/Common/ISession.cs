@@ -11,6 +11,13 @@ namespace Cmf.CustomerPortal.Sdk.Common
         void ConfigureSession(string token = null);
         void RestoreSession();
 
+        /// <summary>
+        /// Gets the configured token without contacting the portal or starting an interactive login.
+        /// </summary>
+        /// <returns>The token from the environment or the saved login.</returns>
+        /// <exception cref="InvalidOperationException">No token is available.</exception>
+        string GetToken();
+
         void LogInformation(string message);
         void LogError(string message);
         void LogError(Exception exception);

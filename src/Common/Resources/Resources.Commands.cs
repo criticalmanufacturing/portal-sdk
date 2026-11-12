@@ -16,6 +16,7 @@ public static partial class Resources
     public const string VerbCancelHelp = "Cancels an in-progress deployment of a Customer Environment or an App";
     public const string VerbGetHelp = "[Preview] Shows the details of a resource";
     public const string VerbLogsHelp = "[Preview] Shows the logs of a resource";
+    public const string TokenHelp = "Prints the configured authentication token (CM_PORTAL_TOKEN or the saved login token)";
 
     public const string NounDeployEnvironmentHelp = "Creates and deploys a new Customer Environment, or a new version of an existing one";
     public const string NounDeployAgentHelp = "Creates and deploys a new Infrastructure Agent";

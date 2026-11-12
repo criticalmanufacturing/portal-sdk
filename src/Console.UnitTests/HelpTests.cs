@@ -16,7 +16,7 @@ public class HelpTests
 
         // Assert
         Assert.Equal(
-            ["login", "deploy", "undeploy", "publish", "cancel", "create", "healthcheck", "download", "get", "logs",
+            ["login", "deploy", "undeploy", "publish", "cancel", "create", "healthcheck", "download", "get", "logs", "token",
              "checkagentconnection", "createinfrastructure", "deployagent", "download-artifacts", "install-app", "publish-package", "uninstall-app"],
             ListedCommands(help));
     }

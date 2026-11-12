@@ -139,13 +139,24 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <exception cref="Exception">If no CmfPortal Token was found.</exception>
         public void RestoreSession()
         {
-            string token = Token;
-            if (string.IsNullOrWhiteSpace(token))
+            ConfigureLBOs(GetToken());
+        }
+
+        /// <summary>
+        /// Gets the configured token, preferring CM_PORTAL_TOKEN over the saved login token.
+        /// Does not contact the portal or start an interactive login.
+        /// </summary>
+        /// <returns>The configured token.</returns>
+        /// <exception cref="InvalidOperationException">No token is available.</exception>
+        public string GetToken()
+        {
+            string value = Token;
+            if (string.IsNullOrWhiteSpace(value))
             {
-                throw new Exception("Session not found. Have you tried to log in?");
+                throw new InvalidOperationException("Session not found. Have you tried to log in?");
             }
 
-            ConfigureLBOs(token);
+            return value;
         }
 
         public abstract void LogDebug(string message);

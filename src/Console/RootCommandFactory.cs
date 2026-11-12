@@ -46,6 +46,7 @@ namespace Cmf.CustomerPortal.Sdk.Console
             rootCommand.Subcommands.Add(Verb("download", Resources.VerbDownloadHelp, new DownloadArtifactsCommand()));
             rootCommand.Subcommands.Add(Verb("get", Resources.VerbGetHelp, new GetEnvironmentCommand(), new GetDeploymentPackageCommand()));
             rootCommand.Subcommands.Add(Verb("logs", Resources.VerbLogsHelp, new LogsEnvironmentCommand()));
+            rootCommand.Subcommands.Add(new TokenCommand());
 
             // deprecated legacy commands without a matching verb, listed after the verbs so their help points to the replacement
             rootCommand.Subcommands.Add(new Legacy.CheckAgentConnectionCommand());

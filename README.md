@@ -48,6 +48,7 @@ Commands:
 | Command | Description | Replaces |
 |---|---|---|
 | <a href="#login">`login`</a> | Log in to the CM Portal | |
+| <a href="#token">`token`</a> | Print the configured authentication token | |
 | <a href="#deploy-env">`deploy env [name]`</a> | Creates and deploys a new Customer Environment, or a new version of an existing one | `deploy` |
 | <a href="#deploy-agent">`deploy agent [name]`</a> | Creates and deploys a new Infrastructure Agent | `deployagent` |
 | <a href="#deploy-app">`deploy app <name>`</a> | Installs an App in a previously deployed Customer Environment | `install-app` |
@@ -95,6 +96,14 @@ Options:
   - `-v, --verbose` - Show detailed logging
   - `-t, --pat, --token <token>` - Personal Access Token used to access the Customer Portal
   - `-?, -h, --help` - Show help and usage information
+
+### token
+
+Prints the configured authentication token to stdout, followed by a newline, for use in scripts or other tools. Uses `CM_PORTAL_TOKEN` when set; otherwise, uses the cached login token. Does not contact the portal, refresh the token, or start an interactive login. If no token is available, prints an error to stderr and exits with a nonzero status.
+
+Usage: `cmf-portal token`
+
+**Warning:** the output is a secret. Avoid sharing it or writing it to logs.
 
 ### deploy env
 

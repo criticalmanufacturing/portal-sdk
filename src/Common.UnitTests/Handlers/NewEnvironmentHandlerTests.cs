@@ -7,6 +7,7 @@ using Cmf.CustomerPortal.Sdk.Common.Services;
 using Cmf.Foundation.Common.Base;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.Common.Licenses.Enums;
+using System.Collections.ObjectModel;
 using Moq;
 
 namespace Common.UnitTests.Handlers;
@@ -103,6 +104,7 @@ public class NewEnvironmentHandlerTests
 
         customerPortalClientMock.Verify(x => x.GetObjectByName<DeploymentPackage>(deploymentPackage.Name, 0), Times.Once);
         licenseServiceMock.Verify(x => x.GetLicensesByUniqueName(licenseNames), Times.Once);
+        licenseServiceMock.Verify(x => x.GetRequiredApplicationNames(It.IsAny<long>()), Times.Never);
         customerEnvironmentServicesMock.Verify(x => x.UpdateDeploymentPackage(customerEnvironment, deploymentPackage,
             It.Is<long[]>(
                 x => x.Count() == 1 && x[0] == cPSoftwareLicense.Id
@@ -164,7 +166,17 @@ public class NewEnvironmentHandlerTests
         // Arrange
         using var mock = AutoMock.GetLoose();
 
-        var customerEnvironment = new CustomerEnvironment() { Name = name, Id = 10, Version = 3, UniversalState = UniversalState.Created, Status = DeploymentStatus.DeploymentFailed };
+        var customerEnvironment = new CustomerEnvironment()
+        {
+            Name = name, Id = 10, Version = 3, UniversalState = UniversalState.Created, Status = DeploymentStatus.DeploymentFailed,
+            RelationCollection = new CmfEntityRelationCollection
+            {
+                ["CustomerEnvironmentDeploymentPackage"] = new EntityRelationCollection
+                {
+                    new CustomerEnvironmentDeploymentPackage { SoftwareLicense = new CPSoftwareLicense { Id = 9999 } }
+                }
+            }
+        };
         var deploymentPackage = new DeploymentPackage() { Name = deploymentPackageName, Id = 5 };
         var cPSoftwareLicense = new CPSoftwareLicense() { Name = licenseName, Id = 1234 };
         string[] licenseNames = [licenseName];
@@ -214,6 +226,7 @@ public class NewEnvironmentHandlerTests
             )), Times.Once);
 
         var sessionMock = mock.Mock<ISession>();
+        customerPortalClientMock.Verify(c => c.LoadObjectRelations(It.IsAny<CustomerEnvironment>(), It.IsAny<Collection<string>>()), Times.Never);
         sessionMock.Verify(s => s.LogInformation("Setting deployment package deploymentPackageName (Id 5) on customer environment name version 3 (Id 10)..."), Times.Once);
         sessionMock.Verify(s => s.LogInformation("Customer environment name version 3 (Id 10) created..."), Times.Once);
     }
@@ -374,13 +387,231 @@ public class NewEnvironmentHandlerTests
         var newEnvironmentHandler = mock.Create<NewEnvironmentHandler>();
 
         // Act
-        await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, Array.Empty<string>(), deploymentPackageName, target, outputDir, replaceTokens, interactive,
+        await newEnvironmentHandler.Run(name, parameters, environmentType, siteName, Array.Empty<string>(), null, target, outputDir, replaceTokens, interactive,
             customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg,
             terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
 
         // Assert
         var verifyTimes = shouldCallCreate ? Times.Once() : Times.Never();
         customerEnvironmentServicesMock.Verify(x => x.CreateEnvironment(customerEnvironment), verifyTimes);
+        customerEnvironmentServicesMock.Verify(x => x.UpdateDeploymentPackage(It.IsAny<CustomerEnvironment>(), It.IsAny<DeploymentPackage>(), It.IsAny<long[]>()), Times.Never);
+        mock.Mock<ILicenseServices>().Verify(x => x.GetRequiredApplicationNames(It.IsAny<long>()), Times.Never);
+        mock.Mock<ILicenseServices>().Verify(x => x.GetLicensesByUniqueName(It.IsAny<string[]>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Run_PackageWithoutLicenses_PreservesExistingLicenses(bool createVersion, bool nullLicenses)
+    {
+        using var mock = AutoMock.GetLoose();
+        var existing = new CustomerEnvironment
+        {
+            Id = 10, Name = name, Version = 2, UniversalState = UniversalState.Created,
+            Status = createVersion ? DeploymentStatus.DeploymentSucceeded : DeploymentStatus.NotDeployed
+        };
+        var loaded = new CustomerEnvironment
+        {
+            RelationCollection = new CmfEntityRelationCollection
+            {
+                ["CustomerEnvironmentDeploymentPackage"] = new EntityRelationCollection
+                {
+                    new CustomerEnvironmentDeploymentPackage { SoftwareLicense = new CPSoftwareLicense { Id = 101 } },
+                    new CustomerEnvironmentDeploymentPackage { SoftwareLicense = new CPSoftwareLicense { Id = 202 } },
+                    new CustomerEnvironmentDeploymentPackage { SoftwareLicense = new CPSoftwareLicense { Id = 101 } },
+                    new CustomerEnvironmentDeploymentPackage()
+                }
+            }
+        };
+        // Mutation responses intentionally omit relations to exercise preservation before version creation.
+        var updated = new CustomerEnvironment { Id = 11, Name = name, Version = 3 };
+        var package = new DeploymentPackage { Id = 50, Name = deploymentPackageName };
+        var services = mock.Mock<ICustomerEnvironmentServices>();
+        services.Setup(s => s.GetCustomerEnvironment(name)).ReturnsAsync(existing);
+        services.Setup(s => s.CreateEnvironment(existing)).ReturnsAsync(updated);
+        services.Setup(s => s.UpdateEnvironment(It.IsAny<CustomerEnvironment>())).ReturnsAsync(updated);
+        mock.Mock<ICustomerPortalClient>()
+            .Setup(c => c.LoadObjectRelations(existing, It.Is<Collection<string>>(r => r.Contains("CustomerEnvironmentDeploymentPackage"))))
+            .ReturnsAsync(loaded);
+        mock.Mock<ICustomerPortalClient>().Setup(c => c.GetObjectByName<DeploymentPackage>(deploymentPackageName, 0)).ReturnsAsync(package);
+
+        await mock.Create<NewEnvironmentHandler>().Run(name, parameters, environmentType, siteName,
+            nullLicenses ? null : [], deploymentPackageName, target, outputDir, replaceTokens, interactive,
+            customerInfrastructureName, description, terminateOtherVersions, isInfrastructureAgent,
+            minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
+
+        services.Verify(s => s.UpdateDeploymentPackage(updated, package, It.Is<long[]>(ids => ids.SequenceEqual(new long[] { 101, 202 }))), Times.Once);
+        mock.Mock<ILicenseServices>().Verify(s => s.GetLicensesByUniqueName(It.IsAny<string[]>()), Times.Never);
+        mock.Mock<ILicenseServices>().Verify(s => s.GetRequiredApplicationNames(It.IsAny<long>()), Times.Never);
+        mock.Mock<IEnvironmentDeploymentHandler>().Verify(h => h.Handle(interactive, updated, target, outputDir, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(false, "")]
+    [InlineData(false, "infrastructure")]
+    [InlineData(true, "")]
+    public async Task Run_NoLicensesAvailable_FailsBeforeMutatingEnvironment(bool existingEnvironment, string infrastructureName)
+    {
+        using var mock = AutoMock.GetLoose();
+        var existing = new CustomerEnvironment { Id = 10, Name = name };
+        var package = new DeploymentPackage { Id = 50, Name = deploymentPackageName };
+        mock.Mock<ICustomerPortalClient>().Setup(c => c.GetObjectByName<DeploymentPackage>(deploymentPackageName, 0)).ReturnsAsync(package);
+        mock.Mock<ILicenseServices>().Setup(s => s.GetRequiredApplicationNames(package.Id)).ReturnsAsync(["Critical Manufacturing", "Example App"]);
+        var services = mock.Mock<ICustomerEnvironmentServices>();
+        if (existingEnvironment)
+        {
+            services.Setup(s => s.GetCustomerEnvironment(name)).ReturnsAsync(existing);
+            mock.Mock<ICustomerPortalClient>()
+                .Setup(c => c.LoadObjectRelations(existing, It.IsAny<Collection<string>>()))
+                .ReturnsAsync(existing);
+        }
+
+        var exception = await Record.ExceptionAsync(() => mock.Create<NewEnvironmentHandler>().Run(name, parameters,
+            environmentType, siteName, null, deploymentPackageName, target, outputDir, replaceTokens, interactive,
+            infrastructureName, description, true, isInfrastructureAgent, minutesTimeoutMainTask,
+            minutesTimeoutToGetSomeMBMsg, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes));
+
+        Assert.NotNull(exception);
+        Assert.Contains("--license", exception.Message);
+        Assert.Contains(deploymentPackageName, exception.Message);
+        Assert.Contains("Critical Manufacturing, Example App", exception.Message);
+        if (existingEnvironment) Assert.IsType<InvalidOperationException>(exception);
+        else Assert.IsType<ArgumentException>(exception);
+        services.Verify(s => s.CreateEnvironment(It.IsAny<CustomerEnvironment>()), Times.Never);
+        services.Verify(s => s.CreateCustomerEnvironmentForCustomerInfrastructure(It.IsAny<CustomerEnvironment>(), It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
+        services.Verify(s => s.UpdateEnvironment(It.IsAny<CustomerEnvironment>()), Times.Never);
+        services.Verify(s => s.UpdateDeploymentPackage(It.IsAny<CustomerEnvironment>(), It.IsAny<DeploymentPackage>(), It.IsAny<long[]>()), Times.Never);
+        services.Verify(s => s.TerminateOtherVersions(It.IsAny<CustomerEnvironment>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
+        mock.Mock<IEnvironmentDeploymentHandler>().Verify(h => h.Handle(It.IsAny<bool>(), It.IsAny<CustomerEnvironment>(), It.IsAny<DeploymentTarget?>(), It.IsAny<DirectoryInfo>(), It.IsAny<double?>(), It.IsAny<double?>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData(false, "", false)]
+    [InlineData(false, "", true)]
+    [InlineData(false, "infrastructure", false)]
+    [InlineData(false, "infrastructure", true)]
+    [InlineData(true, "", false)]
+    [InlineData(true, "", true)]
+    public async Task Run_PackageRequiresNoLicenses_DeploysWithoutExplicitLicenses(bool existingEnvironment, string infrastructureName, bool nullLicenses)
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+        var existing = new CustomerEnvironment
+        {
+            Id = 10, Name = name, Version = 2, UniversalState = UniversalState.Created,
+            Status = DeploymentStatus.DeploymentSucceeded,
+            RelationCollection = new CmfEntityRelationCollection
+            {
+                ["CustomerEnvironmentDeploymentPackage"] = new EntityRelationCollection
+                {
+                    new CustomerEnvironmentDeploymentPackage { SoftwareLicense = new CPSoftwareLicense { Id = 0 } },
+                    new CustomerEnvironmentDeploymentPackage()
+                }
+            }
+        };
+        var updated = new CustomerEnvironment { Id = 11, Name = name, Version = 3 };
+        var package = new DeploymentPackage { Id = 50, Name = deploymentPackageName };
+        var services = mock.Mock<ICustomerEnvironmentServices>();
+        if (existingEnvironment)
+        {
+            services.Setup(s => s.GetCustomerEnvironment(name)).ReturnsAsync(existing);
+            mock.Mock<ICustomerPortalClient>()
+                .Setup(c => c.LoadObjectRelations(existing, It.IsAny<Collection<string>>()))
+                .ReturnsAsync(existing);
+        }
+        services.Setup(s => s.CreateEnvironment(It.IsAny<CustomerEnvironment>())).ReturnsAsync(updated);
+        services.Setup(s => s.UpdateEnvironment(It.IsAny<CustomerEnvironment>())).ReturnsAsync(updated);
+        services.Setup(s => s.CreateCustomerEnvironmentForCustomerInfrastructure(It.IsAny<CustomerEnvironment>(), infrastructureName, false)).ReturnsAsync(updated);
+        mock.Mock<ICustomerPortalClient>().Setup(c => c.GetObjectByName<DeploymentPackage>(deploymentPackageName, 0)).ReturnsAsync(package);
+        mock.Mock<ILicenseServices>().Setup(s => s.GetRequiredApplicationNames(package.Id)).ReturnsAsync([]);
+
+        // Act
+        await mock.Create<NewEnvironmentHandler>().Run(name, parameters, environmentType, siteName,
+            nullLicenses ? null : [], deploymentPackageName, target, outputDir, replaceTokens, interactive,
+            infrastructureName, description, terminateOtherVersions, isInfrastructureAgent,
+            minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes);
+
+        // Assert
+        services.Verify(s => s.UpdateDeploymentPackage(updated, package, It.Is<long[]>(ids => ids.Length == 0)), Times.Once);
+        mock.Mock<ILicenseServices>().Verify(s => s.GetLicensesByUniqueName(It.IsAny<string[]>()), Times.Never);
+        mock.Mock<IEnvironmentDeploymentHandler>().Verify(h => h.Handle(interactive, updated, target, outputDir, minutesTimeoutMainTask, minutesTimeoutToGetSomeMBMsg), Times.Once);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Run_LicenseRequirementsUnavailable_FailsBeforeMutatingEnvironment(bool unknownRequirements)
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+        var existing = new CustomerEnvironment { Id = 10, Name = name };
+        var package = new DeploymentPackage { Id = 50, Name = deploymentPackageName };
+        var services = mock.Mock<ICustomerEnvironmentServices>();
+        services.Setup(s => s.GetCustomerEnvironment(name)).ReturnsAsync(existing);
+        mock.Mock<ICustomerPortalClient>().Setup(c => c.LoadObjectRelations(existing, It.IsAny<Collection<string>>())).ReturnsAsync(existing);
+        mock.Mock<ICustomerPortalClient>().Setup(c => c.GetObjectByName<DeploymentPackage>(deploymentPackageName, 0)).ReturnsAsync(package);
+        var requirements = mock.Mock<ILicenseServices>().Setup(s => s.GetRequiredApplicationNames(package.Id));
+        if (unknownRequirements)
+        {
+            requirements.ReturnsAsync((string[])null!);
+        }
+        else
+        {
+            requirements.ThrowsAsync(new InvalidOperationException("Portal requirements unavailable"));
+        }
+
+        // Act
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => mock.Create<NewEnvironmentHandler>().Run(
+            name, parameters, environmentType, siteName, null, deploymentPackageName, target, outputDir, replaceTokens, interactive,
+            customerInfrastructureName, description, true, isInfrastructureAgent, minutesTimeoutMainTask,
+            minutesTimeoutToGetSomeMBMsg, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes));
+
+        // Assert
+        Assert.Contains(unknownRequirements ? "Could not determine license requirements" : "Portal requirements unavailable", exception.Message);
+        services.Verify(s => s.CreateEnvironment(It.IsAny<CustomerEnvironment>()), Times.Never);
+        services.Verify(s => s.UpdateEnvironment(It.IsAny<CustomerEnvironment>()), Times.Never);
+        services.Verify(s => s.UpdateDeploymentPackage(It.IsAny<CustomerEnvironment>(), It.IsAny<DeploymentPackage>(), It.IsAny<long[]>()), Times.Never);
+        services.Verify(s => s.TerminateOtherVersions(It.IsAny<CustomerEnvironment>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
+        mock.Mock<IEnvironmentDeploymentHandler>().Verify(h => h.Handle(It.IsAny<bool>(), It.IsAny<CustomerEnvironment>(), It.IsAny<DeploymentTarget?>(), It.IsAny<DirectoryInfo>(), It.IsAny<double?>(), It.IsAny<double?>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Run_PortalRejectsReusedLicense_DoesNotTerminateOrDeploy()
+    {
+        // Arrange
+        using var mock = AutoMock.GetLoose();
+        var existing = new CustomerEnvironment
+        {
+            Id = 10, Name = name, Version = 2, UniversalState = UniversalState.Created, Status = DeploymentStatus.NotDeployed,
+            RelationCollection = new CmfEntityRelationCollection
+            {
+                ["CustomerEnvironmentDeploymentPackage"] = new EntityRelationCollection
+                {
+                    new CustomerEnvironmentDeploymentPackage { SoftwareLicense = new CPSoftwareLicense { Id = 101 } }
+                }
+            }
+        };
+        var package = new DeploymentPackage { Id = 50, Name = deploymentPackageName };
+        var services = mock.Mock<ICustomerEnvironmentServices>();
+        services.Setup(s => s.GetCustomerEnvironment(name)).ReturnsAsync(existing);
+        services.Setup(s => s.UpdateEnvironment(existing)).ReturnsAsync(existing);
+        mock.Mock<ICustomerPortalClient>().Setup(c => c.LoadObjectRelations(existing, It.IsAny<Collection<string>>())).ReturnsAsync(existing);
+        mock.Mock<ICustomerPortalClient>().Setup(c => c.GetObjectByName<DeploymentPackage>(deploymentPackageName, 0)).ReturnsAsync(package);
+        var rejection = new InvalidOperationException("Software license is expired or incompatible");
+        services.Setup(s => s.UpdateDeploymentPackage(existing, package, It.Is<long[]>(ids => ids.SequenceEqual(new long[] { 101 })))).ThrowsAsync(rejection);
+
+        // Act
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => mock.Create<NewEnvironmentHandler>().Run(
+            name, parameters, environmentType, siteName, null, deploymentPackageName, target, outputDir, replaceTokens, interactive,
+            customerInfrastructureName, description, true, isInfrastructureAgent, minutesTimeoutMainTask,
+            minutesTimeoutToGetSomeMBMsg, terminateOtherVersionsRemove, terminateOtherVersionsRemoveVolumes));
+
+        // Assert
+        Assert.Same(rejection, exception);
+        services.Verify(s => s.TerminateOtherVersions(It.IsAny<CustomerEnvironment>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
+        mock.Mock<IEnvironmentDeploymentHandler>().Verify(h => h.Handle(It.IsAny<bool>(), It.IsAny<CustomerEnvironment>(), It.IsAny<DeploymentTarget?>(), It.IsAny<DirectoryInfo>(), It.IsAny<double?>(), It.IsAny<double?>()), Times.Never);
     }
 
     [Fact]

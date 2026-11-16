@@ -68,12 +68,19 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // let's see if the environment already exists
             CustomerEnvironment environment = await customerEnvironmentServices.GetCustomerEnvironment(name);
 
+            if (environment == null)
+            {
+                ValidateCustomerEnvironmentArgs(target, siteName, deploymentPackageName, isInfrastructureAgent);
+            }
+
             // Resolve licenses before creating a version or changing the environment. Creation/update
             // responses may not include the existing deployment package relations.
+            DeploymentPackage deploymentPackage = null;
             long[] softwareLicenseIds = null;
             if (!isInfrastructureAgent && !string.IsNullOrWhiteSpace(deploymentPackageName))
             {
-                softwareLicenseIds = await ResolveSoftwareLicenseIds(environment, licensesNames);
+                deploymentPackage = await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
+                softwareLicenseIds = await ResolveSoftwareLicenseIds(environment, deploymentPackage, licensesNames);
             }
 
             // if it exists, maintain everything that is definition (name, type, site), change everything else and create new version
@@ -107,7 +114,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
                 // update Deployment Package
                 if (!isInfrastructureAgent && !string.IsNullOrWhiteSpace(deploymentPackageName))
                 {
-                    await UpdateDeploymentPackage(environment, deploymentPackageName, softwareLicenseIds);
+                    await UpdateDeploymentPackage(environment, deploymentPackage, softwareLicenseIds);
                 }
 
 
@@ -120,9 +127,6 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
             // if not, check if we are creating a new environment for an infrastructure
             else if (!string.IsNullOrWhiteSpace(customerInfrastructureName))
             {
-                // if we are creating an environment, we need to validate that some options are provided
-                ValidateCustomerEnvironmentArgs(target, siteName, deploymentPackageName, isInfrastructureAgent);
-
                 ProductSite environmentSite = null;
                 // If the user defined a site, load it
                 if (!string.IsNullOrEmpty(siteName))
@@ -148,14 +152,12 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 if (!isInfrastructureAgent)
                 {
-                    await UpdateDeploymentPackage(environment, deploymentPackageName, softwareLicenseIds);
+                    await UpdateDeploymentPackage(environment, deploymentPackage, softwareLicenseIds);
                 }
             }
             // if not, just create a new environment
             else
             {
-                ValidateCustomerEnvironmentArgs(target, siteName, deploymentPackageName, isInfrastructureAgent);
-
                 Session.LogInformation($"Creating customer environment {name}...");
 
                 environment = new CustomerEnvironment
@@ -171,7 +173,7 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
 
                 if (!isInfrastructureAgent)
                 {
-                    await UpdateDeploymentPackage(environment, deploymentPackageName, softwareLicenseIds);
+                    await UpdateDeploymentPackage(environment, deploymentPackage, softwareLicenseIds);
                 }
             }
 
@@ -185,12 +187,11 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         /// Update the Deployment Package and licenses of the environment
         /// </summary>
         /// <param name="environment">The environment version</param>
-        /// <param name="deploymentPackageName">Name of the Deployment Package</param>
+        /// <param name="deploymentPackage">Deployment Package to set</param>
         /// <param name="softwareLicenseIds">IDs of the supplied or preserved licenses</param>
-        private async Task UpdateDeploymentPackage(CustomerEnvironment environment, string deploymentPackageName, long[] softwareLicenseIds)
+        private async Task UpdateDeploymentPackage(CustomerEnvironment environment, DeploymentPackage deploymentPackage, long[] softwareLicenseIds)
         {
-            DeploymentPackage deploymentPackage = await customerPortalClient.GetObjectByName<DeploymentPackage>(deploymentPackageName);
-            Session.LogInformation($"Setting deployment package {deploymentPackageName} (Id {deploymentPackage.Id}) on customer environment {environment.Name} {environment.DescribeVersion()}...");
+            Session.LogInformation($"Setting deployment package {deploymentPackage.Name} (Id {deploymentPackage.Id}) on customer environment {environment.Name} {environment.DescribeVersion()}...");
 
             await customerEnvironmentServices.UpdateDeploymentPackage(
                 environment,
@@ -199,34 +200,48 @@ namespace Cmf.CustomerPortal.Sdk.Common.Handlers
         }
 
         /// <summary>
-        /// Resolve explicit licenses, or preserve licenses from an existing environment's package relations.
+        /// Resolve explicit licenses, preserve existing ones, or check whether the package needs any.
         /// </summary>
-        private async Task<long[]> ResolveSoftwareLicenseIds(CustomerEnvironment environment, string[] licensesNames)
+        private async Task<long[]> ResolveSoftwareLicenseIds(CustomerEnvironment environment, DeploymentPackage deploymentPackage, string[] licensesNames)
         {
             if (licensesNames?.Length > 0)
             {
                 return [.. (await licenseService.GetLicensesByUniqueName(licensesNames)).Select(l => l.Id)];
             }
 
-            if (environment == null)
-            {
-                throw new ArgumentException("Software licenses must be supplied with --license when creating a new Customer Environment.", nameof(licensesNames));
-            }
-
-            var loadedEnvironment = await customerPortalClient.LoadObjectRelations(environment, ["CustomerEnvironmentDeploymentPackage"]);
             long[] licenseIds = [];
-            if (loadedEnvironment.RelationCollection != null &&
-                loadedEnvironment.RelationCollection.TryGetValue("CustomerEnvironmentDeploymentPackage", out var packageRelations))
+            if (environment != null)
             {
-                licenseIds = [.. packageRelations.OfType<CustomerEnvironmentDeploymentPackage>()
-                    .Where(relation => relation.SoftwareLicense != null && relation.SoftwareLicense.Id > 0)
-                    .Select(relation => relation.SoftwareLicense.Id)
-                    .Distinct()];
+                var loadedEnvironment = await customerPortalClient.LoadObjectRelations(environment, ["CustomerEnvironmentDeploymentPackage"]);
+                if (loadedEnvironment.RelationCollection != null &&
+                    loadedEnvironment.RelationCollection.TryGetValue("CustomerEnvironmentDeploymentPackage", out var packageRelations))
+                {
+                    licenseIds = [.. packageRelations.OfType<CustomerEnvironmentDeploymentPackage>()
+                        .Where(relation => relation.SoftwareLicense != null && relation.SoftwareLicense.Id > 0)
+                        .Select(relation => relation.SoftwareLicense.Id)
+                        .Distinct()];
+                }
             }
 
             if (licenseIds.Length == 0)
             {
-                throw new InvalidOperationException($"Customer environment {environment.Name} {environment.DescribeVersion()} has no software licenses to preserve. Supply --license when updating its deployment package.");
+                // An empty list is valid only when Portal reports no license requirements.
+                // Do not infer this from the package name or root manifest alone: dependencies can require licenses.
+                var requiredApplications = await licenseService.GetRequiredApplicationNames(deploymentPackage.Id)
+                    ?? throw new InvalidOperationException($"Could not determine license requirements for deployment package {deploymentPackage.Name} (Id {deploymentPackage.Id}).");
+                if (requiredApplications.Length > 0)
+                {
+                    var applicationNames = string.Join(", ", requiredApplications.Select(
+                        application => string.IsNullOrEmpty(application) ? "Critical Manufacturing" : application));
+                    var message = $"Deployment package {deploymentPackage.Name} (Id {deploymentPackage.Id}) requires software licenses for: {applicationNames}. " +
+                        "Supply --license because no existing licenses are available to preserve.";
+                    if (environment == null)
+                    {
+                        throw new ArgumentException(message, nameof(licensesNames));
+                    }
+
+                    throw new InvalidOperationException($"Customer environment {environment.Name} {environment.DescribeVersion()}: {message}");
+                }
             }
 
             return licenseIds;

@@ -1,4 +1,5 @@
 ﻿using Cmf.CustomerPortal.BusinessObjects;
+using Cmf.CustomerPortal.Orchestration.CustomerEnvironmentManagement.InputObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.BusinessOrchestration.GenericServiceManagement.InputObjects;
 using Cmf.Foundation.Common;
@@ -12,6 +13,17 @@ namespace Cmf.CustomerPortal.Sdk.Common.Services;
 
 internal class LicenseServices : ILicenseServices
 {
+    /// <inheritdoc/>
+    public async Task<string[]> GetRequiredApplicationNames(long deploymentPackageId)
+    {
+        var output = await new GetDeploymentPackageRequiredLicensesInput
+        {
+            DeploymentPackageId = deploymentPackageId
+        }.GetDeploymentPackageRequiredLicensesAsync(true);
+
+        return output.RequiredLicensesByApplicationName?.Keys.ToArray() ?? [];
+    }
+
     /// <inheritdoc/>
     public async Task<IEnumerable<CPSoftwareLicense>> GetLicensesByUniqueName(string[] licensesUniqueNames)
     {

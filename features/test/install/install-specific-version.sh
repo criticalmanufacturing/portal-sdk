@@ -7,7 +7,7 @@ source dev-container-features-test-lib
 
 # Feature-specific tests
 # The 'check' command comes from the dev-container-features-test-lib.
-check "cmf-portal" cmf-portal --version | grep "1.14.22"
+check "cmf-portal 1.14.22" bash -o pipefail -c 'cmf-portal --version | grep -Ex "1\.14\.22(\+[[:alnum:].-]+)?"'
 
 # Report result
 # If any of the checks above exited with a non-zero exit code, the test will fail.

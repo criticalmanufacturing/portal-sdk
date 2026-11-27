@@ -28,7 +28,7 @@ public class LegacyCommandTests(CommandLineFixture fixture) : IClassFixture<Comm
         { "download-artifacts", ["--verbose -v", "--name -n REQUIRED", "--output -o"] },
         { "install-app", ["--verbose -v", "--replace-tokens", "--name -n REQUIRED", "--app-version -av REQUIRED", "--customer-environment -ce REQUIRED",
             "--license -lic REQUIRED", "--parameters -params", "--output -o", "--timeout -to", "--timeoutToGetSomeMBMsg -tombm"] },
-        { "login", ["--verbose -v", "--pat --token -t"] },
+        { "login", ["--verbose -v", "--pat --token -t", "--redirect-uri"] },
         { "publish", ["--verbose -v", "--replace-tokens", "--path -p REQUIRED", "--datagroup -dg"] },
         { "publish-package", ["--verbose -v", "--path -p REQUIRED", "--datagroup -dg"] },
         { "undeploy", ["--verbose -v", "--name -n REQUIRED", "--force -f"] },

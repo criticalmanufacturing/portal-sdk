@@ -24,6 +24,8 @@ using Cmf.Foundation.BusinessOrchestration.QueryManagement.InputObjects;
 using Cmf.Foundation.Common;
 using Cmf.Foundation.Common.Base;
 using Cmf.Foundation.Security;
+using Cmf.LightBusinessObjects.Infrastructure.Security;
+using Cmf.LightBusinessObjects.Infrastructure.Security.Common;
 using Cmf.Services.GenericServiceManagement;
 
 namespace Cmf.CustomerPortal.Sdk.Common
@@ -577,15 +579,15 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     DefinitionId = (long)row["DefinitionId"],
                     Revision = (string)row["Revision"]
                 };
-                
-                if(!row.IsNull("CustomerInfrastructure_Id"))
+
+                if (!row.IsNull("CustomerInfrastructure_Id"))
                 {
                     customerEnvironment.CustomerInfrastructure = new CustomerInfrastructure
                     {
                         Id = (long)row["CustomerInfrastructure_Id"],
                     };
-                    
-                    if(!row.IsNull("CustomerInfrastructureInfrastructureAgent_Id"))
+
+                    if (!row.IsNull("CustomerInfrastructureInfrastructureAgent_Id"))
                     {
                         customerEnvironment.CustomerInfrastructure.InfrastructureAgent = new CustomerEnvironment
                         {
@@ -597,7 +599,7 @@ namespace Cmf.CustomerPortal.Sdk.Common
                     }
                 }
 
-                if(customerEnvironment.CustomerInfrastructure == null || customerEnvironment.CustomerInfrastructure.InfrastructureAgent == null)
+                if (customerEnvironment.CustomerInfrastructure?.InfrastructureAgent is null)
                 {
                     return null!; // cases where environment exists but has no agent or infra associated
                 }
@@ -635,6 +637,25 @@ namespace Cmf.CustomerPortal.Sdk.Common
             {
                 CustomerEnvironmentApplicationPackageId = customerEnvironmentApplicationPackageId
             }.CancelDeploymentAsync(true);
+        }
+
+        /// <inheritdoc/>
+        public async Task<string?> ExchangeAuthorizationCode(
+            Uri userEndpoint,
+            string clientId,
+            string code,
+            string codeVerifier
+        )
+        {
+            Uri tokenEndpoint = new SecurityPortalConfiguration { UserEndpoint = userEndpoint }.ApiEndpoint;
+            SecurityPortalClient client = new(tokenEndpoint);
+            Dictionary<string, string> tokens = await client.GetToken(
+                clientId,
+                SecurityPortalClientBase.GrantType.AuthorizationCode,
+                code,
+                codeVerifier
+            );
+            return tokens?["refresh_token"];
         }
     }
 }

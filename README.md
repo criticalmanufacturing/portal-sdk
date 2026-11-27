@@ -94,7 +94,16 @@ Usage: `cmf-portal login [options]`
 Options:
   - `-v, --verbose` - Show detailed logging
   - `-t, --pat, --token <token>` - Personal Access Token used to access the Customer Portal
+  - `--redirect-uri <redirect-uri>` - [Preview] HTTPS URI the browser returns to after signing in, for a service without a browser: prints the sign-in URL as JSON, reads the callback URL from standard input, and prints the refresh token as JSON instead of saving it
   - `-?, -h, --help` - Show help and usage information
+
+With `--redirect-uri`, a service without a browser signs a user in through a browser on another machine:
+
+1. `login` writes `{ "authorizationUrl": "..." }` to standard output. Send the user's browser to that URL.
+2. After the sign-in, the Security Portal sends the browser to the redirect URI. Write the full URL it received, as one line, to the standard input of `login`.
+3. `login` writes `{ "refreshToken": "..." }` to standard output and saves nothing. Give the token to later commands in the `CM_PORTAL_TOKEN` environment variable.
+
+`login` waits for the callback URL until it arrives. To cancel, close its standard input or stop the process. `login` fails if standard input is closed or the sign-in failed.
 
 ### deploy env
 

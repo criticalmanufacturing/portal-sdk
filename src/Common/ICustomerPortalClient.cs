@@ -1,13 +1,14 @@
-﻿using Cmf.CustomerPortal.BusinessObjects;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Threading.Tasks;
+using Cmf.CustomerPortal.BusinessObjects;
 using Cmf.Foundation.BusinessObjects;
 using Cmf.Foundation.BusinessObjects.QueryObject;
 using Cmf.Foundation.Common.Base;
 using Cmf.Foundation.Security;
 using Cmf.MessageBus.Client;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
-using System.Threading.Tasks;
 
 namespace Cmf.CustomerPortal.Sdk.Common
 {
@@ -180,5 +181,15 @@ namespace Cmf.CustomerPortal.Sdk.Common
         /// <param name="customerEnvironmentApplicationPackageId">Id of the CustomerEnvironmentApplicationPackage relation.</param>
         /// <returns></returns>
         public Task CancelAppDeployment(long customerEnvironmentApplicationPackageId);
+
+        /// <summary>
+        /// Exchanges a Security Portal authorization code for a refresh token.
+        /// </summary>
+        /// <param name="userEndpoint">Security Portal endpoint of the tenant, <c>{base}/tenant/{tenant}/</c>.</param>
+        /// <param name="clientId">Security Portal client the code was issued to.</param>
+        /// <param name="code">The authorization code.</param>
+        /// <param name="codeVerifier">The PKCE code verifier of the sign-in that issued the code.</param>
+        /// <returns>The refresh token, or <c>null</c> when the Security Portal returned none.</returns>
+        Task<string?> ExchangeAuthorizationCode(Uri userEndpoint, string clientId, string code, string codeVerifier);
     }
 }

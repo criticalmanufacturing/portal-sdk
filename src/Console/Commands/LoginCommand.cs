@@ -20,7 +20,8 @@ class LoginCommand : BaseCommand
         Description = Resources.LoginPatHelp
     };
 
-    private readonly Option<Uri> redirectUriOption = new("--redirect-uri")
+    // string, because System.CommandLine has no Uri converter
+    private readonly Option<string> redirectUriOption = new("--redirect-uri")
     {
         Description = Resources.LoginRedirectUriHelp
     };
@@ -40,7 +41,7 @@ class LoginCommand : BaseCommand
         CreateSession(parseResult);
         LoginHandler loginHandler = ServiceLocator.Get<LoginHandler>();
 
-        Uri redirectUri = parseResult.GetValue(redirectUriOption);
+        string redirectUri = parseResult.GetValue(redirectUriOption);
         if (redirectUri is null)
         {
             await loginHandler.Run(parseResult.GetValue(tokenOption));
@@ -49,7 +50,7 @@ class LoginCommand : BaseCommand
 
         TextWriter output = parseResult.InvocationConfiguration.Output;
         string refreshToken = await loginHandler.RunWithRedirect(
-            redirectUri,
+            new Uri(redirectUri),
             authorizationUrl => WaitForCallback(output, System.Console.In, authorizationUrl)
         );
         WriteRefreshToken(output, refreshToken);

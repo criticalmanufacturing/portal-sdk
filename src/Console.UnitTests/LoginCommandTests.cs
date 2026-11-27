@@ -1,3 +1,4 @@
+using System.CommandLine;
 using System.Text.Json;
 using Cmf.CustomerPortal.Sdk.Common;
 using Cmf.CustomerPortal.Sdk.Console.Commands;
@@ -33,6 +34,34 @@ public class LoginCommandTests(CommandLineFixture fixture) : IClassFixture<Comma
     {
         // Act & Assert
         Assert.Equal([expectedError], fixture.Parse(commandLine).Errors.Select(e => e.Message));
+    }
+
+    [Fact]
+    public void Login_WithRedirectUri_PrintsTheSignInUrlAndFailsWhenTheInputIsClosed()
+    {
+        // Arrange
+        TextReader originalInput = System.Console.In;
+        System.Console.SetIn(new StringReader(""));
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        try
+        {
+            // Act
+            int exitCode = fixture.Parse("login --redirect-uri https://service.example.com/callback")
+                .Invoke(new InvocationConfiguration { Output = output, Error = error });
+
+            // Assert
+            Assert.NotEqual(0, exitCode);
+            using JsonDocument json = JsonDocument.Parse(output.ToString());
+            string? authorizationUrl = json.RootElement.GetProperty("authorizationUrl").GetString();
+            Assert.Contains("redirect_uri=https%3a%2f%2fservice.example.com%2fcallback", authorizationUrl);
+            Assert.Contains("The sign-in was cancelled", error.ToString());
+        }
+        finally
+        {
+            System.Console.SetIn(originalInput);
+        }
     }
 
     [Fact]

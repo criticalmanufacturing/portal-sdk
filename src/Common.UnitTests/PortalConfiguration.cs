@@ -11,7 +11,10 @@ internal static class PortalConfiguration
         .AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["ClientConfiguration:HostAddress"] = "portal.example.com",
-            ["ClientConfiguration:UseSsl"] = useSsl.ToString()
+            ["ClientConfiguration:UseSsl"] = useSsl.ToString(),
+            ["ClientConfiguration:ClientTenantName"] = "Tenant",
+            ["ClientConfiguration:ClientId"] = "Applications",
+            ["ClientConfiguration:SecurityPortalBaseAddress"] = "https://security.example.com/"
         })
         .Build();
 }
